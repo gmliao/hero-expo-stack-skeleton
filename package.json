@@ -1,0 +1,32 @@
+{
+  "name": "hero-expo-stack-skeleton",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "concurrently \"bun run emulators\" \"bun run wait-emulators && bun run seed && bun run app\"",
+    "app": "cd app && bun run start",
+    "firebase:cli": "cd backend/firebase && bunx firebase",
+    "firebase:login": "cd backend/firebase && bunx firebase login",
+    "firebase:whoami": "cd backend/firebase && bunx firebase login:list",
+    "emulators": "cd backend/firebase && bunx firebase emulators:start --import=./emulator_data --export-on-exit=./emulator_data",
+    "seed": "bun run scripts/seed-emulator.ts",
+    "wait-emulators": "bun run scripts/wait-on-emulators.ts",
+    "clean-emulators": "bun run scripts/clean-emulator.ts",
+    "test": "cd app && bun run test",
+    "test:backend": "cd backend/firebase/functions && bunx firebase emulators:exec --only auth,firestore,functions \"bun run test\"",
+    "e2e:web": "bunx playwright test",
+    "e2e:ios": "cd app && bun run e2e:ios",
+    "ci": "bun run test && bun run test:backend && bun run e2e:web",
+    "firebase": "bash scripts/firebase/run.sh",
+    "firebase:emulators:start": "bun run firebase emulators:start --only auth,firestore,functions",
+    "firebase:emulators:ui": "bun run firebase emulators:start --only ui",
+    "firebase:functions:log": "bun run firebase functions:log"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0",
+    "wait-on": "^8.0.0",
+    "firebase-admin": "^12.0.0",
+    "firebase-tools": "^13.35.0",
+    "tsx": "^4.0.0"
+  }
+}
