@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { Pressable, SafeAreaView } from 'react-native-safe-area-context'
@@ -7,25 +7,41 @@ import { Button, Input, Spinner, Text, YStack } from 'tamagui'
 import { firebaseAuth } from '@/lib/firebase'
 import { useAuthStore } from '@/stores/useAuthStore'
 
-export default function LoginScreen() {
+const MIN_PASSWORD_LENGTH = 6
+
+export default function SignUpScreen() {
   const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const setUid = useAuthStore(s => s.setUid)
 
-  async function handleLogin() {
-    if (!email.trim() || !password) return
-    setLoading(true)
+  async function handleSignUp() {
     setError(null)
+    if (!email.trim()) return
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(t('auth.weakPassword'))
+      return
+    }
+    if (password !== confirmPassword) {
+      setError(t('auth.passwordMismatch'))
+      return
+    }
+
+    setLoading(true)
     try {
-      const cred = await signInWithEmailAndPassword(firebaseAuth, email, password)
+      const cred = await createUserWithEmailAndPassword(firebaseAuth, email.trim(), password)
       setUid(cred.user.uid)
       router.replace('/(app)/')
-    } catch (error) {
-      const code = (error as { code?: string }).code
-      if (code === 'auth/network-request-failed') {
+    } catch (err) {
+      const code = (err as { code?: string }).code
+      if (code === 'auth/email-already-in-use') {
+        setError(t('auth.emailAlreadyInUse'))
+      } else if (code === 'auth/weak-password') {
+        setError(t('auth.weakPassword'))
+      } else if (code === 'auth/network-request-failed') {
         setError(t('auth.networkError'))
       } else {
         setError(t('auth.invalidCredentials'))
@@ -45,11 +61,11 @@ export default function LoginScreen() {
         gap="$4"
       >
         <Text fontSize="$7" fontWeight="700" color="$color">
-          {t('auth.signInTitle')}
+          {t('auth.signUpTitle')}
         </Text>
 
         {error && (
-          <Text color="$danger" testID="login-error" accessibilityLiveRegion="polite">
+          <Text color="$danger" testID="sign-up-error" accessibilityLiveRegion="polite">
             {error}
           </Text>
         )}
@@ -59,7 +75,7 @@ export default function LoginScreen() {
             {t('auth.email')}
           </Text>
           <Input
-            testID="email-input"
+            testID="sign-up-email-input"
             accessibilityLabel={t('auth.email')}
             placeholder={t('auth.email')}
             value={email}
@@ -77,20 +93,36 @@ export default function LoginScreen() {
             {t('auth.password')}
           </Text>
           <Input
-            testID="password-input"
+            testID="sign-up-password-input"
             accessibilityLabel={t('auth.password')}
             placeholder={t('auth.password')}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            textContentType="password"
+            textContentType="newPassword"
+            size="$5"
+          />
+        </YStack>
+
+        <YStack gap="$1">
+          <Text fontSize="$3" color="$colorSecondary">
+            {t('auth.confirmPassword')}
+          </Text>
+          <Input
+            testID="sign-up-confirm-input"
+            accessibilityLabel={t('auth.confirmPassword')}
+            placeholder={t('auth.confirmPassword')}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+            textContentType="newPassword"
             size="$5"
           />
         </YStack>
 
         <Button
-          testID="login-button"
-          onPress={handleLogin}
+          testID="sign-up-button"
+          onPress={handleSignUp}
           backgroundColor="$primary"
           color="$white"
           disabled={loading}
@@ -98,18 +130,18 @@ export default function LoginScreen() {
           size="$5"
           marginTop="$2"
         >
-          {loading ? t('auth.signingIn') : t('auth.signIn')}
+          {loading ? t('auth.signingUp') : t('auth.signUp')}
         </Button>
 
         <Pressable
-          onPress={() => router.push('/(auth)/sign-up')}
+          onPress={() => router.push('/(auth)/login')}
           style={{ paddingVertical: 12, alignSelf: 'center' }}
-          testID="login-link-sign-up"
+          testID="sign-up-link-login"
           accessibilityRole="link"
-          accessibilityLabel={t('auth.goToSignUp')}
+          accessibilityLabel={t('auth.goToSignIn')}
         >
           <Text fontSize="$3" color="$colorSecondary">
-            {t('auth.goToSignUp')}
+            {t('auth.goToSignIn')}
           </Text>
         </Pressable>
       </YStack>

@@ -1,4 +1,4 @@
-import type { CreateTodoRequest, Todo } from '@shared/types/api'
+import type { CreateTodoRequest, Todo, UpdateTodoRequest } from '@shared/types/api'
 
 import { firebaseAuth } from '@/lib/firebase'
 import { env } from '@/lib/env'
@@ -117,6 +117,10 @@ const request = async <T>(path: string, options: RequestInit = {}, timeoutMs: nu
         throw toHttpError(response.status, message)
       }
 
+      if (response.status === 204) {
+        return undefined as T
+      }
+
       return response.json() as Promise<T>
     } catch (error) {
       lastError = error
@@ -140,5 +144,14 @@ export const api = {
   toggleTodo: (id: string) =>
     request<Todo>(`/todos/${id}/toggle`, {
       method: 'PATCH',
+    }),
+  updateTodo: (id: string, body: UpdateTodoRequest) =>
+    request<Todo>(`/todos/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+  deleteTodo: (id: string) =>
+    request<void>(`/todos/${id}`, {
+      method: 'DELETE',
     }),
 }

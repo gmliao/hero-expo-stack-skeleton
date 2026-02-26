@@ -13,8 +13,8 @@ import { useUIStore } from '@/stores/useUIStore'
 export default function TodosScreen() {
   const { t } = useTranslation()
   const uid = useAuthStore(s => s.uid) ?? ''
-  // TODO: Wire useUIStore filter into useTodosQuery when backend filter support is added
-  const { data: todos, isPending, isError } = useTodosQuery(uid)
+  const filter = useUIStore(s => s.filter)
+  const { data: todos, isPending, isError } = useTodosQuery(uid, filter)
   const toggleMutation = useToggleTodoMutation()
   const openModal = useUIStore(s => s.openCreateModal)
 

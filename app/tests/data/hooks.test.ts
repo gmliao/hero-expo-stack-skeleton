@@ -2,7 +2,9 @@ import { QueryClient, QueryObserver, useMutation, useQuery, useQueryClient } fro
 
 import { api } from '@/data/api'
 import { useCreateTodoMutation } from '@/data/hooks/useCreateTodoMutation'
+import { useDeleteTodoMutation } from '@/data/hooks/useDeleteTodoMutation'
 import { useToggleTodoMutation } from '@/data/hooks/useToggleTodoMutation'
+import { useUpdateTodoMutation } from '@/data/hooks/useUpdateTodoMutation'
 import { useTodosQuery } from '@/data/hooks/useTodosQuery'
 import { queryKeys } from '@/data/queryKeys'
 
@@ -18,6 +20,8 @@ jest.mock('@/data/api', () => ({
     getTodos: jest.fn(),
     createTodo: jest.fn(),
     toggleTodo: jest.fn(),
+    updateTodo: jest.fn(),
+    deleteTodo: jest.fn(),
   },
 }))
 
@@ -46,7 +50,7 @@ describe('useTodosQuery wiring', () => {
     expect(useQuery).toHaveBeenCalledTimes(1)
     const [options] = (useQuery as jest.Mock).mock.calls[0]
 
-    expect(options.queryKey).toEqual(queryKeys.todos.list('user-1'))
+    expect(options.queryKey).toEqual(queryKeys.todos.list('user-1', 'all'))
     expect(options.enabled).toBe(true)
 
     options.queryFn()
@@ -72,7 +76,7 @@ describe('useTodosQuery behavior contract', () => {
     ;(api.getTodos as jest.Mock).mockResolvedValue(mockTodos)
 
     const observer = new QueryObserver(client, {
-      queryKey: queryKeys.todos.list('user-1'),
+      queryKey: queryKeys.todos.list('user-1', 'all'),
       queryFn: () => api.getTodos('user-1'),
       retry: false,
     })
@@ -107,7 +111,7 @@ describe('useTodosQuery behavior contract', () => {
     )
 
     const observer = new QueryObserver(client, {
-      queryKey: queryKeys.todos.list('user-1'),
+      queryKey: queryKeys.todos.list('user-1', 'all'),
       queryFn: () => api.getTodos('user-1'),
       retry: false,
     })
@@ -133,7 +137,7 @@ describe('useTodosQuery behavior contract', () => {
     ;(api.getTodos as jest.Mock).mockRejectedValue(new Error('Network error'))
 
     const observer = new QueryObserver(client, {
-      queryKey: queryKeys.todos.list('user-1'),
+      queryKey: queryKeys.todos.list('user-1', 'all'),
       queryFn: () => api.getTodos('user-1'),
       retry: false,
     })
@@ -187,6 +191,36 @@ describe('todo mutations', () => {
     const [options] = (useMutation as jest.Mock).mock.calls[0]
     await options.mutationFn('todo-1')
     expect(api.toggleTodo).toHaveBeenCalledWith('todo-1')
+
+    await options.onSuccess()
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.todos.lists() })
+  })
+
+  it('invalidates todos.lists() on update success', async () => {
+    const invalidateQueries = jest.fn()
+    ;(useQueryClient as jest.Mock).mockReturnValue({ invalidateQueries })
+
+    useUpdateTodoMutation()
+
+    expect(useMutation).toHaveBeenCalledTimes(1)
+    const [options] = (useMutation as jest.Mock).mock.calls[0]
+    await options.mutationFn({ id: 'todo-1', title: 'Updated' })
+    expect(api.updateTodo).toHaveBeenCalledWith('todo-1', { title: 'Updated' })
+
+    await options.onSuccess()
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.todos.lists() })
+  })
+
+  it('invalidates todos.lists() on delete success', async () => {
+    const invalidateQueries = jest.fn()
+    ;(useQueryClient as jest.Mock).mockReturnValue({ invalidateQueries })
+
+    useDeleteTodoMutation()
+
+    expect(useMutation).toHaveBeenCalledTimes(1)
+    const [options] = (useMutation as jest.Mock).mock.calls[0]
+    await options.mutationFn('todo-1')
+    expect(api.deleteTodo).toHaveBeenCalledWith('todo-1')
 
     await options.onSuccess()
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.todos.lists() })
