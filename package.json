@@ -13,7 +13,7 @@
     "wait-emulators": "bun run scripts/wait-on-emulators.ts",
     "clean-emulators": "bun run scripts/clean-emulator.ts",
     "test": "cd app && bun run test",
-    "test:backend": "cd backend/firebase/functions && bunx firebase emulators:exec --only auth,firestore,functions \"bun run test\"",
+    "test:backend": "cd backend/firebase/functions && bunx firebase emulators:exec --project hero-stack-local --only auth,firestore,functions \"bun run test\"",
     "e2e:web": "bunx playwright test",
     "e2e:ios": "cd app && bun run e2e:ios",
     "ci": "bun run test && bun run test:backend && bun run e2e:web",
