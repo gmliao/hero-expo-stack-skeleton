@@ -11,11 +11,15 @@ import { useToggleTodoMutation } from '@/data/hooks/useToggleTodoMutation'
 import { CreateTodoModal } from '@/features/todos/CreateTodoModal'
 import { FilterTabs } from '@/features/todos/FilterTabs'
 import { TodoItem } from '@/features/todos/TodoItem'
+import { useBreakpoint } from '@/lib/useBreakpoint'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useUIStore } from '@/stores/useUIStore'
 
+const CONTENT_MAX_WIDTH = 720
+
 export default function TodosScreen() {
   const { t } = useTranslation()
+  const breakpoint = useBreakpoint()
   const uid = useAuthStore(s => s.uid) ?? ''
   const filter = useUIStore(s => s.filter)
   const setFilter = useUIStore(s => s.setFilter)
@@ -81,9 +85,16 @@ export default function TodosScreen() {
       )}
 
       {!isPending && !isError && (
-        <YStack flex={1} backgroundColor="$background">
+        <YStack
+          flex={1}
+          backgroundColor="$background"
+          width="100%"
+          maxWidth={breakpoint === 'desktop' ? CONTENT_MAX_WIDTH : undefined}
+          alignSelf="center"
+          padding={breakpoint === 'desktop' ? '$6' : breakpoint === 'tablet' ? '$5' : '$4'}
+        >
           <XStack
-            padding="$4"
+            paddingVertical="$2"
             justifyContent="space-between"
             alignItems="center"
             borderBottomWidth={1}
