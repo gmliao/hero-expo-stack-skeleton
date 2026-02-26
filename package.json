@@ -8,7 +8,7 @@
     "firebase:cli": "cd backend/firebase && bunx firebase",
     "firebase:login": "cd backend/firebase && bunx firebase login",
     "firebase:whoami": "cd backend/firebase && bunx firebase login:list",
-    "emulators": "cd backend/firebase && bunx firebase emulators:start --import=./emulator_data --export-on-exit=./emulator_data",
+    "emulators": "cd backend/firebase && bunx firebase emulators:start --project hero-stack-local --import=./emulator_data --export-on-exit=./emulator_data",
     "seed": "bun run scripts/seed-emulator.ts",
     "wait-emulators": "bun run scripts/wait-on-emulators.ts",
     "clean-emulators": "bun run scripts/clean-emulator.ts",
