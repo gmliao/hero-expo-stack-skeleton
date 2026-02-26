@@ -47,6 +47,14 @@ emulator_data/
 backend/firebase/functions/lib/
 backend/firebase/.firebaserc
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
 # Playwright
 test-results/
 playwright-report/
