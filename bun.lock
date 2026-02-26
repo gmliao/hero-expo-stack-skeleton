@@ -4,6 +4,10 @@
   "workspaces": {
     "": {
       "name": "hero-expo-stack-skeleton",
+      "dependencies": {
+        "@expo-google-fonts/nunito-sans": "^0.4.2",
+        "@expo-google-fonts/varela-round": "^0.4.1",
+      },
       "devDependencies": {
         "@playwright/test": "^1.58.2",
         "concurrently": "^9.0.0",
@@ -75,6 +79,10 @@
     "@esbuild/win32-ia32": ["@esbuild/win32-ia32@0.27.3", "", { "os": "win32", "cpu": "ia32" }, "sha512-QLKSFeXNS8+tHW7tZpMtjlNb7HKau0QDpwm49u0vUp9y1WOF+PEzkU84y9GqYaAVW8aH8f3GcBck26jh54cX4Q=="],
 
     "@esbuild/win32-x64": ["@esbuild/win32-x64@0.27.3", "", { "os": "win32", "cpu": "x64" }, "sha512-4uJGhsxuptu3OcpVAzli+/gWusVGwZZHTlS63hh++ehExkVT8SgiEf7/uC/PclrPPkLhZqGgCTjd0VWLo6xMqA=="],
+
+    "@expo-google-fonts/nunito-sans": ["@expo-google-fonts/nunito-sans@0.4.2", "", {}, "sha512-e4+jUhgXNC6Zahf3MQwiiUimjWPp/Noe5v7CxBDbvXED+E7p7/egDaXKTbLwSBJku/mP3N+vNdJwk5xKAjkQmg=="],
+
+    "@expo-google-fonts/varela-round": ["@expo-google-fonts/varela-round@0.4.1", "", {}, "sha512-K0QjxzqTpAF3qAS9QQVk051OK1EKz4bnYMKkhIsZSVdpBvtxDWbv3fxQ8QJ+VRY/ygT1RGJXtcXFFocUZyguDQ=="],
 
     "@fastify/busboy": ["@fastify/busboy@3.2.0", "", {}, "sha512-m9FVDXU3GT2ITSe0UaMA5rU3QkfC/UXtCU8y0gSN/GugTqtVldOBWIB5V6V3sbmenVZUIpU6f+mPEO2+m5iTaA=="],
 

@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
-import { Pressable, SafeAreaView } from 'react-native-safe-area-context'
+import { Pressable } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { Button, Input, Spinner, Text, YStack } from 'tamagui'
 import { firebaseAuth } from '@/lib/firebase'
 import { useAuthStore } from '@/stores/useAuthStore'
@@ -34,7 +35,7 @@ export default function SignUpScreen() {
     try {
       const cred = await createUserWithEmailAndPassword(firebaseAuth, email.trim(), password)
       setUid(cred.user.uid)
-      router.replace('/(app)/')
+      router.replace('/(app)')
     } catch (err) {
       const code = (err as { code?: string }).code
       if (code === 'auth/email-already-in-use') {
@@ -59,6 +60,9 @@ export default function SignUpScreen() {
         padding="$6"
         backgroundColor="$background"
         gap="$4"
+        width="100%"
+        maxWidth={420}
+        alignSelf="center"
       >
         <Text fontSize="$7" fontWeight="700" color="$color">
           {t('auth.signUpTitle')}
