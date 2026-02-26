@@ -1,0 +1,43 @@
+import * as admin from 'firebase-admin'
+
+process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099'
+process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'
+
+const app = admin.initializeApp({ projectId: 'hero-stack-local' })
+const auth = admin.auth()
+const db = admin.firestore()
+
+const users = [
+  { uid: 'user-1', email: 'test1@example.com', displayName: 'Test User 1' },
+  { uid: 'user-2', email: 'test2@example.com', displayName: 'Test User 2' },
+]
+
+const todos = [
+  { uid: 'user-1', title: 'Buy groceries', description: 'Milk, eggs, bread', completed: false },
+  { uid: 'user-1', title: 'Finish skeleton', description: 'Deploy Firebase functions', completed: true },
+  { uid: 'user-2', title: 'Learn TanStack Query', completed: false },
+]
+
+async function seed() {
+  console.log('🌱 Seeding emulator...')
+  for (const u of users) {
+    try {
+      await auth.createUser({ uid: u.uid, email: u.email, emailVerified: true, displayName: u.displayName })
+      console.log(`  ✓ user ${u.email}`)
+    } catch (e: any) {
+      if (e.code !== 'auth/uid-already-exists') throw e
+      console.log(`  · user ${u.email} already exists`)
+    }
+  }
+  for (const t of todos) {
+    await db.collection('todos').add({
+      ...t,
+      createdAt: admin.firestore.Timestamp.now(),
+      updatedAt: admin.firestore.Timestamp.now(),
+    })
+    console.log(`  ✓ todo "${t.title}" for ${t.uid}`)
+  }
+  console.log('✅ Seed complete')
+}
+
+seed().catch(e => { console.error(e); process.exit(1) }).finally(() => app.delete())
