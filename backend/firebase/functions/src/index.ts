@@ -2,6 +2,7 @@ import { onRequest } from 'firebase-functions/v2/https'
 import * as admin from 'firebase-admin'
 import express, { Request, Response } from 'express'
 import cors from 'cors'
+import { requireAuth } from './middleware/auth'
 
 admin.initializeApp()
 
@@ -9,7 +10,7 @@ const app = express()
 app.use(cors({ origin: true }))
 app.use(express.json())
 
-app.get('/health', (_req: Request, res: Response) => {
+app.get('/health', requireAuth, (_req: Request, res: Response) => {
   res.json({ status: 'ok' })
 })
 

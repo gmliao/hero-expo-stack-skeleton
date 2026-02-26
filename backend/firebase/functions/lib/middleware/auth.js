@@ -32,22 +32,25 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.api = void 0;
-const https_1 = require("firebase-functions/v2/https");
+exports.requireAuth = requireAuth;
 const admin = __importStar(require("firebase-admin"));
-const express_1 = __importDefault(require("express"));
-const cors_1 = __importDefault(require("cors"));
-const auth_1 = require("./middleware/auth");
-admin.initializeApp();
-const app = (0, express_1.default)();
-app.use((0, cors_1.default)({ origin: true }));
-app.use(express_1.default.json());
-app.get('/health', auth_1.requireAuth, (_req, res) => {
-    res.json({ status: 'ok' });
-});
-exports.api = (0, https_1.onRequest)({ region: 'us-central1', memory: '256MiB', timeoutSeconds: 60 }, app);
-//# sourceMappingURL=index.js.map
+async function requireAuth(req, res, next) {
+    const header = req.headers.authorization;
+    if (!header?.startsWith('Bearer ')) {
+        res.status(401).json({ error: 'Missing Authorization header' });
+        return;
+    }
+    const token = header.slice(7);
+    try {
+        const decoded = await admin.auth().verifyIdToken(token);
+        req.uid = decoded.uid;
+        req.email = decoded.email;
+        next();
+    }
+    catch (err) {
+        const code = err.code === 'auth/id-token-expired' ? 'TOKEN_EXPIRED' : 'INVALID_TOKEN';
+        res.status(401).json({ error: 'Unauthorized', code });
+    }
+}
+//# sourceMappingURL=auth.js.map
