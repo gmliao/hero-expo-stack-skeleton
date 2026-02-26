@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Button, ScrollView, Spinner, Text, XStack, YStack } from 'tamagui'
 
+import type { Todo } from '@shared/types/api'
 import { useTodosQuery } from '@/data/hooks/useTodosQuery'
 import { useToggleTodoMutation } from '@/data/hooks/useToggleTodoMutation'
 import { CreateTodoModal } from '@/features/todos/CreateTodoModal'
@@ -26,6 +27,14 @@ export default function TodosScreen() {
     },
     [toggleMutation],
   )
+
+  const handleEdit = useCallback((_todo: Todo) => {
+    // TODO: open edit modal (e.g. set selectedTodoId and open modal)
+  }, [])
+
+  const handleDelete = useCallback((_todo: Todo) => {
+    // TODO: confirm then delete
+  }, [])
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
@@ -81,6 +90,8 @@ export default function TodosScreen() {
                 key={todo.id}
                 todo={todo}
                 onToggle={handleToggle}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
               />
             ))}
             {todos?.length === 0 && (
