@@ -33,6 +33,7 @@ export const en = {
     deleteConfirmMessage: 'This action cannot be undone.',
     deleteConfirmCancel: 'Cancel',
     deleteConfirmDelete: 'Delete',
+    deleteError: 'Failed to delete todo. Please try again.',
     filter: {
       all: 'All',
       active: 'Active',
