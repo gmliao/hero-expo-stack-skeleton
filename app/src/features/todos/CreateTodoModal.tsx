@@ -13,10 +13,12 @@ export function CreateTodoModal() {
 
   const [title, setTitle] = useState('')
   const [titleError, setTitleError] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   function handleClose() {
     setTitle('')
     setTitleError(null)
+    setSaveError(null)
     closeModal()
   }
 
@@ -27,10 +29,15 @@ export function CreateTodoModal() {
     }
 
     setTitleError(null)
+    setSaveError(null)
 
-    await createMutation.mutateAsync({ title: title.trim() })
-    setTitle('')
-    closeModal()
+    try {
+      await createMutation.mutateAsync({ title: title.trim() })
+      setTitle('')
+      closeModal()
+    } catch {
+      setSaveError(t('todos.modal.saveError'))
+    }
   }
 
   return (
@@ -86,6 +93,16 @@ export function CreateTodoModal() {
               </Text>
             )}
           </YStack>
+
+          {saveError && (
+            <Text
+              testID="create-todo-save-error"
+              color="$danger"
+              fontSize="$2"
+            >
+              {saveError}
+            </Text>
+          )}
 
           <XStack gap="$3" justifyContent="flex-end">
             <Button

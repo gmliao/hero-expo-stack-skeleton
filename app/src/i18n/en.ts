@@ -23,6 +23,7 @@ export const en = {
       save: 'Save',
       cancel: 'Cancel',
       titleRequired: 'Title is required',
+      saveError: 'Failed to save todo. Please try again.',
     },
   },
 }

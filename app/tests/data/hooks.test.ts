@@ -97,6 +97,37 @@ describe('useTodosQuery behavior contract', () => {
     client.clear()
   })
 
+  it('loading path starts with isPending true', async () => {
+    const client = createTestQueryClient()
+    let resolveFn!: (value: unknown) => void
+    ;(api.getTodos as jest.Mock).mockReturnValue(
+      new Promise(resolve => {
+        resolveFn = resolve
+      }),
+    )
+
+    const observer = new QueryObserver(client, {
+      queryKey: queryKeys.todos.list('user-1'),
+      queryFn: () => api.getTodos('user-1'),
+      retry: false,
+    })
+    const snapshots: Array<{ isPending: boolean }> = []
+
+    const unsubscribe = observer.subscribe((result) => {
+      snapshots.push({ isPending: result.isPending })
+    })
+
+    // While the promise is unresolved the first snapshot should be pending
+    expect(snapshots.some((s) => s.isPending)).toBe(true)
+
+    // Resolve so the observer doesn't leak
+    resolveFn([])
+    await observer.refetch()
+
+    unsubscribe()
+    client.clear()
+  })
+
   it('error path transitions to error state', async () => {
     const client = createTestQueryClient()
     ;(api.getTodos as jest.Mock).mockRejectedValue(new Error('Network error'))
