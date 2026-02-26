@@ -8,6 +8,7 @@ export const en = {
     email: 'Email',
     password: 'Password',
     invalidCredentials: 'Invalid email or password',
+    networkError: 'Network error. Please check your connection.',
     signingIn: 'Signing in...',
     signIn: 'Sign In',
   },

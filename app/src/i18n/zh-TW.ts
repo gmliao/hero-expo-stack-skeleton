@@ -8,6 +8,7 @@ export const zhTW = {
     email: '電子郵件',
     password: '密碼',
     invalidCredentials: '帳號或密碼錯誤',
+    networkError: '網路錯誤，請檢查您的網路連線。',
     signingIn: '登入中...',
     signIn: '登入',
   },

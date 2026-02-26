@@ -16,14 +16,20 @@ export default function LoginScreen() {
   const setUid = useAuthStore(s => s.setUid)
 
   async function handleLogin() {
+    if (!email.trim() || !password) return
     setLoading(true)
     setError(null)
     try {
       const cred = await signInWithEmailAndPassword(firebaseAuth, email, password)
       setUid(cred.user.uid)
       router.replace('/(app)/')
-    } catch {
-      setError(t('auth.invalidCredentials'))
+    } catch (error) {
+      const code = (error as { code?: string }).code
+      if (code === 'auth/network-request-failed') {
+        setError(t('auth.networkError'))
+      } else {
+        setError(t('auth.invalidCredentials'))
+      }
     } finally {
       setLoading(false)
     }
