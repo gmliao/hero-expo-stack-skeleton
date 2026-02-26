@@ -28,9 +28,68 @@ test.describe('Todos flow', () => {
     const firstToggle = page.getByTestId(/^todo-toggle-/).first()
     const checked = await firstToggle.getAttribute('aria-checked')
     await firstToggle.click()
-    // Wait for the attribute to change, not just read it immediately
     const expectedChecked = checked === 'true' ? 'false' : 'true'
     await expect(firstToggle).toHaveAttribute('aria-checked', expectedChecked)
+  })
+
+  test('can create a todo with title, description and dueDate', async ({ page }) => {
+    await page.getByTestId('create-todo-button').click()
+    await page.getByTestId('create-todo-input').fill('E2E Full Todo')
+    await page.getByTestId('create-todo-description').fill('Optional description')
+    await page.getByTestId('create-todo-due-date').fill('2026-12-31')
+    await page.getByTestId('create-todo-save').click()
+    await expect(page.getByText('E2E Full Todo')).toBeVisible()
+    await expect(page.getByText('Optional description')).toBeVisible()
+  })
+
+  test('filter tabs change list: active and completed', async ({ page }) => {
+    // Ensure at least one todo, then toggle first to completed
+    const firstToggle = page.getByTestId(/^todo-toggle-/).first()
+    await expect(firstToggle).toBeVisible()
+    const wasChecked = (await firstToggle.getAttribute('aria-checked')) === 'true'
+    if (!wasChecked) {
+      await firstToggle.click()
+      await expect(firstToggle).toHaveAttribute('aria-checked', 'true')
+    }
+    const completedTitle = await firstToggle.getAttribute('aria-label')
+    // Switch to completed: list should show the completed item
+    await page.getByTestId('filter-tab-completed').click()
+    await expect(page.getByText(completedTitle ?? '')).toBeVisible()
+    // Switch to active: completed item should not be in list
+    await page.getByTestId('filter-tab-active').click()
+    await expect(page.getByText(completedTitle ?? '')).not.toBeVisible()
+    // Back to all
+    await page.getByTestId('filter-tab-all').click()
+    await expect(page.getByText(completedTitle ?? '')).toBeVisible()
+  })
+
+  test('can edit a todo', async ({ page }) => {
+    const firstEditBtn = page.getByTestId(/^todo-edit-/).first()
+    await expect(firstEditBtn).toBeVisible()
+    await firstEditBtn.click()
+    await expect(page.getByTestId('create-todo-modal-title')).toBeVisible()
+    await expect(page.getByTestId('create-todo-input')).toBeVisible()
+    const newTitle = 'E2E Edited ' + Date.now()
+    await page.getByTestId('create-todo-input').fill(newTitle)
+    await page.getByTestId('create-todo-save').click()
+    await expect(page.getByTestId('create-todo-modal-title')).not.toBeVisible()
+    await expect(page.getByText(newTitle)).toBeVisible()
+  })
+
+  test('can delete a todo with confirmation', async ({ page }) => {
+    let itemsBefore = await page.getByTestId(/^todo-item-/).count()
+    if (itemsBefore === 0) {
+      await page.getByTestId('create-todo-button').click()
+      await page.getByTestId('create-todo-input').fill('E2E To Delete')
+      await page.getByTestId('create-todo-save').click()
+      await expect(page.getByText('E2E To Delete')).toBeVisible()
+      itemsBefore = 1
+    }
+    // Accept native confirm dialog when delete is triggered (RN Web Alert.alert → dialog)
+    page.once('dialog', d => d.accept())
+    const firstDeleteBtn = page.getByTestId(/^todo-delete-/).first()
+    await firstDeleteBtn.click()
+    await expect(page.getByTestId(/^todo-item-/)).toHaveCount(itemsBefore - 1)
   })
 })
 
