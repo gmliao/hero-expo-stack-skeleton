@@ -33,6 +33,7 @@ export const zhTW = {
     deleteConfirmMessage: '刪除後無法復原。',
     deleteConfirmCancel: '取消',
     deleteConfirmDelete: '刪除',
+    deleteError: '刪除失敗，請再試一次。',
     filter: {
       all: '全部',
       active: '未完成',
