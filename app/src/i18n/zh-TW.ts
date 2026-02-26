@@ -17,5 +17,12 @@ export const zhTW = {
     create: '+ 新增',
     empty: '目前沒有待辦，先新增一筆吧！',
     loadError: '讀取待辦失敗',
+    modal: {
+      title: '新增待辦',
+      placeholder: '要做什麼？',
+      save: '儲存',
+      cancel: '取消',
+      titleRequired: '請輸入標題',
+    },
   },
 }
