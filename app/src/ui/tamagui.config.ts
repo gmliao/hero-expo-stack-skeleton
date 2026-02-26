@@ -1,6 +1,6 @@
 import { createAnimations } from '@tamagui/animations-react-native'
 import { createTamagui } from 'tamagui'
-import { interFont } from './theme/fonts'
+import { nunitoSansFont, varelaRoundFont } from './theme/fonts'
 import { lightTheme, darkTheme } from './theme/themes'
 import { tokens } from './theme/tokens'
 
@@ -12,7 +12,7 @@ const animations = createAnimations({
 
 export const tamaguiConfig = createTamagui({
   animations,
-  fonts: { body: interFont, heading: interFont },
+  fonts: { body: nunitoSansFont, heading: varelaRoundFont },
   tokens,
   themes: { light: lightTheme, dark: darkTheme },
   shouldAddPrefersColorSchemes: true,
