@@ -42,7 +42,6 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete }: Props) {
       shadowOpacity={0.06}
       shadowRadius={8}
       elevation={2}
-      pressStyle={{ backgroundColor: '$backgroundPress' }}
     >
       <Checkbox
         testID={`todo-toggle-${todo.id}`}
