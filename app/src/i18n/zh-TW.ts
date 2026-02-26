@@ -36,7 +36,12 @@ export const zhTW = {
     },
     modal: {
       title: '新增待辦',
+      editTitle: '編輯待辦',
       placeholder: '要做什麼？',
+      description: '說明',
+      descriptionPlaceholder: '選填備註…',
+      dueDate: '到期日',
+      dueDatePlaceholder: 'YYYY-MM-DD',
       save: '儲存',
       cancel: '取消',
       titleRequired: '請輸入標題',
