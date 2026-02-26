@@ -20,6 +20,7 @@ export default function TodosScreen() {
   const { data: todos, isPending, isError } = useTodosQuery(uid, filter)
   const toggleMutation = useToggleTodoMutation()
   const openModal = useUIStore(s => s.openCreateModal)
+  const setSelectedTodoId = useUIStore(s => s.setSelectedTodoId)
 
   const handleToggle = useCallback(
     (id: string) => {
@@ -28,9 +29,13 @@ export default function TodosScreen() {
     [toggleMutation],
   )
 
-  const handleEdit = useCallback((_todo: Todo) => {
-    // TODO: open edit modal (e.g. set selectedTodoId and open modal)
-  }, [])
+  const handleEdit = useCallback(
+    (todo: Todo) => {
+      setSelectedTodoId(todo.id)
+      openModal()
+    },
+    [setSelectedTodoId, openModal],
+  )
 
   const handleDelete = useCallback((_todo: Todo) => {
     // TODO: confirm then delete

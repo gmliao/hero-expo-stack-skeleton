@@ -36,7 +36,12 @@ export const en = {
     },
     modal: {
       title: 'New Todo',
+      editTitle: 'Edit Todo',
       placeholder: 'What needs to be done?',
+      description: 'Description',
+      descriptionPlaceholder: 'Optional notes…',
+      dueDate: 'Due date',
+      dueDatePlaceholder: 'YYYY-MM-DD',
       save: 'Save',
       cancel: 'Cancel',
       titleRequired: 'Title is required',
