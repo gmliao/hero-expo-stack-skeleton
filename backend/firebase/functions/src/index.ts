@@ -8,8 +8,23 @@ import { getTodos, createTodo, toggleTodo, updateTodo, deleteTodo } from './hand
 admin.initializeApp()
 
 const app = express()
-app.use(cors({ origin: true }))
+// CORS: allow Expo web (localhost:8081 etc.) and preflight
+app.use(
+  cors({
+    origin: true,
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: false,
+  })
+)
 app.use(express.json())
+// Explicit OPTIONS for preflight (some runtimes don't pass OPTIONS to cors())
+app.options('*', (_req, res) => {
+  res.set('Access-Control-Allow-Origin', '*')
+  res.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  res.sendStatus(204)
+})
 
 app.get('/health', requireAuth, (_req: Request, res: Response) => {
   res.json({ status: 'ok' })

@@ -5,7 +5,8 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'
 
 const { default: admin } = await import('firebase-admin')
 
-const app = admin.initializeApp({ projectId: 'hero-stack-local' })
+const projectId = process.env.FIREBASE_PROJECT_ID ?? 'hero-stack-local'
+const app = admin.initializeApp({ projectId })
 const auth = admin.auth()
 const db = admin.firestore()
 

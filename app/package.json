@@ -11,7 +11,8 @@
     "test": "jest --watchAll=false",
     "test:watch": "jest --watch",
     "type-check": "tsc --noEmit",
-    "e2e:ios": "detox test --configuration ios"
+    "e2e:ios": "detox test --configuration ios",
+    "build:web": "expo export --platform web"
   },
   "dependencies": {
     "@expo-google-fonts/nunito-sans": "^0.4.2",
@@ -22,6 +23,7 @@
     "@tamagui/config": "^1.121.0",
     "@tamagui/core": "^1.121.0",
     "@tamagui/font-inter": "^1.121.0",
+    "@tamagui/lucide-icons": "^1.144.4",
     "@tanstack/react-query": "^5.60.0",
     "expo": "~54.0.33",
     "expo-constants": "~18.0.13",

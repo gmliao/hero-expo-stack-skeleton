@@ -92,8 +92,10 @@ export default function TodosScreen() {
           maxWidth={breakpoint === 'desktop' ? CONTENT_MAX_WIDTH : undefined}
           alignSelf="center"
           padding={breakpoint === 'desktop' ? '$6' : breakpoint === 'tablet' ? '$5' : '$4'}
+          minHeight={0}
         >
           <XStack
+            flexShrink={0}
             paddingVertical="$2"
             justifyContent="space-between"
             alignItems="center"
@@ -124,7 +126,7 @@ export default function TodosScreen() {
 
           <FilterTabs value={filter} onChange={setFilter} />
 
-          <ScrollView flex={1}>
+          <ScrollView flex={1} contentContainerStyle={{ flexGrow: 1 }}>
             {todos?.map(todo => (
               <TodoItem
                 key={todo.id}
@@ -135,15 +137,34 @@ export default function TodosScreen() {
               />
             ))}
             {todos?.length === 0 && (
-              <Text
-                testID="todos-empty"
+              <YStack
+                flex={1}
                 padding="$6"
-                color="$colorSecondary"
-                textAlign="center"
-                fontSize="$4"
+                justifyContent="center"
+                alignItems="center"
+                gap="$4"
               >
-                {t('todos.empty')}
-              </Text>
+                <Text
+                  testID="todos-empty"
+                  color="$colorSecondary"
+                  textAlign="center"
+                  fontSize="$4"
+                >
+                  {t('todos.empty')}
+                </Text>
+                <Button
+                  testID="create-todo-button-empty"
+                  onPress={() => {
+                    setSelectedTodoId(null)
+                    openModal()
+                  }}
+                  backgroundColor="$primary"
+                  color="$white"
+                  size="$4"
+                >
+                  {t('todos.create')}
+                </Button>
+              </YStack>
             )}
           </ScrollView>
         </YStack>
