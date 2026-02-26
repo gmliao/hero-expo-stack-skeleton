@@ -5,7 +5,7 @@ import { api } from '@/data/api'
 import { queryKeys } from '@/data/queryKeys'
 import type { Filter } from '@/stores/useUIStore'
 
-function filterAndSortTodos(todos: Todo[], filter: Filter): Todo[] {
+export function filterAndSortTodos(todos: Todo[], filter: Filter): Todo[] {
   const filtered =
     filter === 'all'
       ? todos

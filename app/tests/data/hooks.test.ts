@@ -5,7 +5,7 @@ import { useCreateTodoMutation } from '@/data/hooks/useCreateTodoMutation'
 import { useDeleteTodoMutation } from '@/data/hooks/useDeleteTodoMutation'
 import { useToggleTodoMutation } from '@/data/hooks/useToggleTodoMutation'
 import { useUpdateTodoMutation } from '@/data/hooks/useUpdateTodoMutation'
-import { useTodosQuery } from '@/data/hooks/useTodosQuery'
+import { filterAndSortTodos, useTodosQuery } from '@/data/hooks/useTodosQuery'
 import { queryKeys } from '@/data/queryKeys'
 
 jest.mock('@tanstack/react-query', () => ({
@@ -55,6 +55,17 @@ describe('useTodosQuery wiring', () => {
 
     options.queryFn()
     expect(api.getTodos).toHaveBeenCalledWith('user-1')
+  })
+
+  it('uses query key with filter when filter is passed', () => {
+    useTodosQuery('user-1', 'active')
+    const [options] = (useQuery as jest.Mock).mock.calls[0]
+    expect(options.queryKey).toEqual(queryKeys.todos.list('user-1', 'active'))
+
+    ;(useQuery as jest.Mock).mockClear()
+    useTodosQuery('user-1', 'completed')
+    const [optionsCompleted] = (useQuery as jest.Mock).mock.calls[0]
+    expect(optionsCompleted.queryKey).toEqual(queryKeys.todos.list('user-1', 'completed'))
   })
 
   it('disables query when uid is empty', () => {
@@ -155,6 +166,101 @@ describe('useTodosQuery behavior contract', () => {
     expect(snapshots[snapshots.length - 1]?.isError).toBe(true)
     expect(snapshots[snapshots.length - 1]?.errorMessage).toBe('Network error')
 
+    unsubscribe()
+    client.clear()
+  })
+})
+
+const baseTodo = {
+  uid: 'user-1',
+  createdAt: '',
+  updatedAt: '',
+} as const
+
+describe('useTodosQuery filter and sort', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('filter "all" returns all todos sorted by dueDate', async () => {
+    const client = createTestQueryClient()
+    const mockTodos = [
+      { ...baseTodo, id: '1', title: 'A', completed: false, dueDate: '2025-01-02' },
+      { ...baseTodo, id: '2', title: 'B', completed: true, dueDate: '2025-01-01' },
+      { ...baseTodo, id: '3', title: 'C', completed: false, dueDate: '2025-01-03' },
+    ]
+    ;(api.getTodos as jest.Mock).mockResolvedValue(mockTodos)
+
+    const observer = new QueryObserver(client, {
+      queryKey: queryKeys.todos.list('user-1', 'all'),
+      queryFn: () => api.getTodos('user-1'),
+      select: (data: typeof mockTodos) => filterAndSortTodos(data, 'all'),
+      retry: false,
+    })
+    let selectedData: typeof mockTodos | undefined
+    const unsubscribe = observer.subscribe((result) => {
+      if (result.isSuccess && result.data !== undefined) selectedData = result.data
+    })
+    await observer.refetch()
+
+    expect(selectedData).toHaveLength(3)
+    expect(selectedData!.map(t => t.id)).toEqual(['2', '1', '3']) // sorted by dueDate: 01-01, 01-02, 01-03
+    unsubscribe()
+    client.clear()
+  })
+
+  it('filter "active" returns only non-completed todos sorted by dueDate', async () => {
+    const client = createTestQueryClient()
+    const mockTodos = [
+      { ...baseTodo, id: '1', title: 'A', completed: false, dueDate: '2025-01-02' },
+      { ...baseTodo, id: '2', title: 'B', completed: true, dueDate: '2025-01-01' },
+      { ...baseTodo, id: '3', title: 'C', completed: false, dueDate: '2025-01-03' },
+    ]
+    ;(api.getTodos as jest.Mock).mockResolvedValue(mockTodos)
+
+    const observer = new QueryObserver(client, {
+      queryKey: queryKeys.todos.list('user-1', 'active'),
+      queryFn: () => api.getTodos('user-1'),
+      select: (data: typeof mockTodos) => filterAndSortTodos(data, 'active'),
+      retry: false,
+    })
+    let selectedData: typeof mockTodos | undefined
+    const unsubscribe = observer.subscribe((result) => {
+      if (result.isSuccess && result.data !== undefined) selectedData = result.data
+    })
+    await observer.refetch()
+
+    expect(selectedData).toHaveLength(2)
+    expect(selectedData!.every(t => !t.completed)).toBe(true)
+    expect(selectedData!.map(t => t.id)).toEqual(['1', '3']) // dueDate order 01-02, 01-03
+    unsubscribe()
+    client.clear()
+  })
+
+  it('filter "completed" returns only completed todos sorted by dueDate', async () => {
+    const client = createTestQueryClient()
+    const mockTodos = [
+      { ...baseTodo, id: '1', title: 'A', completed: false, dueDate: '2025-01-02' },
+      { ...baseTodo, id: '2', title: 'B', completed: true, dueDate: '2025-01-01' },
+      { ...baseTodo, id: '3', title: 'C', completed: true, dueDate: '2025-01-03' },
+    ]
+    ;(api.getTodos as jest.Mock).mockResolvedValue(mockTodos)
+
+    const observer = new QueryObserver(client, {
+      queryKey: queryKeys.todos.list('user-1', 'completed'),
+      queryFn: () => api.getTodos('user-1'),
+      select: (data: typeof mockTodos) => filterAndSortTodos(data, 'completed'),
+      retry: false,
+    })
+    let selectedData: typeof mockTodos | undefined
+    const unsubscribe = observer.subscribe((result) => {
+      if (result.isSuccess && result.data !== undefined) selectedData = result.data
+    })
+    await observer.refetch()
+
+    expect(selectedData).toHaveLength(2)
+    expect(selectedData!.every(t => t.completed)).toBe(true)
+    expect(selectedData!.map(t => t.id)).toEqual(['2', '3']) // dueDate 01-01, 01-03
     unsubscribe()
     client.clear()
   })
