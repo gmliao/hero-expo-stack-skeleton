@@ -6,6 +6,7 @@ import { Button, ScrollView, Spinner, Text, XStack, YStack } from 'tamagui'
 import { useTodosQuery } from '@/data/hooks/useTodosQuery'
 import { useToggleTodoMutation } from '@/data/hooks/useToggleTodoMutation'
 import { CreateTodoModal } from '@/features/todos/CreateTodoModal'
+import { FilterTabs } from '@/features/todos/FilterTabs'
 import { TodoItem } from '@/features/todos/TodoItem'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useUIStore } from '@/stores/useUIStore'
@@ -14,6 +15,7 @@ export default function TodosScreen() {
   const { t } = useTranslation()
   const uid = useAuthStore(s => s.uid) ?? ''
   const filter = useUIStore(s => s.filter)
+  const setFilter = useUIStore(s => s.setFilter)
   const { data: todos, isPending, isError } = useTodosQuery(uid, filter)
   const toggleMutation = useToggleTodoMutation()
   const openModal = useUIStore(s => s.openCreateModal)
@@ -70,6 +72,8 @@ export default function TodosScreen() {
               {t('todos.create')}
             </Button>
           </XStack>
+
+          <FilterTabs value={filter} onChange={setFilter} />
 
           <ScrollView flex={1}>
             {todos?.map(todo => (

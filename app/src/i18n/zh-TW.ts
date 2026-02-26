@@ -26,6 +26,11 @@ export const zhTW = {
     create: '+ 新增',
     empty: '目前沒有待辦，先新增一筆吧！',
     loadError: '讀取待辦失敗',
+    filter: {
+      all: '全部',
+      active: '未完成',
+      completed: '已完成',
+    },
     modal: {
       title: '新增待辦',
       placeholder: '要做什麼？',
