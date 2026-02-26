@@ -43,6 +43,7 @@ node_modules
 firebase-debug.log
 firebase-debug.*.log
 emulator_data/
+backend/firebase/functions/lib/
 
 # iOS
 *.pbxuser
