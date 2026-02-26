@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin'
 import express, { Request, Response } from 'express'
 import cors from 'cors'
 import { requireAuth } from './middleware/auth'
-import { getTodos, createTodo, toggleTodo } from './handlers/todos'
+import { getTodos, createTodo, toggleTodo, updateTodo, deleteTodo } from './handlers/todos'
 
 admin.initializeApp()
 
@@ -18,6 +18,8 @@ app.get('/health', requireAuth, (_req: Request, res: Response) => {
 app.get('/todos', requireAuth, getTodos)
 app.post('/todos', requireAuth, createTodo)
 app.patch('/todos/:id/toggle', requireAuth, toggleTodo)
+app.patch('/todos/:id', requireAuth, updateTodo)
+app.delete('/todos/:id', requireAuth, deleteTodo)
 
 export const api = onRequest(
   { region: 'us-central1', memory: '256MiB', timeoutSeconds: 60 },

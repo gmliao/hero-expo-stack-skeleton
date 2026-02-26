@@ -9,17 +9,20 @@ export interface Todo {
   completed: boolean
   createdAt: string // ISO string (Firestore Timestamp serialized)
   updatedAt: string
+  dueDate?: string // ISO or date-only (YYYY-MM-DD)
 }
 
 export interface CreateTodoRequest {
   title: string
   description?: string
+  dueDate?: string
 }
 
 export interface UpdateTodoRequest {
   completed?: boolean
   title?: string
   description?: string
+  dueDate?: string
 }
 
 export interface ApiError {
