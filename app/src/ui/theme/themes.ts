@@ -1,16 +1,16 @@
 import { tokens } from './tokens'
 
 export const lightTheme = {
-  background: tokens.color.white,
-  backgroundSecondary: tokens.color.slate50,
-  color: tokens.color.slate900,
-  colorSecondary: tokens.color.slate700,
-  borderColor: tokens.color.slate200,
-  primary: tokens.color.teal600,
-  primaryHover: tokens.color.teal700,
-  secondary: tokens.color.teal500,
-  action: tokens.color.orange600,
-  danger: tokens.color.red500,
+  background: tokens.color.backgroundWarm,
+  backgroundSecondary: tokens.color.surfaceWarm,
+  color: tokens.color.textWarm,
+  colorSecondary: tokens.color.textWarmSecondary,
+  borderColor: tokens.color.borderWarm,
+  primary: tokens.color.primarySage,
+  primaryHover: tokens.color.primarySageSoft,
+  secondary: tokens.color.primarySage,
+  action: tokens.color.primarySage,
+  danger: tokens.color.dangerSoft,
   success: tokens.color.green500,
 }
 
