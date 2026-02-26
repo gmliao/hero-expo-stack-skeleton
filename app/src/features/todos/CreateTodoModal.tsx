@@ -178,6 +178,7 @@ export function CreateTodoModal() {
             </Text>
             <Input
               testID="create-todo-description"
+              accessibilityLabel={t('todos.modal.description')}
               placeholder={t('todos.modal.descriptionPlaceholder')}
               value={description}
               onChangeText={setDescription}
@@ -199,6 +200,7 @@ export function CreateTodoModal() {
             </Text>
             <Input
               testID="create-todo-due-date"
+              accessibilityLabel={t('todos.modal.dueDate')}
               placeholder={t('todos.modal.dueDatePlaceholder')}
               value={dueDate}
               onChangeText={setDueDate}
