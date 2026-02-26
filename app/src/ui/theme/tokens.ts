@@ -28,6 +28,15 @@ export const tokens = createTokens({
     orange600: '#ea580c',
     red500: '#ef4444',
     green500: '#22c55e',
+    // 日式小清新 × 旅蛙風
+    backgroundWarm: '#FDF8F3',
+    surfaceWarm: '#FFFBF7',
+    primarySage: '#7BA05B',
+    primarySageSoft: '#E8F0E3',
+    textWarm: '#4A3728',
+    textWarmSecondary: '#8B7355',
+    borderWarm: '#E8DED5',
+    dangerSoft: '#C45C4A',
   },
   space: {
     true: 16,
