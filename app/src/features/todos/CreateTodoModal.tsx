@@ -58,6 +58,10 @@ export function CreateTodoModal() {
         setTitle(todo.title)
         setDescription(todo.description ?? '')
         setDueDate(toDateOnly(todo.dueDate))
+      } else {
+        setTitle('')
+        setDescription('')
+        setDueDate('')
       }
     } else {
       setTitle('')
