@@ -20,6 +20,18 @@ describe('queryKeys factory', () => {
     expect(JSON.stringify(active)).not.toBe(JSON.stringify(all))
   })
 
+  it('todos.list(uid, filter) same input produces same serialized key for all filter values', () => {
+    const uid = 'user-42'
+    const filters: Array<'all' | 'active' | 'completed'> = ['all', 'active', 'completed']
+
+    for (const filter of filters) {
+      const first = queryKeys.todos.list(uid, filter)
+      const second = queryKeys.todos.list(uid, filter)
+      expect(JSON.stringify(first)).toBe(JSON.stringify(second))
+      expect(first).toEqual(['todos', 'list', { uid, filter }])
+    }
+  })
+
   it('todos.lists() is a prefix of todos.list()', () => {
     const lists = queryKeys.todos.lists()
     const list = queryKeys.todos.list('uid-1', 'all')
