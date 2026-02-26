@@ -24,10 +24,11 @@
     "firebase:functions:log": "bun run firebase functions:log"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "concurrently": "^9.0.0",
-    "wait-on": "^8.0.0",
     "firebase-admin": "^12.0.0",
     "firebase-tools": "^13.35.0",
-    "tsx": "^4.0.0"
+    "tsx": "^4.0.0",
+    "wait-on": "^8.0.0"
   }
 }
