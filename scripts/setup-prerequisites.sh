@@ -34,6 +34,23 @@ fi
 
 if [[ -x "${JAVA_BIN}/java" ]]; then
   export PATH="${JAVA_BIN}:${PATH}"
+
+  # Detect active shell profile and add Java PATH permanently if not already there
+  SHELL_PROFILE=""
+  if [[ "${SHELL}" == */zsh ]]; then
+    SHELL_PROFILE="${HOME}/.zshrc"
+  elif [[ "${SHELL}" == */bash ]]; then
+    SHELL_PROFILE="${HOME}/.bash_profile"
+  fi
+
+  JAVA_PATH_LINE='export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"'
+  if [[ -n "${SHELL_PROFILE}" ]] && ! grep -qF "${JAVA_PATH_LINE}" "${SHELL_PROFILE}" 2>/dev/null; then
+    echo "" >> "${SHELL_PROFILE}"
+    echo "# Java (openjdk via Homebrew — required for Firebase Emulators)" >> "${SHELL_PROFILE}"
+    echo "${JAVA_PATH_LINE}" >> "${SHELL_PROFILE}"
+    echo "[INFO] Added Java to PATH in ${SHELL_PROFILE}"
+    echo "[INFO] Run: source ${SHELL_PROFILE}  (or open a new terminal)"
+  fi
 fi
 
 need_cmd "java" "Install openjdk (brew install openjdk) and add /opt/homebrew/opt/openjdk/bin to PATH"

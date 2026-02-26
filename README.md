@@ -36,7 +36,12 @@ Production-ready reference skeleton for React Native / Expo projects with Fireba
 
 ```bash
 # 0. 安裝本機必要工具（bun / Java / Firebase emulator smoke）
+#    腳本會自動安裝 openjdk 並寫入 shell profile（~/.zshrc 或 ~/.bash_profile）
 bash scripts/setup-prerequisites.sh
+
+# 0b. 重新載入 shell，讓 Java PATH 生效（或開新 Terminal）
+source ~/.zshrc   # zsh 用戶
+# source ~/.bash_profile  # bash 用戶
 
 # 1. 安裝依賴
 bun install
@@ -48,7 +53,35 @@ cp .env.example .env
 bun run dev
 ```
 
+> **注意：** Firebase Emulators 需要 Java。`setup-prerequisites.sh` 會自動安裝並設定 PATH。
+> 若跳過 setup 腳本手動安裝，需確保 `java` 在 PATH 中（參見下方 Prerequisites）。
+
 詳細安裝流程請看：`docs/runbooks/local-prerequisites-setup.md`
+
+---
+
+## Prerequisites
+
+| 工具 | 版本需求 | 安裝方式 |
+|------|----------|----------|
+| [Homebrew](https://brew.sh) | 最新 | `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` |
+| [Bun](https://bun.sh) | ≥ 1.1 | `brew install bun` |
+| Java (JDK) | ≥ 11 | `brew install openjdk` |
+
+**Java PATH 設定（macOS Homebrew）**
+
+Homebrew 的 `openjdk` 是 keg-only，需手動加入 PATH：
+
+```bash
+# zsh（macOS 預設）
+echo 'export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+# 驗證
+java -version
+```
+
+`bash scripts/setup-prerequisites.sh` 會自動完成以上步驟。
 
 ---
 
