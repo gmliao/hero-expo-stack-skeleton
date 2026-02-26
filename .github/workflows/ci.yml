@@ -23,6 +23,8 @@ jobs:
             bun-
       - run: cd app && bun install --frozen-lockfile
       - run: cd app && bun run test
+      - name: Web bundle check (catch resolve errors)
+        run: cd app && bun run build:web
 
   backend-tests:
     runs-on: ubuntu-latest
