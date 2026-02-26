@@ -1,4 +1,4 @@
-import { waitOn } from 'wait-on'
+import waitOn from 'wait-on'
 
 const WAIT_EXPO = process.env.WAIT_EXPO_WEB === 'true'
 
@@ -6,9 +6,9 @@ async function main() {
   console.log('⏳ Waiting for emulators...')
   await waitOn({
     resources: [
-      'http://127.0.0.1:9099',   // Auth
-      'http://127.0.0.1:8080',   // Firestore
-      'http://127.0.0.1:5001',   // Functions
+      'tcp:127.0.0.1:9099',   // Auth
+      'tcp:127.0.0.1:8080',   // Firestore
+      'tcp:127.0.0.1:5001',   // Functions
     ],
     timeout: 60000,
   })

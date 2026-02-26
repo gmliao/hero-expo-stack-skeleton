@@ -1,15 +1,17 @@
-import * as admin from 'firebase-admin'
-
+// Set env before loading firebase-admin so GCE metadata lookup is skipped (prevents MetadataLookupWarning)
+process.env.METADATA_SERVER_DETECTION = 'none'
 process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099'
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'
+
+const { default: admin } = await import('firebase-admin')
 
 const app = admin.initializeApp({ projectId: 'hero-stack-local' })
 const auth = admin.auth()
 const db = admin.firestore()
 
-const users = [
-  { uid: 'user-1', email: 'test1@example.com', displayName: 'Test User 1' },
-  { uid: 'user-2', email: 'test2@example.com', displayName: 'Test User 2' },
+const users: { uid: string; email: string; password: string; displayName: string }[] = [
+  { uid: 'user-1', email: 'user1@example.com', password: '123456', displayName: 'User 1' },
+  { uid: 'user-2', email: 'user2@example.com', password: '123456', displayName: 'User 2' },
 ]
 
 const todos = [
@@ -22,7 +24,13 @@ async function seed() {
   console.log('🌱 Seeding emulator...')
   for (const u of users) {
     try {
-      await auth.createUser({ uid: u.uid, email: u.email, emailVerified: true, displayName: u.displayName })
+      await auth.createUser({
+        uid: u.uid,
+        email: u.email,
+        password: u.password,
+        emailVerified: true,
+        displayName: u.displayName,
+      })
       console.log(`  ✓ user ${u.email}`)
     } catch (e: any) {
       if (e.code !== 'auth/uid-already-exists') throw e
@@ -41,3 +49,5 @@ async function seed() {
 }
 
 seed().catch(e => { console.error(e); process.exit(1) }).finally(() => app.delete())
+
+export {}

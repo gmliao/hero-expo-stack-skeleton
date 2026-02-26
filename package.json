@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "concurrently \"bun run emulators\" \"bun run wait-emulators && bun run seed && bun run app\"",
-    "app": "cd app && bun run start",
+    "app": "cd app && dotenv -e ../.env -- bun run start",
     "firebase:cli": "cd backend/firebase && bunx firebase",
     "firebase:login": "cd backend/firebase && bunx firebase login",
     "firebase:whoami": "cd backend/firebase && bunx firebase login:list",
@@ -26,6 +26,7 @@
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "concurrently": "^9.0.0",
+    "dotenv-cli": "^11.0.0",
     "firebase-admin": "^12.0.0",
     "firebase-tools": "^13.35.0",
     "tsx": "^4.0.0",
