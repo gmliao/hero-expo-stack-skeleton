@@ -29,6 +29,10 @@ export const zhTW = {
     dueDate: '到期：{{date}}',
     edit: '編輯',
     delete: '刪除',
+    deleteConfirmTitle: '刪除此待辦？',
+    deleteConfirmMessage: '刪除後無法復原。',
+    deleteConfirmCancel: '取消',
+    deleteConfirmDelete: '刪除',
     filter: {
       all: '全部',
       active: '未完成',

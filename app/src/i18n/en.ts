@@ -29,6 +29,10 @@ export const en = {
     dueDate: 'Due: {{date}}',
     edit: 'Edit',
     delete: 'Delete',
+    deleteConfirmTitle: 'Delete todo?',
+    deleteConfirmMessage: 'This action cannot be undone.',
+    deleteConfirmCancel: 'Cancel',
+    deleteConfirmDelete: 'Delete',
     filter: {
       all: 'All',
       active: 'Active',
