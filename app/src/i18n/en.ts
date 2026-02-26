@@ -26,6 +26,9 @@ export const en = {
     create: '+ New',
     empty: 'No todos yet. Create one!',
     loadError: 'Failed to load todos',
+    dueDate: 'Due: {{date}}',
+    edit: 'Edit',
+    delete: 'Delete',
     filter: {
       all: 'All',
       active: 'Active',

@@ -26,6 +26,9 @@ export const zhTW = {
     create: '+ 新增',
     empty: '目前沒有待辦，先新增一筆吧！',
     loadError: '讀取待辦失敗',
+    dueDate: '到期：{{date}}',
+    edit: '編輯',
+    delete: '刪除',
     filter: {
       all: '全部',
       active: '未完成',
