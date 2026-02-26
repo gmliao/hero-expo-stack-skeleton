@@ -23,6 +23,7 @@ export const zhTW = {
       save: '儲存',
       cancel: '取消',
       titleRequired: '請輸入標題',
+      saveError: '儲存失敗，請再試一次。',
     },
   },
 }
