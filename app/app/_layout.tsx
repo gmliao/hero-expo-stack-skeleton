@@ -1,5 +1,10 @@
 import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query'
 import { onAuthStateChanged } from 'firebase/auth'
+import {
+  NunitoSans_400Regular,
+  NunitoSans_700Bold,
+} from '@expo-google-fonts/nunito-sans'
+import { VarelaRound_400Regular } from '@expo-google-fonts/varela-round'
 import { useFonts } from 'expo-font'
 import { Stack, useRouter, useSegments } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
@@ -27,14 +32,17 @@ const queryClient = new QueryClient({
   },
 })
 
-const interFontFaces = {
+const fontFaces = {
   Inter: require('@tamagui/font-inter/otf/Inter-Regular.otf'),
   InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
+  'Varela Round': VarelaRound_400Regular,
+  'Nunito Sans': NunitoSans_400Regular,
+  'Nunito Sans Bold': NunitoSans_700Bold,
 } as const
 
 export default function RootLayout() {
   const colorScheme = useColorScheme()
-  const [fontsLoaded] = useFonts(interFontFaces)
+  const [fontsLoaded] = useFonts(fontFaces)
   const uid = useAuthStore(s => s.uid)
   const setUid = useAuthStore(s => s.setUid)
   const segments = useSegments()
