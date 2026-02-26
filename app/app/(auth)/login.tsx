@@ -49,7 +49,7 @@ export default function LoginScreen() {
         </Text>
 
         {error && (
-          <Text color="$danger" testID="login-error">
+          <Text color="$danger" testID="login-error" accessibilityLiveRegion="polite">
             {error}
           </Text>
         )}

@@ -10,6 +10,7 @@ jobs:
   app-unit:
     runs-on: ubuntu-latest
     name: App Unit Tests
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
