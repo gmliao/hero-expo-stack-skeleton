@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  app-unit:
+    runs-on: ubuntu-latest
+    name: App Unit Tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: Cache bun
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ hashFiles('app/bun.lock') }}
+      - run: cd app && bun install --frozen-lockfile
+      - run: cd app && bun run test
+
+  backend-tests:
+    runs-on: ubuntu-latest
+    name: Backend Emulator Tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: oven-sh/setup-bun@v2
+      - name: Cache Firebase emulator
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: firebase-emulators-${{ hashFiles('backend/firebase/firebase.json') }}
+      - run: bun install --frozen-lockfile
+      - run: cd backend/firebase/functions && bun install && bun run build
+      - run: bun run test:backend
+        env:
+          FIREBASE_AUTH_EMULATOR_HOST: 127.0.0.1:9099
+          FIRESTORE_EMULATOR_HOST: 127.0.0.1:8080
+          GCLOUD_PROJECT: hero-stack-local
+
+  web-e2e:
+    runs-on: ubuntu-latest
+    name: Web E2E (Playwright)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: cd app && bun install --frozen-lockfile
+      - run: cd backend/firebase/functions && bun install && bun run build
+      - run: bunx playwright install --with-deps chromium
+      - name: Start emulators + app
+        run: |
+          cd backend/firebase && bunx firebase emulators:start --only auth,firestore,functions &
+          cd app && EXPO_PUBLIC_USE_EMULATOR=true bun run web &
+          bun run wait-emulators
+      - run: bun run seed
+        env:
+          FIREBASE_AUTH_EMULATOR_HOST: 127.0.0.1:9099
+          FIRESTORE_EMULATOR_HOST: 127.0.0.1:8080
+      - run: bun run e2e:web
+        env:
+          EXPO_PUBLIC_USE_EMULATOR: true
+          EXPO_PUBLIC_FUNCTIONS_URL: http://127.0.0.1:5001
+          EXPO_PUBLIC_FIREBASE_PROJECT_ID: hero-stack-local
+          EXPO_PUBLIC_FIREBASE_API_KEY: demo-key
+          EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: hero-stack-local.firebaseapp.com
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
