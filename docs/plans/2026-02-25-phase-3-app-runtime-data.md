@@ -29,8 +29,8 @@
   "scripts": {
     "start": "expo start",
     "start:dev-client": "expo start --dev-client",
-    "ios": "expo run:ios",
-    "android": "expo run:android",
+    "ios": "expo start --ios",
+    "android": "expo start --android",
     "web": "expo start --web",
     "test": "jest --watchAll=false",
     "test:watch": "jest --watch",
@@ -38,16 +38,23 @@
     "e2e:ios": "detox test --configuration ios"
   },
   "dependencies": {
-    "expo": "~52.0.0",
-    "expo-dev-client": "~5.0.0",
-    "expo-router": "~4.0.0",
-    "expo-font": "~13.0.0",
-    "expo-localization": "~16.0.0",
-    "expo-status-bar": "~2.0.0",
-    "react": "18.3.1",
-    "react-native": "0.76.3",
-    "react-native-safe-area-context": "^4.12.0",
-    "react-native-screens": "^4.4.0",
+    "@expo/metro-runtime": "~6.1.2",
+    "expo": "~54.0.33",
+    "expo-constants": "~18.0.13",
+    "expo-dev-client": "~6.0.20",
+    "expo-linking": "~8.0.11",
+    "expo-router": "~6.0.23",
+    "expo-font": "~14.0.11",
+    "expo-localization": "~17.0.8",
+    "expo-status-bar": "~3.0.9",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-reanimated": "~4.1.1",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "react-native-web": "^0.21.0",
+    "react-native-worklets": "0.5.1",
     "i18next": "^24.2.3",
     "react-i18next": "^15.4.0",
     "firebase": "^11.0.0",
@@ -63,12 +70,12 @@
     "@babel/core": "^7.25.0",
     "@tamagui/babel-plugin": "^1.121.0",
     "@tamagui/metro-plugin": "^1.121.0",
-    "@types/react": "~18.3.0",
+    "@types/react": "~19.1.0",
     "jest": "^29.7.0",
-    "jest-expo": "~52.0.0",
+    "jest-expo": "~54.0.17",
     "@testing-library/react-native": "^12.8.0",
     "@testing-library/jest-native": "^5.4.3",
-    "typescript": "^5.3.0"
+    "typescript": "~5.9.2"
   }
 }
 ```
@@ -92,7 +99,7 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTabletMode": true,
+      "supportsTablet": true,
       "bundleIdentifier": "com.example.herostack"
     },
     "android": {
@@ -174,7 +181,12 @@ module.exports = withTamagui(config, {
       "@shared/*": ["../shared/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
 }
 ```
 
@@ -184,16 +196,14 @@ module.exports = withTamagui(config, {
 cd app && bun install
 ```
 
-**Step 7: Build Dev Client once per platform**
+**Step 7: Verify iOS/Android startup scripts**
 
 ```bash
-cd app
-bun run ios      # builds and installs iOS dev client
-# or
-bun run android  # builds and installs Android dev client
+cd app && bun run ios
+cd app && bun run android
 ```
 
-Expected: local dev client app installed on simulator/device.
+Expected: Expo CLI starts Metro and opens the selected platform using `expo start --ios` / `expo start --android`.
 
 **Step 8: Start Metro for Dev Client**
 
@@ -215,7 +225,7 @@ Expected: app boots on `http://localhost:8081`, login/todos routes render, and n
 
 ```bash
 git add app/package.json app/app.json app/babel.config.js app/metro.config.js app/tsconfig.json
-git commit -m "feat: expo app scaffolding — SDK 52 + expo-router v4 + tamagui + dev client"
+git commit -m "feat: expo app scaffolding — SDK 54 + expo-router v6 + tamagui + dev client"
 ```
 
 ---
@@ -1000,4 +1010,3 @@ git commit -m "feat: zustand UIStore — filter, modal, banner, selectedTodoId"
 ```
 
 ---
-

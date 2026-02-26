@@ -5,7 +5,17 @@ import type { Todo, CreateTodoRequest } from '../../../../shared/types/api'
 process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099'
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'
 
-const BASE_URL = 'http://127.0.0.1:5001'
+const PROJECT_ID = 'hero-stack-local'
+const BASE_URL = `http://127.0.0.1:5001/${PROJECT_ID}/us-central1/api`
+
+async function getIdTokenForUid(uid: string): Promise<string> {
+  const customToken = await auth.createCustomToken(uid)
+  const response = await axios.post(
+    'http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=demo-key',
+    { token: customToken, returnSecureToken: true },
+  )
+  return response.data.idToken as string
+}
 
 if (!admin.apps.length) {
   admin.initializeApp({ projectId: 'hero-stack-local' })
@@ -20,7 +30,7 @@ describe('GET /todos', () => {
 
   beforeAll(async () => {
     await auth.createUser({ uid, email: `${uid}@example.com` })
-    idToken = await auth.createCustomToken(uid)
+    idToken = await getIdTokenForUid(uid)
     // Seed one todo for this user
     await db.collection('todos').add({
       uid, title: 'My Todo', completed: false,
@@ -44,12 +54,12 @@ describe('GET /todos', () => {
   })
 
   it('returns 401 without token', async () => {
-    const res = await axios.get(`${BASE_URL}/api/todos`, { validateStatus: () => true })
+    const res = await axios.get(`${BASE_URL}/todos`, { validateStatus: () => true })
     expect(res.status).toBe(401)
   })
 
   it('returns only this user\'s todos', async () => {
-    const res = await axios.get(`${BASE_URL}/api/todos`, {
+    const res = await axios.get(`${BASE_URL}/todos`, {
       headers: { Authorization: `Bearer ${idToken}` },
     })
     expect(res.status).toBe(200)
@@ -66,7 +76,7 @@ describe('POST /todos', () => {
 
   beforeAll(async () => {
     await auth.createUser({ uid, email: `${uid}@example.com` })
-    idToken = await auth.createCustomToken(uid)
+    idToken = await getIdTokenForUid(uid)
   })
 
   afterAll(async () => {
@@ -78,13 +88,13 @@ describe('POST /todos', () => {
   })
 
   it('returns 401 without token', async () => {
-    const res = await axios.post(`${BASE_URL}/api/todos`, { title: 'x' }, { validateStatus: () => true })
+    const res = await axios.post(`${BASE_URL}/todos`, { title: 'x' }, { validateStatus: () => true })
     expect(res.status).toBe(401)
   })
 
   it('returns 400 without title', async () => {
     const res = await axios.post(
-      `${BASE_URL}/api/todos`,
+      `${BASE_URL}/todos`,
       {},
       { headers: { Authorization: `Bearer ${idToken}` }, validateStatus: () => true },
     )
@@ -93,7 +103,7 @@ describe('POST /todos', () => {
 
   it('creates todo and returns it', async () => {
     const body: CreateTodoRequest = { title: 'New Todo', description: 'desc' }
-    const res = await axios.post(`${BASE_URL}/api/todos`, body, {
+    const res = await axios.post(`${BASE_URL}/todos`, body, {
       headers: { Authorization: `Bearer ${idToken}` },
     })
     expect(res.status).toBe(201)
@@ -114,7 +124,7 @@ describe('PATCH /todos/:id/toggle', () => {
 
   beforeAll(async () => {
     await auth.createUser({ uid, email: `${uid}@example.com` })
-    idToken = await auth.createCustomToken(uid)
+    idToken = await getIdTokenForUid(uid)
     const doc = await db.collection('todos').add({
       uid, title: 'Toggle Me', completed: false,
       createdAt: admin.firestore.Timestamp.now(),
@@ -131,9 +141,9 @@ describe('PATCH /todos/:id/toggle', () => {
   it('returns 403 when uid does not own todo', async () => {
     const otherUid = `other-${Date.now()}`
     await auth.createUser({ uid: otherUid, email: `${otherUid}@example.com` })
-    const otherToken = await auth.createCustomToken(otherUid)
+    const otherToken = await getIdTokenForUid(otherUid)
     const res = await axios.patch(
-      `${BASE_URL}/api/todos/${todoId}/toggle`,
+      `${BASE_URL}/todos/${todoId}/toggle`,
       {},
       { headers: { Authorization: `Bearer ${otherToken}` }, validateStatus: () => true },
     )
@@ -144,7 +154,7 @@ describe('PATCH /todos/:id/toggle', () => {
   it('toggles completed and updates updatedAt', async () => {
     const before = (await db.collection('todos').doc(todoId).get()).data()!
     const res = await axios.patch(
-      `${BASE_URL}/api/todos/${todoId}/toggle`,
+      `${BASE_URL}/todos/${todoId}/toggle`,
       {},
       { headers: { Authorization: `Bearer ${idToken}` } },
     )

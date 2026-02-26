@@ -44,8 +44,25 @@ Read this before editing code or docs in this repository.
 - Emulator-first for all development and tests.
 - Never run `firebase deploy` without explicit user instruction in the active thread.
 - For non-emulator Firebase commands, pass explicit project targeting.
+- Cloud project id must come from local `.env` (`FIREBASE_PROJECT_ID`), not from `.firebaserc` default.
+- If `FIREBASE_PROJECT_ID` is missing, proactively help set it:
+  - `bash scripts/firebase/setup-cloud-project.sh <project-id>`
 - Use `docs/runbooks/llm-firebase-cli-ops.md` process when LLM is assisting CLI operations.
 - Record CLI sessions with `docs/runbooks/firebase-cli-session-template.md`.
+
+### AI Deploy Workflow (Required)
+
+- Before any cloud Firebase command:
+  - Verify login: `firebase login:list`
+  - Verify target project exists: `firebase projects:list`
+- If `.env` is missing `FIREBASE_PROJECT_ID` (or is `hero-stack-local`), assist immediately:
+  - `bash scripts/firebase/setup-cloud-project.sh <project-id>`
+- If user does not have a cloud project yet, assist creation first:
+  - `firebase projects:create <project-id> --display-name "Hero Stack"`
+- For cloud actions, always run through wrapper with explicit or env project:
+  - `bun run firebase functions:log`
+  - `bun run firebase deploy --only functions`
+- Never rely on `.firebaserc` default for cloud deploy target.
 
 ## Testing and Verification
 

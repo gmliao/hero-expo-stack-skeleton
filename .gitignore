@@ -36,6 +36,7 @@ build
 # Expo
 .expo/
 web-build/
+.tamagui/
 node_modules
 
 # Firebase
@@ -44,6 +45,11 @@ firebase-debug.log
 firebase-debug.*.log
 emulator_data/
 backend/firebase/functions/lib/
+backend/firebase/.firebaserc
+
+# Playwright
+test-results/
+playwright-report/
 
 # iOS
 *.pbxuser

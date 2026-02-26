@@ -18,6 +18,7 @@
     "e2e:ios": "cd app && bun run e2e:ios",
     "ci": "bun run test && bun run test:backend && bun run e2e:web",
     "firebase": "bash scripts/firebase/run.sh",
+    "firebase:project:set": "bash scripts/firebase/setup-cloud-project.sh",
     "firebase:emulators:start": "bun run firebase emulators:start --only auth,firestore,functions",
     "firebase:emulators:ui": "bun run firebase emulators:start --only ui",
     "firebase:functions:log": "bun run firebase functions:log"

@@ -35,6 +35,9 @@ Production-ready reference skeleton for React Native / Expo projects with Fireba
 ## Quickstart
 
 ```bash
+# 0. 安裝本機必要工具（bun / Java / Firebase emulator smoke）
+bash scripts/setup-prerequisites.sh
+
 # 1. 安裝依賴
 bun install
 
@@ -45,11 +48,18 @@ cp .env.example .env
 bun run dev
 ```
 
+詳細安裝流程請看：`docs/runbooks/local-prerequisites-setup.md`
+
 ---
 
 ## Environment Variables
 
 複製 `.env.example` 並填入以下變數：
+
+```bash
+# 建議用腳本設定雲端 Firebase project id
+bash scripts/firebase/setup-cloud-project.sh <your-project-id>
+```
 
 ```
 # Firebase（Emulator 模式下可用預設值）
@@ -57,10 +67,17 @@ FIREBASE_PROJECT_ID=
 FIREBASE_API_KEY=
 FIREBASE_AUTH_DOMAIN=
 
+# App runtime（必填，給 Expo 用）
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=
+EXPO_PUBLIC_FIREBASE_API_KEY=
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=
+
 # Emulator endpoints（本地開發）
-EXPO_PUBLIC_FUNCTIONS_URL=http://localhost:5001
 EXPO_PUBLIC_USE_EMULATOR=true
 ```
+
+> 若未設定 host/url，App 會自動用平台預設：Android `10.0.2.2`，其他平台 `localhost`。
+> 可手動覆蓋：`EXPO_PUBLIC_AUTH_EMULATOR_HOST`、`EXPO_PUBLIC_FUNCTIONS_URL`。
 
 ---
 
@@ -261,8 +278,8 @@ login → create todo → toggle todo
 ### Firebase Functions
 
 ```bash
-cd backend/firebase
-firebase deploy --only functions
+# 使用 wrapper，且在 .env 設定 FIREBASE_PROJECT_ID
+bun run firebase deploy --only functions
 ```
 
 ### App

@@ -1,5 +1,6 @@
 import { Response } from 'express'
 import * as admin from 'firebase-admin'
+import { Timestamp } from 'firebase-admin/firestore'
 import { AuthenticatedRequest } from '../middleware/auth'
 import type { Todo } from '../types/api'
 
@@ -24,7 +25,7 @@ export async function createTodo(req: AuthenticatedRequest, res: Response): Prom
     res.status(400).json({ error: 'title is required' })
     return
   }
-  const now = admin.firestore.Timestamp.now()
+  const now = Timestamp.now()
   const docRef = db().collection('todos').doc()
   await docRef.set({ uid, title: title.trim(), description: description ?? '', completed: false, createdAt: now, updatedAt: now })
   const doc = await docRef.get()
@@ -48,7 +49,7 @@ export async function toggleTodo(req: AuthenticatedRequest, res: Response): Prom
     const doc = await tx.get(docRef)
     if (!doc.exists) { res.status(404).json({ error: 'Todo not found' }); return null }
     if (doc.data()!.uid !== uid) { res.status(403).json({ error: 'Forbidden' }); return null }
-    const updatedAt = admin.firestore.Timestamp.now()
+    const updatedAt = Timestamp.now()
     const completed = !doc.data()!.completed
     tx.update(docRef, { completed, updatedAt })
     const data = doc.data()!
@@ -58,7 +59,7 @@ export async function toggleTodo(req: AuthenticatedRequest, res: Response): Prom
       title: data.title as string,
       description: data.description as string | undefined,
       completed,
-      createdAt: data.createdAt as admin.firestore.Timestamp,
+      createdAt: data.createdAt as Timestamp,
       updatedAt,
     }
   })
