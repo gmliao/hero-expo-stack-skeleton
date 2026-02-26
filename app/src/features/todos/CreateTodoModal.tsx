@@ -99,6 +99,7 @@ export function CreateTodoModal() {
               testID="create-todo-save-error"
               color="$danger"
               fontSize="$2"
+              accessibilityLiveRegion="polite"
             >
               {saveError}
             </Text>
