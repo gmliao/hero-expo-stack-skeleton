@@ -3,7 +3,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { useFonts } from 'expo-font'
 import { Stack, useRouter, useSegments } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { I18nextProvider } from 'react-i18next'
 import { AppState, useColorScheme } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -39,6 +39,7 @@ export default function RootLayout() {
   const setUid = useAuthStore(s => s.setUid)
   const segments = useSegments()
   const router = useRouter()
+  const [isAuthReady, setIsAuthReady] = useState(false)
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', state => {
@@ -54,19 +55,21 @@ export default function RootLayout() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, user => {
       setUid(user?.uid ?? null)
+      setIsAuthReady(true)
     })
     return unsubscribe
   }, [])
 
   // Route guard: redirect unauthenticated users to login, authenticated users away from auth pages
   useEffect(() => {
+    if (!isAuthReady) return
     const inAuthGroup = segments[0] === '(auth)'
     if (!uid && !inAuthGroup) {
       router.replace('/(auth)/login')
     } else if (uid && inAuthGroup) {
       router.replace('/(app)/')
     }
-  }, [uid, segments])
+  }, [uid, segments, isAuthReady])
 
   if (!fontsLoaded) {
     return null
