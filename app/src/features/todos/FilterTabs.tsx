@@ -28,6 +28,9 @@ export function FilterTabs({ value, onChange }: FilterTabsProps) {
           <Button
             key={filter}
             testID={`filter-tab-${filter}`}
+            accessibilityRole="button"
+            accessibilityLabel={t(`todos.filter.${filter}`)}
+            accessibilityState={{ selected: isSelected }}
             flex={1}
             size="$3"
             backgroundColor={isSelected ? '$primary' : 'transparent'}
