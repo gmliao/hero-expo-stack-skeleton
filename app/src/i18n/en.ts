@@ -26,6 +26,11 @@ export const en = {
     create: '+ New',
     empty: 'No todos yet. Create one!',
     loadError: 'Failed to load todos',
+    filter: {
+      all: 'All',
+      active: 'Active',
+      completed: 'Completed',
+    },
     modal: {
       title: 'New Todo',
       placeholder: 'What needs to be done?',
