@@ -75,7 +75,7 @@ export default function RootLayout() {
     if (!uid && !inAuthGroup) {
       router.replace('/(auth)/login')
     } else if (uid && inAuthGroup) {
-      router.replace('/(app)/')
+      router.replace('/(app)')
     }
   }, [uid, segments, isAuthReady])
 

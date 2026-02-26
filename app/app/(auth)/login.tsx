@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
-import { Pressable, SafeAreaView } from 'react-native-safe-area-context'
+import { Pressable } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { Button, Input, Spinner, Text, YStack } from 'tamagui'
 import { firebaseAuth } from '@/lib/firebase'
 import { useAuthStore } from '@/stores/useAuthStore'
@@ -22,7 +23,7 @@ export default function LoginScreen() {
     try {
       const cred = await signInWithEmailAndPassword(firebaseAuth, email, password)
       setUid(cred.user.uid)
-      router.replace('/(app)/')
+      router.replace('/(app)')
     } catch (error) {
       const code = (error as { code?: string }).code
       if (code === 'auth/network-request-failed') {
@@ -43,6 +44,9 @@ export default function LoginScreen() {
         padding="$6"
         backgroundColor="$background"
         gap="$4"
+        width="100%"
+        maxWidth={420}
+        alignSelf="center"
       >
         <Text fontSize="$7" fontWeight="700" color="$color">
           {t('auth.signInTitle')}
