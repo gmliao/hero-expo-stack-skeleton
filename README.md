@@ -179,13 +179,34 @@ bun run dev
 ```bash
 # 只起 Emulators
 bun run emulators
-
 # 只起 App
 bun run app
 
 # Seed emulator 資料
 bun run seed
 ```
+
+### iOS Dev Client（必要一次安裝）
+
+本專案使用 **Expo Dev Client**（不是 Expo Go）。在 **這台 Mac / 模擬器第一次跑專案時**，需要先安裝 iOS 開發版 App 一次：
+
+```bash
+cd apps/client
+bunx expo run:ios
+```
+
+成功後會在 iOS Simulator 中看到 `HeroStack` App（bundle id `com.example.herostack`）。
+
+之後日常開發流程：
+
+```bash
+# 在 repo root
+bun run dev
+```
+
+再到 iOS 模擬器中打開已安裝的 `HeroStack` App，它會自動連上目前的 Metro dev server。
+
+若你重置模擬器或把 App 刪掉，需要再跑一次 `bunx expo run:ios` 重新安裝 Dev Client。
 
 ### 測試帳號（Emulator）
 
