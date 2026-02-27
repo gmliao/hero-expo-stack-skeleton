@@ -9,7 +9,7 @@ import { useUpdateTodoMutation } from '@/data/hooks/useUpdateTodoMutation'
 import { queryKeys } from '@/data/queryKeys'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useUIStore } from '@/stores/useUIStore'
-import { AppButton, AppInput, AppStack, AppText } from '@/ui/components'
+import { AppButton, AppInput, AppStack, AppText, AppTextArea } from '@/ui/components'
 
 /** Normalize dueDate to YYYY-MM-DD for date input */
 function toDateOnly(value: string | undefined): string {
@@ -167,16 +167,14 @@ export function CreateTodoModal() {
               <AppText size="sm" tone="muted" accessibilityLabel={t('todos.modal.description')}>
                 {t('todos.modal.description')}
               </AppText>
-              <AppInput
+              <AppTextArea
                 testID="create-todo-description"
                 accessibilityLabel={t('todos.modal.description')}
                 placeholder={t('todos.modal.descriptionPlaceholder')}
                 value={description}
                 onChangeText={setDescription}
-                multiline
-                numberOfLines={3}
-                textAlignVertical="top"
-                className="h-24 py-3"
+                size="md"
+                className="min-h-24"
               />
             </AppStack>
 

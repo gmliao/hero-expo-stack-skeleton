@@ -1,3 +1,6 @@
+# worktrees (isolated dev branches)
+.worktrees/
+
 # logs
 logs
 *.log

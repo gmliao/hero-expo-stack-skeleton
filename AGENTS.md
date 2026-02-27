@@ -8,6 +8,11 @@ Read this before editing code or docs in this repository.
 2. Read `CLAUDE.md`
 3. Follow this file for agent-specific execution rules
 
+## Development Workflow
+
+- **Default: develop directly in this repo.** Do not use git worktrees unless the user explicitly requests them.
+- If the user asks for worktree isolation, then use `using-git-worktrees` skill and create an isolated worktree.
+
 ## Package Manager
 
 - Use `bun` only.
@@ -66,6 +71,17 @@ Read this before editing code or docs in this repository.
 - **Client implementation mapping**:
   - `apps/client/src/ui/components/**` must expose DS primitives and stateful variants that map to pen DS boards.
   - Route/feature layers consume these APIs only; do not recreate visual tokens/states inline.
+- **Pen ↔ Code sync (required):**
+  - When adding a reusable component in `.pen`: implement the corresponding component in `@/ui/components` and update the mapping table.
+  - When adding a reusable component in `@/ui/components`: add the corresponding component in `.pen` (DS area) and update the mapping table.
+  - Do not leave components in only one side; pen and code must remain bidirectional.
+  - Any `.pen` updates must conform to the `.pen` schema and MCP workflow rules (valid node types/properties, variable-driven styling, placeholder lifecycle, and no ad-hoc non-spec properties).
+- **Component mapping reference:**
+  - The canonical Pen ↔ Code mapping table lives at `docs/design-system/pen-code-component-mapping.md`.
+  - Use it to look up which pen component maps to which code component (and vice versa).
+  - Must be updated whenever a new reusable component is added to either pen or code.
+  - For Code components that lack Pen equivalents: add them in Pencil per `docs/design-system/pen-gap-spec.md`, then update the mapping table with the new Pen ID. When Pencil is open, use `docs/runbooks/pen-add-card-input-stack.md` to add Card/Input/Stack via MCP.
+  - Color/scheme: components must use semantic tokens from `docs/design-system/color-scheme.md`; do not hardcode hex in components.
 - **Recommended rollout order**:
   1. Update tokens/semantic variables.
   2. Update reusable components (pen + `@/ui/components`).

@@ -33,5 +33,5 @@ export const tokens = {
   },
 } as const
 
-export type AppButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive'
+export type AppButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'outline'
 export type AppComponentSize = 'sm' | 'md' | 'lg'

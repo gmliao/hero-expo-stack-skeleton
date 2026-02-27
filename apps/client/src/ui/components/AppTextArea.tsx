@@ -3,34 +3,36 @@ import { tokens, type AppComponentSize } from '@/ui/tokens'
 import { cn } from '@/ui/utils/cn'
 
 const sizeClass: Record<AppComponentSize, string> = {
-  sm: 'h-10 px-3 text-sm',
-  md: 'h-12 px-4 text-md',
-  lg: 'h-14 px-4 text-lg',
+  sm: 'min-h-20 px-3 py-2 text-sm',
+  md: 'min-h-24 px-4 py-3 text-md',
+  lg: 'min-h-28 px-4 py-3 text-lg',
 }
 
-interface AppInputProps extends TextInputProps {
+interface AppTextAreaProps extends TextInputProps {
   size?: AppComponentSize
   invalid?: boolean
   state?: 'default' | 'focused' | 'invalid' | 'success' | 'disabled'
   className?: string
 }
 
-export function AppInput({
+export function AppTextArea({
   size = 'md',
   invalid = false,
   state = 'default',
   editable,
   className,
   ...props
-}: AppInputProps) {
+}: AppTextAreaProps) {
   const resolvedState = invalid ? 'invalid' : state
   const isDisabled = resolvedState === 'disabled'
 
   return (
     <TextInput
       {...props}
+      multiline
       editable={editable ?? !isDisabled}
       placeholderTextColor={tokens.colors.muted}
+      textAlignVertical="top"
       className={cn(
         'rounded-md border bg-surface text-text',
         resolvedState === 'focused' && 'border-2 border-primary',
