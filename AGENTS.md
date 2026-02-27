@@ -42,6 +42,36 @@ Read this before editing code or docs in this repository.
   - Inputs/actions expose accessible names.
   - Error feedback is announced via live-region style semantics.
 
+## Design System First Workflow (Required)
+
+- **DS-first for all UI work**:
+  - Start from design-system primitives/tokens, then compose features/screens.
+  - Do not build ad-hoc screen styles first and “backfill” DS later.
+- **Pen componentization for global consistency**:
+  - In `.pen`, promote reusable UI blocks to `reusable: true` components.
+  - Use `ref` instances in screens instead of duplicating raw frames.
+  - For variants/states (default/hover/focus/error/disabled), prefer component variants or instance overrides over duplicated standalone copies.
+  - Cross-screen UI must reuse shared components from a single DS/component area whenever possible.
+  - Before creating new screen-level structure, check whether an equivalent reusable component already exists and use it via `ref`.
+  - If no suitable reusable component exists, explicitly report the gap first, then add a new reusable component in the shared DS/component area, and finally consume it from screens via `ref`.
+- **Variable-driven theming in pen**:
+  - Colors/typography/spacing/radius must come from document `variables` wherever possible.
+  - Avoid hardcoded one-off values in screen-level nodes.
+  - If a style should update globally, it must be represented as a variable or reusable component.
+- **Definition of “auto-adjustable”**:
+  - A global style change is considered auto-adjustable only when:
+    1. The changed value is a shared variable, or
+    2. The changed structure/style lives in a reusable component consumed via `ref`.
+  - If a screen is not wired via variable/ref, assume manual updates are required.
+- **Client implementation mapping**:
+  - `apps/client/src/ui/components/**` must expose DS primitives and stateful variants that map to pen DS boards.
+  - Route/feature layers consume these APIs only; do not recreate visual tokens/states inline.
+- **Recommended rollout order**:
+  1. Update tokens/semantic variables.
+  2. Update reusable components (pen + `@/ui/components`).
+  3. Migrate screens to `ref`/shared components.
+  4. Remove duplicated legacy styling patterns.
+
 ## Firebase CLI + LLM Operations
 
 - Prefer root scripts and wrappers over raw global CLI:
