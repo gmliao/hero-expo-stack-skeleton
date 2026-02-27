@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import type { Todo } from '@shared/types/api'
@@ -68,6 +68,19 @@ export default function TodosScreen() {
 
   const handleDelete = useCallback(
     (todo: Todo) => {
+      if (Platform.OS === 'web' && typeof globalThis.confirm === 'function') {
+        const shouldDelete = globalThis.confirm(
+          `${t('todos.deleteConfirmTitle')}\n\n${t('todos.deleteConfirmMessage')}`,
+        )
+
+        if (shouldDelete) {
+          deleteMutation.mutate(todo.id, {
+            onError: () => showBanner(t('todos.deleteError')),
+          })
+        }
+        return
+      }
+
       Alert.alert(
         t('todos.deleteConfirmTitle'),
         t('todos.deleteConfirmMessage'),
