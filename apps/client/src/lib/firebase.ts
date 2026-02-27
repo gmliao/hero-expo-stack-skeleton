@@ -15,12 +15,6 @@ const firebaseApp = getApps().length > 0 ? getApps()[0]! : initializeApp(firebas
 
 const { connectAuthEmulator, getAuth, initializeAuth } = FirebaseAuth
 
-type ReactNativePersistenceModule = {
-  getReactNativePersistence?: (
-    storage: typeof AsyncStorage,
-  ) => FirebaseAuth.Persistence
-}
-
 type GlobalAuthEmulatorState = {
   __heroAuthEmulatorAppNames?: Set<string>
 }
@@ -61,23 +55,19 @@ const resolveAuthEmulatorUrl = (): string => {
 }
 
 const getNativePersistence = (): FirebaseAuth.Persistence => {
-  let reactNativeAuth: ReactNativePersistenceModule
+  const getReactNativePersistence = (
+    FirebaseAuth as unknown as {
+      getReactNativePersistence?: (storage: typeof AsyncStorage) => FirebaseAuth.Persistence
+    }
+  ).getReactNativePersistence
 
-  try {
-    reactNativeAuth = require('firebase/auth/react-native') as ReactNativePersistenceModule
-  } catch {
+  if (typeof getReactNativePersistence !== 'function') {
     throw new Error(
-      'firebase/auth/react-native is unavailable; set EXPO_PUBLIC_USE_EMULATOR=false or verify native Firebase auth setup.',
+      'firebase/auth#getReactNativePersistence is unavailable; verify Firebase auth React Native setup.',
     )
   }
 
-  if (typeof reactNativeAuth.getReactNativePersistence !== 'function') {
-    throw new Error(
-      'firebase/auth/react-native#getReactNativePersistence is unavailable; native auth persistence cannot be initialized.',
-    )
-  }
-
-  return reactNativeAuth.getReactNativePersistence(AsyncStorage)
+  return getReactNativePersistence(AsyncStorage)
 }
 
 const createAuth = () => {
