@@ -29,7 +29,7 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete }: Props) {
   return (
     <View
       testID={`todo-item-${todo.id}`}
-      className="mb-2 flex-row items-center gap-3 rounded-lg border border-border bg-white p-4"
+      className="mb-2 flex-row items-center gap-3 rounded-lg border border-border bg-surface p-4"
     >
       <Pressable
         testID={`todo-toggle-${todo.id}`}
@@ -40,7 +40,7 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete }: Props) {
         onPress={() => onToggle(todo.id)}
         className={cn(
           'h-11 w-11 items-center justify-center rounded-md border',
-          todo.completed ? 'border-primary bg-primary-soft' : 'border-border bg-white',
+          todo.completed ? 'border-primary bg-primary-soft' : 'border-border bg-surface',
         )}
       >
         {todo.completed ? (

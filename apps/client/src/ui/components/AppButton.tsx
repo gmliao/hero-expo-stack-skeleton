@@ -3,11 +3,12 @@ import { AppText } from '@/ui/components/AppText'
 import { tokens, type AppButtonVariant, type AppComponentSize } from '@/ui/tokens'
 import { cn } from '@/ui/utils/cn'
 
+/** Aligned with Pen: PrimaryButton has fill only (no stroke); OutlineButton has border */
 const containerClass: Record<AppButtonVariant, string> = {
-  primary: 'bg-primary border border-primary',
+  primary: 'bg-primary border border-transparent',
   secondary: 'bg-surface border border-border',
   ghost: 'bg-transparent border border-transparent',
-  destructive: 'bg-danger border border-danger',
+  destructive: 'bg-danger border border-transparent',
   outline: 'bg-transparent border border-border',
 }
 
