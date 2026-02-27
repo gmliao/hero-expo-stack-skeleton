@@ -12,7 +12,7 @@ import { Stack, useRouter, useSegments } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect, useState } from 'react'
 import { I18nextProvider } from 'react-i18next'
-import { AppState, useColorScheme } from 'react-native'
+import { AppState } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { firebaseAuth } from '@/lib/firebase'
 import i18n from '@/lib/i18n'
@@ -40,7 +40,6 @@ const fontFaces = {
 } as const
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme()
   const [fontsLoaded] = useFonts(fontFaces)
   const uid = useAuthStore(s => s.uid)
   const setUid = useAuthStore(s => s.setUid)
@@ -84,8 +83,8 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <I18nextProvider i18n={i18n}>
-          <GluestackUIProvider colorMode={colorScheme === 'dark' ? 'dark' : 'light'}>
-            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+          <GluestackUIProvider>
+            <StatusBar style="dark" />
             <Stack screenOptions={{ headerShown: false }} />
           </GluestackUIProvider>
         </I18nextProvider>
