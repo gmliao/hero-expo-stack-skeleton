@@ -118,8 +118,9 @@ EXPO_PUBLIC_USE_EMULATOR=true
 
 ```
 hero-stack-skeleton/
-├── app/                         # Expo App (iOS/Android/Web)
-│   ├── app/                     # expo-router routes
+├── apps/
+│   └── client/                  # Expo App (iOS/Android/Web)
+│       ├── app/                 # expo-router routes
 │   ├── src/
 │   │   ├── ui/                  # Tamagui components/theme + animations
 │   │   ├── data/                # api client, query keys, hooks
@@ -127,8 +128,8 @@ hero-stack-skeleton/
 │   │   ├── features/            # feature modules (todos, auth, settings)
 │   │   ├── lib/                 # helpers (logger, env, error mapping)
 │   │   └── types/               # app-only types
-│   ├── tests/                   # unit/integration (Jest + RNTL)
-│   └── e2e/                     # Detox (mobile)
+│       ├── tests/               # unit/integration (Jest + RNTL)
+│       └── e2e/                 # Detox (mobile)
 │
 ├── backend/
 │   └── firebase/
