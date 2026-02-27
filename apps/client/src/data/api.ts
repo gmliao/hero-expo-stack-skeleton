@@ -71,6 +71,14 @@ const toHttpError = (status: number, message: string): Error => {
   return new Error(message)
 }
 
+const handleUnauthorized = async (): Promise<void> => {
+  try {
+    await firebaseAuth.signOut()
+  } catch {
+    // Ignore sign-out failures: request should still surface as auth error.
+  }
+}
+
 const fetchWithTimeout = async (url: string, options: RequestInit, timeoutMs: number): Promise<Response> => {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
@@ -113,6 +121,10 @@ const request = async <T>(path: string, options: RequestInit = {}, timeoutMs: nu
       if (!response.ok) {
         const body = await response.json().catch(() => ({}))
         const message = typeof body?.error === 'string' ? body.error : `HTTP ${response.status}`
+
+        if (response.status === 401) {
+          await handleUnauthorized()
+        }
 
         throw toHttpError(response.status, message)
       }
