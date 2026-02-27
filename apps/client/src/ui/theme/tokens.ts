@@ -1,0 +1,66 @@
+export const primitiveTokens = {
+  colors: {
+    navy950: '#0F172A',
+    slate900: '#111827',
+    slate700: '#334155',
+    slate500: '#64748B',
+    slate300: '#CBD5E1',
+    slate200: '#E2E8F0',
+    slate100: '#F1F5F9',
+    white: '#FFFFFF',
+    blue600: '#2563EB',
+    blue500: '#3B82F6',
+    red600: '#DC2626',
+    green600: '#16A34A',
+    gold500: '#D4A017',
+    overlay60: 'rgba(15, 23, 42, 0.6)',
+  },
+  spacing: {
+    0: 0,
+    1: 4,
+    2: 8,
+    3: 12,
+    4: 16,
+    5: 20,
+    6: 24,
+    7: 28,
+    8: 32,
+    10: 40,
+    12: 48,
+  },
+  radii: {
+    sm: 8,
+    md: 12,
+    lg: 16,
+  },
+  typography: {
+    display: {
+      sm: 24,
+      md: 28,
+      lg: 32,
+    },
+    body: {
+      sm: 14,
+      md: 16,
+      lg: 18,
+      xl: 22,
+    },
+  },
+  shadow: {
+    sm: 'shadow-sm',
+    md: 'shadow',
+    lg: 'shadow-lg',
+  },
+  zIndex: {
+    base: 0,
+    raised: 10,
+    overlay: 40,
+    modal: 50,
+  },
+  motion: {
+    fast: 120,
+    normal: 200,
+    slow: 320,
+  },
+} as const
+
