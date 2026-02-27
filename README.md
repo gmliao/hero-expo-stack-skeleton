@@ -21,7 +21,7 @@ Production-ready reference skeleton for React Native / Expo projects with Fireba
 | 層級 | 技術 |
 |------|------|
 | App | [Expo](https://expo.dev) + [expo-router](https://expo.github.io/router) |
-| UI | [Tamagui](https://tamagui.dev) + animations |
+| UI | [NativeWind](https://www.nativewind.dev) + [Gluestack UI](https://gluestack.io) + App components |
 | Server State | [TanStack Query](https://tanstack.com/query) |
 | UI State | [Zustand](https://zustand-demo.pmnd.rs) |
 | Backend | Firebase Functions + Firestore |
@@ -122,7 +122,7 @@ hero-stack-skeleton/
 │   └── client/                  # Expo App (iOS/Android/Web)
 │       ├── app/                 # expo-router routes
 │   ├── src/
-│   │   ├── ui/                  # Tamagui components/theme + animations
+│   │   ├── ui/                  # tokens + app components + providers
 │   │   ├── data/                # api client, query keys, hooks
 │   │   ├── stores/              # zustand UI-only stores
 │   │   ├── features/            # feature modules (todos, auth, settings)

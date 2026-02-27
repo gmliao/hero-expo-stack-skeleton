@@ -1,5 +1,6 @@
+import { View } from 'react-native'
 import { useTranslation } from 'react-i18next'
-import { Button, Text, XStack } from 'tamagui'
+import { AppButton } from '@/ui/components'
 
 import type { Filter } from '@/stores/useUIStore'
 
@@ -14,46 +15,26 @@ export function FilterTabs({ value, onChange }: FilterTabsProps) {
   const { t } = useTranslation()
 
   return (
-    <XStack
-      paddingHorizontal="$5"
-      paddingVertical="$3"
-      gap="$2"
-      borderBottomWidth={1}
-      borderColor="$borderColor"
-      backgroundColor="$background"
-    >
+    <View className="flex-row gap-2 border-b border-border bg-bg px-5 py-3">
       {FILTERS.map(filter => {
         const isSelected = value === filter
         return (
-          <Button
+          <AppButton
             key={filter}
             testID={`filter-tab-${filter}`}
             accessibilityRole="button"
             accessibilityLabel={t(`todos.filter.${filter}`)}
             accessibilityState={{ selected: isSelected }}
-            flex={1}
-            size="$3"
-            height={36}
-            backgroundColor={isSelected ? '$primary' : 'transparent'}
-            borderWidth={isSelected ? 0 : 1}
-            borderColor="$borderColor"
-            borderRadius="$4"
-            color={isSelected ? '$white' : '$colorSecondary'}
+            variant={isSelected ? 'primary' : 'secondary'}
+            size="sm"
+            className="flex-1"
+            textClassName={!isSelected ? 'text-muted' : undefined}
             onPress={() => onChange(filter)}
-            unstyled
-            justifyContent="center"
-            alignItems="center"
           >
-            <Text
-              fontSize={14}
-              fontWeight={isSelected ? '600' : '400'}
-              color={isSelected ? '$white' : '$colorSecondary'}
-            >
-              {t(`todos.filter.${filter}`)}
-            </Text>
-          </Button>
+            {t(`todos.filter.${filter}`)}
+          </AppButton>
         )
       })}
-    </XStack>
+    </View>
   )
 }

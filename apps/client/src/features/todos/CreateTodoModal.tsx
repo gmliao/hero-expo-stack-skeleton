@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Modal, Pressable, View } from 'react-native'
 import { useQueryClient } from '@tanstack/react-query'
-import { Button, Input, Sheet, Spinner, Text, XStack, YStack } from 'tamagui'
 
 import type { Todo } from '@shared/types/api'
 import { useCreateTodoMutation } from '@/data/hooks/useCreateTodoMutation'
@@ -9,6 +9,7 @@ import { useUpdateTodoMutation } from '@/data/hooks/useUpdateTodoMutation'
 import { queryKeys } from '@/data/queryKeys'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useUIStore } from '@/stores/useUIStore'
+import { AppButton, AppInput, AppStack, AppText } from '@/ui/components'
 
 /** Normalize dueDate to YYYY-MM-DD for date input */
 function toDateOnly(value: string | undefined): string {
@@ -114,152 +115,122 @@ export function CreateTodoModal() {
   }
 
   return (
-    <Sheet
-      modal
-      open={isOpen}
-      onOpenChange={(open: boolean) => {
-        if (!open) handleClose()
-      }}
-      snapPoints={[55]}
-      dismissOnSnapToBottom
+    <Modal
+      visible={isOpen}
+      transparent
+      animationType="slide"
+      onRequestClose={handleClose}
     >
-      <Sheet.Overlay
-        animation="quick"
-        enterStyle={{ opacity: 0 }}
-        exitStyle={{ opacity: 0 }}
-        backgroundColor="rgba(0, 0, 0, 0.5)"
-      />
-      <Sheet.Handle />
-      <Sheet.Frame paddingHorizontal="$5" paddingVertical="$6" backgroundColor="$background">
-        <YStack gap="$5">
-          <Text
-            testID="create-todo-modal-title"
-            fontSize={22}
-            fontWeight="700"
-            color="$color"
-            accessibilityRole="header"
-          >
-            {t(isEdit ? 'todos.modal.editTitle' : 'todos.modal.title')}
-          </Text>
+      <View className="flex-1 justify-end bg-black/45">
+        <Pressable className="flex-1" onPress={handleClose} />
 
-          <YStack gap="$1">
-            <Input
-              testID="create-todo-input"
-              accessibilityLabel={t('todos.modal.placeholder')}
-              placeholder={t('todos.modal.placeholder')}
-              value={title}
-              onChangeText={text => {
-                setTitle(text)
-                if (titleError) setTitleError(null)
-              }}
-              autoFocus
-              returnKeyType="next"
-              size="$5"
-              fontSize={16}
-              borderRadius="$4"
-              borderColor={titleError ? '$danger' : '$borderColor'}
-            />
-            {titleError && (
-              <Text
-                testID="create-todo-title-error"
-                color="$danger"
-                fontSize="$2"
+        <View className="rounded-t-3xl border border-border bg-surface px-5 py-6">
+          <AppStack gap={5}>
+            <AppText
+              testID="create-todo-modal-title"
+              size="xl"
+              weight="bold"
+              accessibilityRole="header"
+            >
+              {t(isEdit ? 'todos.modal.editTitle' : 'todos.modal.title')}
+            </AppText>
+
+            <AppStack gap={1}>
+              <AppInput
+                testID="create-todo-input"
+                accessibilityLabel={t('todos.modal.placeholder')}
+                placeholder={t('todos.modal.placeholder')}
+                value={title}
+                onChangeText={text => {
+                  setTitle(text)
+                  if (titleError) setTitleError(null)
+                }}
+                autoFocus
+                returnKeyType="next"
+                size="md"
+                invalid={Boolean(titleError)}
+              />
+
+              {titleError ? (
+                <AppText
+                  testID="create-todo-title-error"
+                  tone="danger"
+                  size="sm"
+                  accessibilityLiveRegion="polite"
+                >
+                  {titleError}
+                </AppText>
+              ) : null}
+            </AppStack>
+
+            <AppStack gap={1}>
+              <AppText size="sm" tone="muted" accessibilityLabel={t('todos.modal.description')}>
+                {t('todos.modal.description')}
+              </AppText>
+              <AppInput
+                testID="create-todo-description"
+                accessibilityLabel={t('todos.modal.description')}
+                placeholder={t('todos.modal.descriptionPlaceholder')}
+                value={description}
+                onChangeText={setDescription}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+                className="h-24 py-3"
+              />
+            </AppStack>
+
+            <AppStack gap={1}>
+              <AppText size="sm" tone="muted" accessibilityLabel={t('todos.modal.dueDate')}>
+                {t('todos.modal.dueDate')}
+              </AppText>
+              <AppInput
+                testID="create-todo-due-date"
+                accessibilityLabel={t('todos.modal.dueDate')}
+                placeholder={t('todos.modal.dueDatePlaceholder')}
+                value={dueDate}
+                onChangeText={setDueDate}
+                keyboardType="numbers-and-punctuation"
+                returnKeyType="done"
+                onSubmitEditing={handleSave}
+              />
+            </AppStack>
+
+            {saveError ? (
+              <AppText
+                testID="create-todo-save-error"
+                tone="danger"
+                size="sm"
                 accessibilityLiveRegion="polite"
               >
-                {titleError}
-              </Text>
-            )}
-          </YStack>
+                {saveError}
+              </AppText>
+            ) : null}
 
-          <YStack gap="$1">
-            <Text fontSize={14} color="$colorSecondary" accessibilityLabel={t('todos.modal.description')}>
-              {t('todos.modal.description')}
-            </Text>
-            <Input
-              testID="create-todo-description"
-              accessibilityLabel={t('todos.modal.description')}
-              placeholder={t('todos.modal.descriptionPlaceholder')}
-              value={description}
-              onChangeText={setDescription}
-              multiline
-              numberOfLines={3}
-              size="$4"
-              fontSize={16}
-              borderRadius="$4"
-              borderColor="$borderColor"
-              minHeight={80}
-            />
-          </YStack>
+            <AppStack direction="horizontal" gap={3} className="justify-end">
+              <AppButton
+                testID="create-todo-cancel"
+                variant="secondary"
+                onPress={handleClose}
+                disabled={isPending}
+                accessibilityLabel={t('todos.modal.cancel')}
+              >
+                {t('todos.modal.cancel')}
+              </AppButton>
 
-          <YStack gap="$1">
-            <Text fontSize={14} color="$colorSecondary" accessibilityLabel={t('todos.modal.dueDate')}>
-              {t('todos.modal.dueDate')}
-            </Text>
-            <Input
-              testID="create-todo-due-date"
-              accessibilityLabel={t('todos.modal.dueDate')}
-              placeholder={t('todos.modal.dueDatePlaceholder')}
-              value={dueDate}
-              onChangeText={setDueDate}
-              size="$4"
-              fontSize={16}
-              borderRadius="$4"
-              borderColor="$borderColor"
-              keyboardType="numbers-and-punctuation"
-              returnKeyType="done"
-              onSubmitEditing={handleSave}
-            />
-          </YStack>
-
-          {saveError && (
-            <Text
-              testID="create-todo-save-error"
-              color="$danger"
-              fontSize="$2"
-              accessibilityLiveRegion="polite"
-            >
-              {saveError}
-            </Text>
-          )}
-
-          <XStack gap="$3" justifyContent="flex-end">
-            <Button
-              testID="create-todo-cancel"
-              onPress={handleClose}
-              variant="outlined"
-              size="$4"
-              height={44}
-              borderRadius="$4"
-              borderColor="$borderColor"
-              color="$colorSecondary"
-              disabled={isPending}
-              accessibilityLabel={t('todos.modal.cancel')}
-              justifyContent="center"
-              alignItems="center"
-              fontSize={16}
-            >
-              {t('todos.modal.cancel')}
-            </Button>
-            <Button
-              testID="create-todo-save"
-              onPress={handleSave}
-              backgroundColor="$primary"
-              color="$white"
-              size="$4"
-              height={44}
-              borderRadius="$4"
-              disabled={isPending}
-              icon={isPending ? <Spinner color="$white" /> : undefined}
-              accessibilityLabel={t('todos.modal.save')}
-              justifyContent="center"
-              alignItems="center"
-              fontSize={16}
-            >
-              {t('todos.modal.save')}
-            </Button>
-          </XStack>
-        </YStack>
-      </Sheet.Frame>
-    </Sheet>
+              <AppButton
+                testID="create-todo-save"
+                onPress={handleSave}
+                disabled={isPending}
+                isLoading={isPending}
+                accessibilityLabel={t('todos.modal.save')}
+              >
+                {t('todos.modal.save')}
+              </AppButton>
+            </AppStack>
+          </AppStack>
+        </View>
+      </View>
+    </Modal>
   )
 }
