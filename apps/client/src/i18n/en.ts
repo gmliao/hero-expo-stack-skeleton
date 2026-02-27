@@ -2,6 +2,7 @@ export const en = {
   common: {
     loading: 'Loading...',
     retry: 'Retry',
+    back: 'Back',
   },
   auth: {
     signInTitle: 'Sign In',
@@ -20,6 +21,10 @@ export const en = {
     passwordMismatch: 'Passwords do not match.',
     goToSignIn: 'Already have an account? Sign In',
     goToSignUp: "Don't have an account? Sign Up",
+  },
+  options: {
+    title: 'Options',
+    logout: 'Log out',
   },
   todos: {
     title: 'My Todos',

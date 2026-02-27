@@ -1,7 +1,8 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { router } from 'expo-router'
 
 import type { Todo } from '@shared/types/api'
 import { useDeleteTodoMutation } from '@/data/hooks/useDeleteTodoMutation'
@@ -10,25 +11,13 @@ import { useToggleTodoMutation } from '@/data/hooks/useToggleTodoMutation'
 import { CreateTodoModal } from '@/features/todos/CreateTodoModal'
 import { FilterTabs } from '@/features/todos/FilterTabs'
 import { TodoItem } from '@/features/todos/TodoItem'
-import { useBreakpoint } from '@/lib/useBreakpoint'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useUIStore } from '@/stores/useUIStore'
-import { AppButton, AppStack, AppText } from '@/ui/components'
+import { AppButton, AppScreenContainer, AppStack, AppText } from '@/ui/components'
 import { tokens } from '@/ui/tokens'
-
-const CONTENT_MAX_WIDTH = 720
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  contentBase: {
-    flex: 1,
-    width: '100%',
-    alignSelf: 'center',
-    minHeight: 0,
-  },
-  desktopContent: {
-    maxWidth: CONTENT_MAX_WIDTH,
-  },
   listContent: {
     flexGrow: 1,
     paddingHorizontal: 20,
@@ -40,7 +29,6 @@ const styles = StyleSheet.create({
 
 export default function TodosScreen() {
   const { t } = useTranslation()
-  const breakpoint = useBreakpoint()
   const uid = useAuthStore(s => s.uid) ?? ''
   const filter = useUIStore(s => s.filter)
   const setFilter = useUIStore(s => s.setFilter)
@@ -119,27 +107,35 @@ export default function TodosScreen() {
       ) : null}
 
       {!isPending && !isError ? (
-        <View
-          className="flex-1 bg-bg"
-          style={[
-            styles.contentBase,
-            breakpoint === 'desktop' ? styles.desktopContent : undefined,
-          ]}
-        >
+        <View className="flex-1 bg-bg">
+          <AppScreenContainer className="flex-1">
           <View className="flex-row items-center justify-between border-b border-border bg-bg px-5 py-3">
             <AppText testID="todos-title" size="xl" weight="bold">
               {t('todos.title')}
             </AppText>
-            <AppButton
-              testID="create-todo-button"
-              size="sm"
-              onPress={() => {
-                setSelectedTodoId(null)
-                openModal()
-              }}
-            >
-              {t('todos.create')}
-            </AppButton>
+            <View className="flex-row items-center gap-2">
+              <AppButton
+                testID="create-todo-button"
+                size="sm"
+                onPress={() => {
+                  setSelectedTodoId(null)
+                  openModal()
+                }}
+              >
+                {t('todos.create')}
+              </AppButton>
+              <Pressable
+                onPress={() => router.push('/(app)/options')}
+                className="py-2 px-3"
+                testID="todos-options-link"
+                accessibilityRole="button"
+                accessibilityLabel={t('options.title')}
+              >
+                <AppText size="sm" tone="muted">
+                  {t('options.title')}
+                </AppText>
+              </Pressable>
+            </View>
           </View>
 
           <FilterTabs value={filter} onChange={setFilter} />
@@ -172,6 +168,7 @@ export default function TodosScreen() {
               </AppStack>
             ) : null}
           </ScrollView>
+          </AppScreenContainer>
         </View>
       ) : null}
     </SafeAreaView>

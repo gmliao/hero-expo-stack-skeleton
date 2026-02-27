@@ -49,6 +49,11 @@ Read this before editing code or docs in this repository.
 
 ## Design System First Workflow (Required)
 
+- **UI 功能開發流程（順序不可顛倒）：**
+  1. **先確認 Pen UI**：在 `.pen` 內完成或確認畫面／元件（版面、語意色變數、可重用元件）。必要時用 Pencil MCP 查詢或調整。
+  2. **再訂計劃**：依據 Pen 結果撰寫實作計劃（要動的檔案、對應的 Pen 元件／ID、i18n keys）。
+  3. **最後實作**：依計劃寫 Code（`@/ui/components`、route/feature、design-tokens 若需同步），並更新 `docs/design-system/pen-code-component-mapping.md`。
+  - 不要先寫畫面再回頭補 Pen；不要跳過計劃直接改 Code。
 - **DS-first for all UI work**:
   - Start from design-system primitives/tokens, then compose features/screens.
   - Do not build ad-hoc screen styles first and “backfill” DS later.

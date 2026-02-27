@@ -32,6 +32,9 @@ const textSize: Record<AppComponentSize, 'sm' | 'md' | 'lg'> = {
   lg: 'lg',
 }
 
+/** Spec/Button States 為主：全部 cornerRadius 8、height 44 */
+const buttonRadiusClass = 'rounded-sm'
+
 interface AppButtonProps extends Omit<PressableProps, 'children'> {
   children: string
   variant?: AppButtonVariant
@@ -62,7 +65,8 @@ export function AppButton({
       accessibilityRole="button"
       disabled={isDisabled}
       className={cn(
-        'items-center justify-center rounded-md',
+        'items-center justify-center',
+        buttonRadiusClass,
         containerClass[resolvedVariant],
         sizeClass[size],
         state === 'focus' && 'border-2 border-primary',
@@ -80,7 +84,7 @@ export function AppButton({
         <AppText
           tone={textTone[resolvedVariant]}
           size={textSize[size]}
-          weight="semibold"
+          weight={resolvedVariant === 'outline' ? 'normal' : 'semibold'}
           className={cn(resolvedVariant === 'outline' && 'text-muted', textClassName)}
         >
           {children}

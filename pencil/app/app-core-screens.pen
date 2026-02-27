@@ -638,8 +638,8 @@
     {
       "type": "frame",
       "id": "mrUbg",
-      "x": 900,
-      "y": 0,
+      "x": 1415,
+      "y": -9,
       "name": "spec/Design System Foundation",
       "width": 1100,
       "fill": "$background",
@@ -1102,8 +1102,8 @@
     {
       "type": "frame",
       "id": "GJoF6",
-      "x": 900,
-      "y": 860,
+      "x": 1415,
+      "y": 936,
       "name": "spec/Component States",
       "width": 1100,
       "fill": "$background",
@@ -1170,18 +1170,19 @@
               "children": [
                 {
                   "type": "frame",
-                  "id": "u4sDt",
+                  "id": "XHNWi",
                   "name": "btnDef",
                   "width": "fill_container",
                   "height": 44,
                   "fill": "$primary",
                   "cornerRadius": 8,
+                  "layout": "vertical",
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
                       "type": "text",
-                      "id": "5pcFn",
+                      "id": "OVLxe",
                       "name": "btnDefTxt",
                       "fill": "#FFFFFF",
                       "content": "Default",
@@ -1193,18 +1194,19 @@
                 },
                 {
                   "type": "frame",
-                  "id": "kbMcX",
+                  "id": "q5pIE",
                   "name": "btnHover",
                   "width": "fill_container",
                   "height": 44,
                   "fill": "$text",
                   "cornerRadius": 8,
+                  "layout": "vertical",
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
                       "type": "text",
-                      "id": "rvfyp",
+                      "id": "YMt3B",
                       "name": "btnHoverTxt",
                       "fill": "#FFFFFF",
                       "content": "Hover",
@@ -1216,7 +1218,7 @@
                 },
                 {
                   "type": "frame",
-                  "id": "KnGfw",
+                  "id": "jkkHl",
                   "name": "btnFocus",
                   "width": "fill_container",
                   "height": 44,
@@ -1227,12 +1229,13 @@
                     "thickness": 2,
                     "fill": "$cta"
                   },
+                  "layout": "vertical",
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
                       "type": "text",
-                      "id": "jtDGf",
+                      "id": "6hk9i",
                       "name": "btnFocusTxt",
                       "fill": "#FFFFFF",
                       "content": "Focus",
@@ -1244,18 +1247,19 @@
                 },
                 {
                   "type": "frame",
-                  "id": "IYhzO",
+                  "id": "h1QSx",
                   "name": "btnErr",
                   "width": "fill_container",
                   "height": 44,
                   "fill": "$danger",
                   "cornerRadius": 8,
+                  "layout": "vertical",
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
                       "type": "text",
-                      "id": "zyQbM",
+                      "id": "IsYqP",
                       "name": "btnErrTxt",
                       "fill": "#FFFFFF",
                       "content": "Error",
@@ -1267,19 +1271,20 @@
                 },
                 {
                   "type": "frame",
-                  "id": "qgfux",
+                  "id": "G5Gnu",
                   "name": "btnDis",
                   "opacity": 0.7,
                   "width": "fill_container",
                   "height": 44,
                   "fill": "$border",
                   "cornerRadius": 8,
+                  "layout": "vertical",
                   "justifyContent": "center",
                   "alignItems": "center",
                   "children": [
                     {
                       "type": "text",
-                      "id": "eJ1NE",
+                      "id": "Kal2Z",
                       "name": "btnDisTxt",
                       "fill": "$textMuted",
                       "content": "Disabled",
@@ -1642,8 +1647,8 @@
     {
       "type": "frame",
       "id": "M8sJc",
-      "x": 900,
-      "y": 1480,
+      "x": 1415,
+      "y": 1643,
       "name": "spec/Form Patterns",
       "width": 1100,
       "fill": "$background",
@@ -1978,8 +1983,8 @@
     {
       "type": "frame",
       "id": "gVDUF",
-      "x": 2050,
-      "y": 0,
+      "x": 2631,
+      "y": -9,
       "name": "DS Components",
       "width": 420,
       "fill": "$background",
@@ -2054,31 +2059,6 @@
         },
         {
           "type": "frame",
-          "id": "3IKQy",
-          "name": "component/PrimaryButton",
-          "reusable": true,
-          "width": "fill_container",
-          "height": 52,
-          "fill": "$primary",
-          "cornerRadius": 12,
-          "layout": "vertical",
-          "justifyContent": "center",
-          "alignItems": "center",
-          "children": [
-            {
-              "type": "text",
-              "id": "oaYG8",
-              "name": "btnLabel",
-              "fill": "$white",
-              "content": "Button",
-              "fontFamily": "Inter",
-              "fontSize": 17,
-              "fontWeight": "600"
-            }
-          ]
-        },
-        {
-          "type": "frame",
           "id": "9eh24",
           "name": "component/LinkAction",
           "reusable": true,
@@ -2100,13 +2080,38 @@
         },
         {
           "type": "frame",
+          "id": "3IKQy",
+          "name": "component/PrimaryButton",
+          "reusable": true,
+          "width": "fill_container",
+          "height": 44,
+          "fill": "$primary",
+          "cornerRadius": 8,
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "oaYG8",
+              "name": "btnLabel",
+              "fill": "$white",
+              "content": "Button",
+              "fontFamily": "Inter",
+              "fontSize": 17,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
           "id": "C1f9F",
           "name": "component/OutlineButton",
           "reusable": true,
           "width": "fill_container",
           "height": 44,
           "fill": "transparent",
-          "cornerRadius": 10,
+          "cornerRadius": 8,
           "stroke": {
             "align": "inside",
             "thickness": 1,
@@ -2406,6 +2411,101 @@
           "gap": 16
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "O4CjV",
+      "x": 840,
+      "y": 840,
+      "name": "Options",
+      "width": 375,
+      "height": 812,
+      "fill": "$background",
+      "cornerRadius": 24,
+      "stroke": {
+        "thickness": 1,
+        "fill": "$border"
+      },
+      "layout": "vertical",
+      "children": [
+        {
+          "id": "wh9Lc",
+          "type": "ref",
+          "ref": "l5b7W",
+          "width": "fill_container",
+          "name": "statusRef",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "type": "frame",
+          "id": "6gHm2",
+          "name": "contentWrap",
+          "width": "fill_container",
+          "fill": "transparent",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            32,
+            20
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "ng26S",
+              "name": "backRow",
+              "width": "fill_container",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Whujx",
+                  "name": "backText",
+                  "fill": "$muted",
+                  "content": "← Back",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "id": "v3FBW",
+              "type": "ref",
+              "ref": "T5cMs",
+              "name": "titleRef",
+              "descendants": {
+                "78Uwh": {
+                  "content": "Options"
+                }
+              }
+            },
+            {
+              "id": "8B06c",
+              "type": "ref",
+              "ref": "3IKQy",
+              "width": "fill_container",
+              "name": "logoutRef",
+              "descendants": {
+                "oaYG8": {
+                  "content": "Log out"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "hTVRn",
+      "x": 840,
+      "y": 816,
+      "name": "lblOptions",
+      "fill": "#0F766E",
+      "content": "Options",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "600"
     }
   ],
   "variables": {
