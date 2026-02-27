@@ -33,6 +33,7 @@ interface AppButtonProps extends Omit<PressableProps, 'children'> {
   children: string
   variant?: AppButtonVariant
   size?: AppComponentSize
+  state?: 'default' | 'hover' | 'focus' | 'error' | 'disabled'
   isLoading?: boolean
   className?: string
   textClassName?: string
@@ -42,13 +43,16 @@ export function AppButton({
   children,
   variant = 'primary',
   size = 'md',
+  state = 'default',
   isLoading = false,
   disabled,
   className,
   textClassName,
   ...props
 }: AppButtonProps) {
-  const isDisabled = disabled || isLoading
+  const isDisabled = disabled || isLoading || state === 'disabled'
+  const resolvedVariant =
+    state === 'error' ? 'destructive' : state === 'hover' ? 'secondary' : variant
 
   return (
     <Pressable
@@ -56,8 +60,9 @@ export function AppButton({
       disabled={isDisabled}
       className={cn(
         'items-center justify-center rounded-md',
-        containerClass[variant],
+        containerClass[resolvedVariant],
         sizeClass[size],
+        state === 'focus' && 'border-2 border-primary',
         isDisabled && 'opacity-60',
         className,
       )}
@@ -66,11 +71,11 @@ export function AppButton({
       {isLoading ? (
         <ActivityIndicator
           size="small"
-          color={textTone[variant] === 'inverse' ? tokens.colors.white : tokens.colors.text}
+          color={textTone[resolvedVariant] === 'inverse' ? tokens.colors.white : tokens.colors.text}
         />
       ) : (
         <AppText
-          tone={textTone[variant]}
+          tone={textTone[resolvedVariant]}
           size={textSize[size]}
           weight="semibold"
           className={textClassName}
