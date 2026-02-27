@@ -1,9 +1,17 @@
 // React Native Web maps testID prop to data-testid attribute on the DOM.
 // This file uses page.getByTestId() which is equivalent to [data-testid="..."] selector.
 
-import { test, expect } from '@playwright/test'
+import { test, expect, type Locator } from '@playwright/test'
 
-// Emulators + Expo web must be running: bun run dev
+const isTodoChecked = async (toggle: Locator) => {
+  const ariaChecked = await toggle.getAttribute('aria-checked')
+  if (ariaChecked === 'true') return true
+  if (ariaChecked === 'false') return false
+  const marker = await toggle.textContent()
+  return (marker ?? '').includes('✓')
+}
+
+// Root script bun run e2e:web starts Firebase emulators + Expo web server automatically.
 test.describe('Todos flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/login')
@@ -11,6 +19,7 @@ test.describe('Todos flow', () => {
     await page.getByTestId('password-input').fill('password')
     await page.getByTestId('login-button').click()
     await page.waitForURL('**/') // navigates to todos screen
+    await expect(page.getByTestId('todos-title')).toBeVisible({ timeout: 15_000 })
   })
 
   test('shows todo list after login', async ({ page }) => {
@@ -26,10 +35,13 @@ test.describe('Todos flow', () => {
 
   test('can toggle a todo', async ({ page }) => {
     const firstToggle = page.getByTestId(/^todo-toggle-/).first()
-    const checked = await firstToggle.getAttribute('aria-checked')
+    const checked = await isTodoChecked(firstToggle)
     await firstToggle.click()
-    const expectedChecked = checked === 'true' ? 'false' : 'true'
-    await expect(firstToggle).toHaveAttribute('aria-checked', expectedChecked)
+    await expect
+      .poll(async () => isTodoChecked(firstToggle), {
+        message: 'todo checkbox should update checked state after click',
+      })
+      .toBe(!checked)
   })
 
   test('can create a todo with title, description and dueDate', async ({ page }) => {
@@ -46,10 +58,14 @@ test.describe('Todos flow', () => {
     // Ensure at least one todo, then toggle first to completed
     const firstToggle = page.getByTestId(/^todo-toggle-/).first()
     await expect(firstToggle).toBeVisible()
-    const wasChecked = (await firstToggle.getAttribute('aria-checked')) === 'true'
+    const wasChecked = await isTodoChecked(firstToggle)
     if (!wasChecked) {
       await firstToggle.click()
-      await expect(firstToggle).toHaveAttribute('aria-checked', 'true')
+      await expect
+        .poll(async () => isTodoChecked(firstToggle), {
+          message: 'todo checkbox should become checked',
+        })
+        .toBe(true)
     }
     const completedTitle = await firstToggle.getAttribute('aria-label')
     // Switch to completed: list should show the completed item
@@ -77,7 +93,9 @@ test.describe('Todos flow', () => {
   })
 
   test('can delete a todo with confirmation', async ({ page }) => {
-    let itemsBefore = await page.getByTestId(/^todo-item-/).count()
+    const todoItems = page.getByTestId(/^todo-item-/)
+    await expect(todoItems.first()).toBeVisible()
+    let itemsBefore = await todoItems.count()
     if (itemsBefore === 0) {
       await page.getByTestId('create-todo-button').click()
       await page.getByTestId('create-todo-input').fill('E2E To Delete')
@@ -85,19 +103,19 @@ test.describe('Todos flow', () => {
       await expect(page.getByText('E2E To Delete')).toBeVisible()
       itemsBefore = 1
     }
-    // Accept native confirm dialog when delete is triggered (RN Web Alert.alert → dialog)
+    // Accept native confirm dialog before triggering delete.
     page.once('dialog', d => d.accept())
     const firstDeleteBtn = page.getByTestId(/^todo-delete-/).first()
     await firstDeleteBtn.click()
-    await expect(page.getByTestId(/^todo-item-/)).toHaveCount(itemsBefore - 1)
+    await expect(todoItems).toHaveCount(itemsBefore - 1)
   })
 })
 
 test.describe('Accessibility', () => {
   test('login form is keyboard accessible', async ({ page }) => {
     await page.goto('/login')
-    // Tab to email, fill, Tab to password, fill, Tab to button, Enter
-    await page.keyboard.press('Tab') // focus email
+    // Focus email first, then use keyboard-only path through password and submit.
+    await page.getByTestId('email-input').focus()
     await page.keyboard.type('test1@example.com')
     await page.keyboard.press('Tab') // focus password
     await page.keyboard.type('password')

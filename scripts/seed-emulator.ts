@@ -11,8 +11,8 @@ const auth = admin.auth()
 const db = admin.firestore()
 
 const users: { uid: string; email: string; password: string; displayName: string }[] = [
-  { uid: 'user-1', email: 'user1@example.com', password: '123456', displayName: 'User 1' },
-  { uid: 'user-2', email: 'user2@example.com', password: '123456', displayName: 'User 2' },
+  { uid: 'user-1', email: 'test1@example.com', password: 'password', displayName: 'Test User 1' },
+  { uid: 'user-2', email: 'test2@example.com', password: 'password', displayName: 'Test User 2' },
 ]
 
 const todos = [

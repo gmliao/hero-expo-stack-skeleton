@@ -36,6 +36,7 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete }: Props) {
         accessibilityRole="checkbox"
         accessibilityLabel={todo.title}
         accessibilityState={{ checked: todo.completed }}
+        aria-checked={todo.completed}
         onPress={() => onToggle(todo.id)}
         className={cn(
           'h-11 w-11 items-center justify-center rounded-md border',
