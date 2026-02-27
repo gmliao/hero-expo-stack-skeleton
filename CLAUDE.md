@@ -61,7 +61,7 @@ All query keys live in `app/src/data/queryKeys.ts`. Add new keys there, nowhere 
 
 ```
 app/src/
-├── ui/          # Tamagui components and theme only. No business logic.
+├── ui/          # Shared UI components and theme only. No business logic.
 ├── data/        # api.ts, queryKeys.ts, and TanStack Query hooks
 ├── stores/      # Zustand stores (UI state only)
 ├── features/    # Feature modules. Each feature owns its screens + local components.
