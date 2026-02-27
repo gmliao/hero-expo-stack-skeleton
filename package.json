@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "concurrently \"bun run emulators\" \"bun run wait-emulators && bun run seed && bun run app\"",
-    "app": "cd app && dotenv -e ../.env -- bun run start",
+    "app": "cd apps/client && dotenv -e ../../.env -- bun run start",
     "firebase:cli": "cd backend/firebase && bunx firebase",
     "firebase:login": "cd backend/firebase && bunx firebase login",
     "firebase:whoami": "cd backend/firebase && bunx firebase login:list",
@@ -12,17 +12,19 @@
     "seed": "bun run scripts/seed-emulator.ts",
     "wait-emulators": "bun run scripts/wait-on-emulators.ts",
     "clean-emulators": "bun run scripts/clean-emulator.ts",
-    "test": "cd app && bun run test",
+    "test": "cd apps/client && bun run test",
     "test:backend": "cd backend/firebase/functions && bunx firebase emulators:exec --project hero-stack-local --only auth,firestore,functions \"bun run test\"",
     "e2e:web": "bunx playwright test",
-    "e2e:ios": "cd app && bun run e2e:ios",
-    "ci": "bun run test && bun run check:web && bun run test:backend && bun run e2e:web",
+    "check:pw:console": "bunx playwright test tests/console.spec.ts --config e2e-web/playwright.console.config.ts --reporter=line",
+    "check:expo": "cd apps/client && dotenv -e ../../.env -- sh -c 'EXPO_PUBLIC_FIREBASE_PROJECT_ID=${EXPO_PUBLIC_FIREBASE_PROJECT_ID:-hero-stack-local} EXPO_PUBLIC_FIREBASE_API_KEY=${EXPO_PUBLIC_FIREBASE_API_KEY:-demo-api-key} EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=${EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN:-localhost} bunx expo-doctor && EXPO_PUBLIC_FIREBASE_PROJECT_ID=${EXPO_PUBLIC_FIREBASE_PROJECT_ID:-hero-stack-local} EXPO_PUBLIC_FIREBASE_API_KEY=${EXPO_PUBLIC_FIREBASE_API_KEY:-demo-api-key} EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=${EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN:-localhost} bun run build:web'",
+    "e2e:ios": "cd apps/client && bun run e2e:ios",
+    "ci": "bun run check:pw:console && bun run check:expo && bun run test && bun run check:web && bun run test:backend && bun run e2e:web",
     "firebase": "bash scripts/firebase/run.sh",
     "firebase:project:set": "bash scripts/firebase/setup-cloud-project.sh",
     "firebase:emulators:start": "bun run firebase emulators:start --only auth,firestore,functions",
     "firebase:emulators:ui": "bun run firebase emulators:start --only ui",
     "firebase:functions:log": "bun run firebase functions:log",
-    "check:web": "cd app && bun run build:web"
+    "check:web": "cd apps/client && bun run build:web"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
