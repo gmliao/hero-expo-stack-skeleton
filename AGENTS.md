@@ -19,7 +19,7 @@ Read this before editing code or docs in this repository.
 - Query/state split:
   - TanStack Query for server state.
   - Zustand for UI state only.
-- Query keys must come from `app/src/data/queryKeys.ts` factory.
+- Query keys must come from `apps/client/src/data/queryKeys.ts` factory.
 - `shared/types/api.ts` is the API contract source of truth.
 
 ## UI Baseline Rules
@@ -30,8 +30,13 @@ Read this before editing code or docs in this repository.
   - Route screens should use `SafeAreaView` with explicit edges.
 - Keep test selectors (`testID`) locale-independent.
 - For iOS/Android native parity and E2E reliability, use Expo Dev Client (`expo start --dev-client`); do not treat Expo Go as the default runtime.
-- Web is a first-class target: run `cd app && bun run web` for feature smoke checks and avoid web assertions that depend on localized text.
-- **Web bundling**: Any package imported by app code must be listed in `app/package.json` (not only in root), or Web build may fail with "Unable to resolve". After adding new app imports, run `bun run check:web` to verify the web bundle builds.
+- Web is a first-class target: run `cd apps/client && bun run web` for feature smoke checks and avoid web assertions that depend on localized text.
+- **Web bundling**: Any package imported by app code must be listed in `apps/client/package.json` (not only in root), or Web build may fail with "Unable to resolve". After adding new app imports, run `bun run check:web` to verify the web bundle builds.
+- **Client UI boundary (required):**
+  - Route/feature layer (`apps/client/app/**`, `apps/client/src/features/**`) must import UI from `@/ui/components` only.
+  - Do not import `@gluestack-ui/*` directly in route/feature files.
+  - Do not add inline `style={{...}}` literals in route/feature files.
+  - Run `bun run check:client:ui` after UI changes.
 - Web a11y baseline is required for feature completion:
   - Keyboard operable core flow (login/create/toggle).
   - Inputs/actions expose accessible names.
@@ -69,6 +74,9 @@ Read this before editing code or docs in this repository.
 
 Run relevant checks before claiming completion:
 
+- `bun run check:client:ui`
+- `bun run check:pw:console` (Playwright CLI must show no browser `console.error` / `pageerror`)
+- `bun run check:expo` (Expo doctor + compile/export)
 - `bun run test`
 - `bun run check:web` (web bundle; catches "Unable to resolve" and similar)
 - `bun run test:backend`
