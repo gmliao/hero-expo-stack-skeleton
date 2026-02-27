@@ -3,13 +3,13 @@
   "compilerOptions": {
     "strict": true,
     "baseUrl": ".",
-    "types": ["jest"],
+    "types": ["jest", "nativewind/types"],
     "paths": {
       "@/*": [
         "src/*"
       ],
       "@shared/*": [
-        "../shared/*"
+        "../../shared/*"
       ]
     }
   },
@@ -17,6 +17,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "expo-env.d.ts",
+    "nativewind-env.d.ts"
   ]
 }

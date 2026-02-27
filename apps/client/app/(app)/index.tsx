@@ -1,8 +1,7 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert } from 'react-native'
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Button, ScrollView, Spinner, Text, XStack, YStack } from 'tamagui'
 
 import type { Todo } from '@shared/types/api'
 import { useDeleteTodoMutation } from '@/data/hooks/useDeleteTodoMutation'
@@ -14,8 +13,30 @@ import { TodoItem } from '@/features/todos/TodoItem'
 import { useBreakpoint } from '@/lib/useBreakpoint'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useUIStore } from '@/stores/useUIStore'
+import { AppButton, AppStack, AppText } from '@/ui/components'
+import { tokens } from '@/ui/tokens'
 
 const CONTENT_MAX_WIDTH = 720
+
+const styles = StyleSheet.create({
+  safeArea: { flex: 1 },
+  contentBase: {
+    flex: 1,
+    width: '100%',
+    alignSelf: 'center',
+    minHeight: 0,
+  },
+  desktopContent: {
+    maxWidth: CONTENT_MAX_WIDTH,
+  },
+  listContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    paddingBottom: 32,
+  },
+  scroll: { flex: 1 },
+})
 
 export default function TodosScreen() {
   const { t } = useTranslation()
@@ -67,76 +88,50 @@ export default function TodosScreen() {
   )
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <CreateTodoModal />
 
-      {isPending && (
-        <YStack flex={1} alignItems="center" justifyContent="center">
-          <Spinner size="large" color="$primary" />
-        </YStack>
-      )}
+      {isPending ? (
+        <View className="flex-1 items-center justify-center bg-bg">
+          <ActivityIndicator size="large" color={tokens.colors.primary} />
+        </View>
+      ) : null}
 
-      {isError && (
-        <YStack flex={1} alignItems="center" justifyContent="center" padding="$4">
-          <Text color="$danger" textAlign="center">
+      {isError ? (
+        <View className="flex-1 items-center justify-center bg-bg px-4">
+          <AppText tone="danger" className="text-center">
             {t('todos.loadError')}
-          </Text>
-        </YStack>
-      )}
+          </AppText>
+        </View>
+      ) : null}
 
-      {!isPending && !isError && (
-        <YStack
-          flex={1}
-          backgroundColor="$background"
-          width="100%"
-          maxWidth={breakpoint === 'desktop' ? CONTENT_MAX_WIDTH : undefined}
-          alignSelf="center"
-          padding={0}
-          minHeight={0}
+      {!isPending && !isError ? (
+        <View
+          className="flex-1 bg-bg"
+          style={[
+            styles.contentBase,
+            breakpoint === 'desktop' ? styles.desktopContent : undefined,
+          ]}
         >
-          <XStack
-            flexShrink={0}
-            paddingVertical="$3"
-            paddingHorizontal="$5"
-            justifyContent="space-between"
-            alignItems="center"
-            borderBottomWidth={1}
-            borderColor="$borderColor"
-            backgroundColor="$background"
-          >
-            <Text
-              testID="todos-title"
-              fontSize={22}
-              fontWeight="700"
-              color="$color"
-            >
+          <View className="flex-row items-center justify-between border-b border-border bg-bg px-5 py-3">
+            <AppText testID="todos-title" size="xl" weight="bold">
               {t('todos.title')}
-            </Text>
-            <Button
+            </AppText>
+            <AppButton
               testID="create-todo-button"
+              size="sm"
               onPress={() => {
                 setSelectedTodoId(null)
                 openModal()
               }}
-              backgroundColor="$cta"
-              color="$white"
-              size="$3"
-              borderRadius="$4"
-              height={40}
-              justifyContent="center"
-              alignItems="center"
-              fontSize={15}
             >
               {t('todos.create')}
-            </Button>
-          </XStack>
+            </AppButton>
+          </View>
 
           <FilterTabs value={filter} onChange={setFilter} />
 
-          <ScrollView
-            flex={1}
-            contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingVertical: 20, paddingBottom: 32 }}
-          >
+          <ScrollView style={styles.scroll} contentContainerStyle={styles.listContent}>
             {todos?.map(todo => (
               <TodoItem
                 key={todo.id}
@@ -146,43 +141,26 @@ export default function TodosScreen() {
                 onDelete={handleDelete}
               />
             ))}
-            {todos?.length === 0 && (
-              <YStack
-                flex={1}
-                padding="$6"
-                justifyContent="center"
-                alignItems="center"
-                gap="$4"
-              >
-                <Text
-                  testID="todos-empty"
-                  color="$colorSecondary"
-                  textAlign="center"
-                  fontSize={16}
-                >
+
+            {todos?.length === 0 ? (
+              <AppStack gap={4} className="flex-1 items-center justify-center p-6">
+                <AppText testID="todos-empty" tone="muted" className="text-center">
                   {t('todos.empty')}
-                </Text>
-                <Button
+                </AppText>
+                <AppButton
                   testID="create-todo-button-empty"
                   onPress={() => {
                     setSelectedTodoId(null)
                     openModal()
                   }}
-                  backgroundColor="$cta"
-                  color="$white"
-                  size="$4"
-                  borderRadius="$4"
-                  justifyContent="center"
-                  alignItems="center"
-                  fontSize={16}
                 >
                   {t('todos.create')}
-                </Button>
-              </YStack>
-            )}
+                </AppButton>
+              </AppStack>
+            ) : null}
           </ScrollView>
-        </YStack>
-      )}
+        </View>
+      ) : null}
     </SafeAreaView>
   )
 }

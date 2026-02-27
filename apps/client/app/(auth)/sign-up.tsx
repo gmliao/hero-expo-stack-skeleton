@@ -2,13 +2,18 @@ import { useState } from 'react'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
-import { Pressable } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Button, Input, Spinner, Text, YStack } from 'tamagui'
 import { firebaseAuth } from '@/lib/firebase'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { AppButton, AppInput, AppStack, AppText } from '@/ui/components'
 
 const MIN_PASSWORD_LENGTH = 6
+
+const styles = StyleSheet.create({
+  safeArea: { flex: 1 },
+  formWrap: { width: '100%', maxWidth: 420 },
+})
 
 export default function SignUpScreen() {
   const { t } = useTranslation()
@@ -53,117 +58,92 @@ export default function SignUpScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
-      <YStack
-        flex={1}
-        justifyContent="center"
-        paddingVertical="$7"
-        paddingHorizontal="$5"
-        backgroundColor="$background"
-        gap="$5"
-        width="100%"
-        maxWidth={420}
-        alignSelf="center"
-      >
-        <Text fontSize={28} fontWeight="700" color="$color">
-          {t('auth.signUpTitle')}
-        </Text>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <View className="flex-1 items-center bg-bg px-5 py-7">
+        <AppStack gap={5} className="flex-1 w-full justify-center" style={styles.formWrap}>
+          <AppText size="xl" weight="bold">
+            {t('auth.signUpTitle')}
+          </AppText>
 
-        {error && (
-          <Text color="$danger" testID="sign-up-error" accessibilityLiveRegion="polite">
-            {error}
-          </Text>
-        )}
+          {error ? (
+            <AppText tone="danger" testID="sign-up-error" accessibilityLiveRegion="polite">
+              {error}
+            </AppText>
+          ) : null}
 
-        <YStack gap="$1">
-          <Text fontSize={14} color="$colorSecondary">
-            {t('auth.email')}
-          </Text>
-          <Input
-            testID="sign-up-email-input"
-            accessibilityLabel={t('auth.email')}
-            placeholder={t('auth.email')}
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="email-address"
-            textContentType="emailAddress"
-            size="$5"
-            fontSize={16}
-            borderRadius="$4"
-            borderColor="$borderColor"
-          />
-        </YStack>
+          <AppStack gap={1}>
+            <AppText size="sm" tone="muted">
+              {t('auth.email')}
+            </AppText>
+            <AppInput
+              testID="sign-up-email-input"
+              accessibilityLabel={t('auth.email')}
+              placeholder={t('auth.email')}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              textContentType="emailAddress"
+              size="md"
+            />
+          </AppStack>
 
-        <YStack gap="$1">
-          <Text fontSize={14} color="$colorSecondary">
-            {t('auth.password')}
-          </Text>
-          <Input
-            testID="sign-up-password-input"
-            accessibilityLabel={t('auth.password')}
-            placeholder={t('auth.password')}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            textContentType="newPassword"
-            size="$5"
-            fontSize={16}
-            borderRadius="$4"
-            borderColor="$borderColor"
-          />
-        </YStack>
+          <AppStack gap={1}>
+            <AppText size="sm" tone="muted">
+              {t('auth.password')}
+            </AppText>
+            <AppInput
+              testID="sign-up-password-input"
+              accessibilityLabel={t('auth.password')}
+              placeholder={t('auth.password')}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              textContentType="newPassword"
+              size="md"
+            />
+          </AppStack>
 
-        <YStack gap="$1">
-          <Text fontSize={14} color="$colorSecondary">
-            {t('auth.confirmPassword')}
-          </Text>
-          <Input
-            testID="sign-up-confirm-input"
-            accessibilityLabel={t('auth.confirmPassword')}
-            placeholder={t('auth.confirmPassword')}
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-            textContentType="newPassword"
-            size="$5"
-            fontSize={16}
-            borderRadius="$4"
-            borderColor="$borderColor"
-          />
-        </YStack>
+          <AppStack gap={1}>
+            <AppText size="sm" tone="muted">
+              {t('auth.confirmPassword')}
+            </AppText>
+            <AppInput
+              testID="sign-up-confirm-input"
+              accessibilityLabel={t('auth.confirmPassword')}
+              placeholder={t('auth.confirmPassword')}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+              textContentType="newPassword"
+              size="md"
+            />
+          </AppStack>
 
-        <Button
-          testID="sign-up-button"
-          onPress={handleSignUp}
-          backgroundColor="$primary"
-          color="$white"
-          disabled={loading}
-          icon={loading ? <Spinner color="$white" /> : undefined}
-          size="$5"
-          marginTop="$2"
-          borderRadius="$6"
-          height={52}
-          justifyContent="center"
-          alignItems="center"
-          fontSize={17}
-        >
-          {loading ? t('auth.signingUp') : t('auth.signUp')}
-        </Button>
+          <AppButton
+            testID="sign-up-button"
+            onPress={handleSignUp}
+            disabled={loading}
+            isLoading={loading}
+            size="lg"
+          >
+            {loading ? t('auth.signingUp') : t('auth.signUp')}
+          </AppButton>
 
-        <Pressable
-          onPress={() => router.push('/(auth)/login')}
-          style={{ paddingVertical: 12, alignSelf: 'center' }}
-          testID="sign-up-link-login"
-          accessibilityRole="link"
-          accessibilityLabel={t('auth.goToSignIn')}
-        >
-          <Text fontSize={14} color="$colorSecondary">
-            {t('auth.goToSignIn')}
-          </Text>
-        </Pressable>
-      </YStack>
+          <Pressable
+            onPress={() => router.push('/(auth)/login')}
+            className="self-center py-3"
+            testID="sign-up-link-login"
+            accessibilityRole="link"
+            accessibilityLabel={t('auth.goToSignIn')}
+          >
+            <AppText size="sm" tone="muted">
+              {t('auth.goToSignIn')}
+            </AppText>
+          </Pressable>
+        </AppStack>
+      </View>
     </SafeAreaView>
   )
 }
