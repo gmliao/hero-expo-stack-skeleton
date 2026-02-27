@@ -2,6 +2,7 @@ export const zhTW = {
   common: {
     loading: '載入中...',
     retry: '重試',
+    back: '返回',
   },
   auth: {
     signInTitle: '登入',
@@ -20,6 +21,10 @@ export const zhTW = {
     passwordMismatch: '兩次輸入的密碼不一致。',
     goToSignIn: '已有帳號？登入',
     goToSignUp: '還沒有帳號？註冊',
+  },
+  options: {
+    title: '選項',
+    logout: '登出',
   },
   todos: {
     title: '我的待辦',

@@ -8,6 +8,18 @@
 
 ---
 
+## Pen 畫面 ↔ Code 路由（Screens）
+
+| Pen Screen (frame name) | Pen ID | Code Route |
+|-------------------------|--------|------------|
+| Login | hooV6 | (auth)/login.tsx |
+| Sign Up | Z8Qyn | (auth)/sign-up.tsx |
+| Todos | u57V2 | (app)/index.tsx |
+| Create Todo Modal | Aa59O | CreateTodoModal (sheet) |
+| **Options** | **O4CjV** | **(app)/options.tsx** |
+
+---
+
 ## Pen → Code（依 Pen 元件查 Code）
 
 | Pen Component | Pen ID | Code Component | Source File |
@@ -15,9 +27,9 @@
 | component/Card | QaOPf | AppCard | AppCard.tsx |
 | component/Field | ogBSt | AppField | AppField.tsx |
 | component/Input | toRVp | AppInput | AppInput.tsx |
-| component/PrimaryButton | 3IKQy | AppButton | AppButton.tsx (variant=primary) |
+| component/PrimaryButton | 3IKQy | AppButton | AppButton.tsx (variant=primary)。**規格以 spec/Button States 為準**：cornerRadius 8、height 44 |
 | component/LinkAction | 9eh24 | AppLinkAction | AppLinkAction.tsx |
-| component/OutlineButton | C1f9F | AppButton | AppButton.tsx (variant=outline) |
+| component/OutlineButton | C1f9F | AppButton | AppButton.tsx (variant=outline)。**規格以 spec/Button States 為準**：cornerRadius 8、height 44 |
 | component/FilterChipActive | edQQ4 | AppFilterChip | AppFilterChip.tsx (active=true) |
 | component/FilterChip | uSf0r | AppFilterChip | AppFilterChip.tsx (active=false) |
 | component/Stack | S6wSM | AppStack | AppStack.tsx |
@@ -40,6 +52,7 @@
 | AppFilterChip | AppFilterChip.tsx | FilterChip, FilterChipActive | uSf0r, edQQ4 |
 | AppInput | AppInput.tsx | component/Input | toRVp |
 | AppLinkAction | AppLinkAction.tsx | component/LinkAction | 9eh24 |
+| AppScreenContainer | AppScreenContainer.tsx | （版面用）畫面內容最大寬度 720、置中，desktop 才限寬 |
 | AppSheetHandle | AppSheetHandle.tsx | component/SheetHandle | McPgO |
 | AppStack | AppStack.tsx | component/Stack | S6wSM |
 | AppStatusBar | AppStatusBar.tsx | component/StatusBar | l5b7W |
