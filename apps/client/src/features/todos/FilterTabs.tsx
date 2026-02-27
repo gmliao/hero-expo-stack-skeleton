@@ -1,6 +1,6 @@
 import { View } from 'react-native'
 import { useTranslation } from 'react-i18next'
-import { AppButton } from '@/ui/components'
+import { AppFilterChip } from '@/ui/components'
 
 import type { Filter } from '@/stores/useUIStore'
 
@@ -19,20 +19,16 @@ export function FilterTabs({ value, onChange }: FilterTabsProps) {
       {FILTERS.map(filter => {
         const isSelected = value === filter
         return (
-          <AppButton
+          <AppFilterChip
             key={filter}
             testID={`filter-tab-${filter}`}
-            accessibilityRole="button"
             accessibilityLabel={t(`todos.filter.${filter}`)}
-            accessibilityState={{ selected: isSelected }}
-            variant={isSelected ? 'primary' : 'secondary'}
-            size="sm"
+            active={isSelected}
             className="flex-1"
-            textClassName={!isSelected ? 'text-muted' : undefined}
             onPress={() => onChange(filter)}
           >
             {t(`todos.filter.${filter}`)}
-          </AppButton>
+          </AppFilterChip>
         )
       })}
     </View>

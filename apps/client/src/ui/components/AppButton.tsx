@@ -8,6 +8,7 @@ const containerClass: Record<AppButtonVariant, string> = {
   secondary: 'bg-surface border border-border',
   ghost: 'bg-transparent border border-transparent',
   destructive: 'bg-danger border border-danger',
+  outline: 'bg-transparent border border-border',
 }
 
 const textTone: Record<AppButtonVariant, 'default' | 'inverse'> = {
@@ -15,6 +16,7 @@ const textTone: Record<AppButtonVariant, 'default' | 'inverse'> = {
   secondary: 'default',
   ghost: 'default',
   destructive: 'inverse',
+  outline: 'default',
 }
 
 const sizeClass: Record<AppComponentSize, string> = {
@@ -78,7 +80,7 @@ export function AppButton({
           tone={textTone[resolvedVariant]}
           size={textSize[size]}
           weight="semibold"
-          className={textClassName}
+          className={cn(resolvedVariant === 'outline' && 'text-muted', textClassName)}
         >
           {children}
         </AppText>

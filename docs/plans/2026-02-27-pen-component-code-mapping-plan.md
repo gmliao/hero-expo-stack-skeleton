@@ -14,9 +14,9 @@
 
 Previous file: `docs/plans/2026-02-27-design-system-foundation-implementation.md`
 
-Current status: **Partially complete**
-- Completed: token/semantic foundation and several UI component files were started/added.
-- Not complete: full verification pipeline did not pass (`bun test` failure observed in environment), and there is no explicit final mapping checklist from `.pen` reusable component IDs to source component files.
+Current status: **Complete** (2026-02-27)
+- All four tasks executed via subagent.
+- Mapping matrix filled; missing components implemented; route/feature migrated to DS components; verification gate passed.
 
 This plan supersedes the old plan for execution tracking while preserving its direction.
 
@@ -25,12 +25,15 @@ This plan supersedes the old plan for execution tracking while preserving its di
 ## Canonical Pen Reusable Components (Current)
 
 From `app-core-screens.pen`:
+- `component/Card` (`QaOPf`)
 - `component/Field` (`ogBSt`)
+- `component/Input` (`toRVp`)
 - `component/PrimaryButton` (`3IKQy`)
 - `component/LinkAction` (`9eh24`)
 - `component/OutlineButton` (`C1f9F`)
 - `component/FilterChipActive` (`edQQ4`)
 - `component/FilterChip` (`uSf0r`)
+- `component/Stack` (`S6wSM`)
 - `component/TodoItem` (`bEjH4`)
 - `component/TextArea` (`JEOdo`)
 - `component/StatusBar` (`l5b7W`)
@@ -84,53 +87,53 @@ Run and record:
 
 If failures occur, record root cause and keep plan status as incomplete.
 
+### Verification Results (2026-02-27)
+
+| Check | Result |
+|-------|--------|
+| `bun run check:client:ui` | PASS |
+| `bun run test` | 7 suites, 36 tests passed |
+| `bun run check:web` | Web bundle built successfully |
+
 ---
 
-## Mapping Checklist Template (to fill during execution)
+## Mapping Matrix (Pen → Source)
 
-| Pen Component | ID | Source Component | Source File | Status |
-|---|---|---|---|---|
-| component/Field | ogBSt | TBD | TBD | pending |
-| component/PrimaryButton | 3IKQy | TBD | TBD | pending |
-| component/LinkAction | 9eh24 | TBD | TBD | pending |
-| component/OutlineButton | C1f9F | TBD | TBD | pending |
-| component/FilterChipActive | edQQ4 | TBD | TBD | pending |
-| component/FilterChip | uSf0r | TBD | TBD | pending |
-| component/TodoItem | bEjH4 | TBD | TBD | pending |
-| component/TextArea | JEOdo | TBD | TBD | pending |
-| component/StatusBar | l5b7W | TBD | TBD | pending |
-| component/ScreenTitle | T5cMs | TBD | TBD | pending |
-| component/SectionLabel | Z7k3d | TBD | TBD | pending |
-| component/SheetHandle | McPgO | TBD | TBD | pending |
+| Pen Component | ID | Source Component | Source File | Status | Variant/state support | Priority |
+|---------------|-----|------------------|-------------|--------|----------------------|----------|
+| component/Field | ogBSt | AppField | AppField.tsx | done | label + children (AppInput/AppTextArea), required, error | P0 |
+| component/PrimaryButton | 3IKQy | AppButton | AppButton.tsx | done | variant=primary, size sm/md/lg, states, isLoading | P0 |
+| component/LinkAction | 9eh24 | AppLinkAction | AppLinkAction.tsx | done | text-primary, underline | P2 |
+| component/OutlineButton | C1f9F | AppButton | AppButton.tsx | done | variant=outline (border-primary, bg-transparent) | P1 |
+| component/FilterChipActive | edQQ4 | AppFilterChip | AppFilterChip.tsx | done | active=true | P1 |
+| component/FilterChip | uSf0r | AppFilterChip | AppFilterChip.tsx | done | active=false | P1 |
+| component/TodoItem | bEjH4 | features/todos/TodoItem.tsx | features/todos/TodoItem.tsx | done | Canonical; uses AppStack, AppText from @/ui | P1 |
+| component/TextArea | JEOdo | AppTextArea | AppTextArea.tsx | done | multiline, size, state | P0 |
+| component/StatusBar | l5b7W | AppStatusBar | AppStatusBar.tsx | done | safe-area top, bg-surface | P2 |
+| component/ScreenTitle | T5cMs | AppText | AppText.tsx | done | size="xl" weight="bold" | P2 |
+| component/SectionLabel | Z7k3d | AppText | AppText.tsx | done | size="sm" tone="muted" | P2 |
+| component/SheetHandle | McPgO | AppSheetHandle | AppSheetHandle.tsx | done | w-12 h-1 rounded-full bg-muted | P2 |
 
 ## Current Source Snapshot (Actual)
 
 Detected UI component files:
-- `apps/client/src/ui/components/AppButton.tsx`
-- `apps/client/src/ui/components/AppCard.tsx`
-- `apps/client/src/ui/components/AppInput.tsx`
-- `apps/client/src/ui/components/AppStack.tsx`
-- `apps/client/src/ui/components/AppText.tsx`
-- `apps/client/src/ui/components/primitives/Text.tsx`
-- `apps/client/src/ui/components/primitives/Stack.tsx`
+- `apps/client/src/ui/components/AppButton.tsx` — AppButton (variants: primary, secondary, ghost, outline, destructive)
+- `apps/client/src/ui/components/AppCard.tsx` — AppCard
+- `apps/client/src/ui/components/AppField.tsx` — AppField (label + children)
+- `apps/client/src/ui/components/AppFilterChip.tsx` — AppFilterChip (active prop)
+- `apps/client/src/ui/components/AppInput.tsx` — AppInput (single-line)
+- `apps/client/src/ui/components/AppLinkAction.tsx` — AppLinkAction
+- `apps/client/src/ui/components/AppSheetHandle.tsx` — AppSheetHandle
+- `apps/client/src/ui/components/AppStack.tsx` — AppStack
+- `apps/client/src/ui/components/AppStatusBar.tsx` — AppStatusBar
+- `apps/client/src/ui/components/AppText.tsx` — AppText
+- `apps/client/src/ui/components/AppTextArea.tsx` — AppTextArea (multiline)
+- `apps/client/src/ui/components/primitives/Text.tsx`, `Stack.tsx`
 
 Current export boundary (`index.ts`):
-- `AppButton`, `AppCard`, `AppInput`, `AppStack`, `AppText`
+- `AppButton`, `AppCard`, `AppField`, `AppFilterChip`, `AppInput`, `AppLinkAction`, `AppSheetHandle`, `AppStack`, `AppStatusBar`, `AppText`, `AppTextArea`
 
-### Mapping Gap (Pen → Source)
+### Migration Summary
 
-Immediate gaps to implement in source code:
-- `component/LinkAction`
-- `component/OutlineButton`
-- `component/FilterChipActive`
-- `component/FilterChip`
-- `component/TodoItem`
-- `component/TextArea`
-- `component/StatusBar`
-- `component/ScreenTitle`
-- `component/SectionLabel`
-- `component/SheetHandle`
-
-Partially covered (needs shape verification):
-- `component/PrimaryButton` -> likely `AppButton`
-- `component/Field` -> likely `AppInput` + label wrapper (missing dedicated `Field` API)
+- **FilterTabs**: migrated from AppButton to AppFilterChip
+- **CreateTodoModal**: description field migrated from AppInput to AppTextArea

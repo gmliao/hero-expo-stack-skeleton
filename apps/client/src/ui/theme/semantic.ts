@@ -14,7 +14,7 @@ const light = {
 
 const dark = {
   bg: primitiveTokens.colors.navy950,
-  surface: primitiveTokens.colors.slate900,
+  surface: primitiveTokens.colors.slate700,
   text: primitiveTokens.colors.slate100,
   muted: primitiveTokens.colors.slate300,
   primary: primitiveTokens.colors.blue500,
@@ -28,4 +28,3 @@ export const semanticColors = {
   light,
   dark,
 } as const
-
