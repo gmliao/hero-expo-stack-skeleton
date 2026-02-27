@@ -1,16 +1,10 @@
 import { primitiveTokens } from '@/ui/theme/tokens'
 
-const light = {
-  bg: primitiveTokens.colors.slate100,
-  surface: primitiveTokens.colors.white,
-  text: primitiveTokens.colors.slate900,
-  muted: primitiveTokens.colors.slate500,
-  primary: primitiveTokens.colors.blue600,
-  danger: primitiveTokens.colors.red600,
-  success: primitiveTokens.colors.green600,
-  border: primitiveTokens.colors.slate300,
-  focus: primitiveTokens.colors.gold500,
-} as const
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const designTokens = require('./design-tokens.js')
+
+/** Light theme from single source (design-tokens.js, Pen-aligned) */
+const light = designTokens.colors as const
 
 const dark = {
   bg: primitiveTokens.colors.navy950,
