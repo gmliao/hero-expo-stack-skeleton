@@ -268,6 +268,17 @@ describe('PATCH /todos/:id', () => {
     expect(todo.dueDate).toBe('2026-04-01')
     expect(todo.completed).toBe(true)
   })
+
+  it('clears dueDate when null is sent', async () => {
+    const res = await axios.patch(
+      `${BASE_URL}/todos/${todoId}`,
+      { dueDate: null },
+      { headers: { Authorization: `Bearer ${idToken}` } },
+    )
+    expect(res.status).toBe(200)
+    const todo: Todo = res.data
+    expect(todo.dueDate).toBeUndefined()
+  })
 })
 
 describe('DELETE /todos/:id', () => {
