@@ -26,6 +26,8 @@
 | `overlay` | rgba(15,23,42,0.6) | — | 模態遮罩 |
 | `focus` | #D4A017 | #D4A017 | 焦點環（輔助） |
 
+**Dark 主題補充：** `primarySoft`、`white`、`overlay` 目前僅在 light 語意表列出；dark 若需使用可由 primitiveTokens 或沿用 light 定義，必要時在 `semantic.ts` 補上。
+
 ---
 
 ## 元件使用的 Token（參考）

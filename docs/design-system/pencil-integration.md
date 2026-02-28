@@ -18,6 +18,7 @@
 
 - **mapping 表**：[pen-code-component-mapping.md](pen-code-component-mapping.md)（Pen 元件 ↔ `@/ui/components`）
 - **顏色 token**：[color-scheme.md](color-scheme.md)（語意色，Pen 與 Code 共用）
+- **間距／圓角／z-index／動效／陰影**：[tokens-reference.md](tokens-reference.md)（數值 scale 參考）
 - **待補元件規格**：[pen-gap-spec.md](pen-gap-spec.md)（Code 有、Pen 尚缺的元件規格）
 
 ---
