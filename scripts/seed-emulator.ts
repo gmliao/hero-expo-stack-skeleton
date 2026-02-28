@@ -1,7 +1,7 @@
 // Set env before loading firebase-admin so GCE metadata lookup is skipped (prevents MetadataLookupWarning)
 process.env.METADATA_SERVER_DETECTION = 'none'
-process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099'
-process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'
+if (!process.env.FIREBASE_AUTH_EMULATOR_HOST) process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099'
+if (!process.env.FIRESTORE_EMULATOR_HOST) process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'
 
 const { default: admin } = await import('firebase-admin')
 
