@@ -87,13 +87,19 @@ test.describe('Todos flow', () => {
     await expect(page.getByTestId('create-todo-input')).toBeVisible()
     const newTitle = 'E2E Edited ' + Date.now()
     await page.getByTestId('create-todo-input').fill(newTitle)
-    // Wait for update API (PATCH) to complete before asserting modal closed
+    // Wait for update PATCH (exclude /toggle) then the invalidation GET refetch,
+    // which is what actually triggers mutateAsync to resolve and closeModal().
     const updateDone = page.waitForResponse(
-      resp => resp.request().method() === 'PATCH' && resp.url().includes('api'),
+      resp => resp.request().method() === 'PATCH' && /\/api\/todos\/[^/]+$/.test(resp.url()),
+      { timeout: 15_000 },
+    )
+    const listRefetched = page.waitForResponse(
+      resp => resp.request().method() === 'GET' && resp.url().includes('/api/todos'),
       { timeout: 15_000 },
     )
     await page.getByTestId('create-todo-save').click()
     await updateDone
+    await listRefetched
     await expect(page.getByTestId('create-todo-modal-title')).not.toBeVisible()
     await expect(page.getByText(newTitle)).toBeVisible()
   })
