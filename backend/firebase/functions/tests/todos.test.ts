@@ -1,4 +1,6 @@
-import * as admin from 'firebase-admin'
+import { getApps, initializeApp } from 'firebase-admin/app'
+import { getAuth } from 'firebase-admin/auth'
+import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import axios from 'axios'
 import type { Todo, CreateTodoRequest } from '../../../../shared/types/api'
 
@@ -8,6 +10,12 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'
 const PROJECT_ID = 'hero-stack-local'
 const BASE_URL = `http://127.0.0.1:5001/${PROJECT_ID}/us-central1/api`
 
+if (!getApps().length) {
+  initializeApp({ projectId: 'hero-stack-local' })
+}
+const db = getFirestore()
+const auth = getAuth()
+
 async function getIdTokenForUid(uid: string): Promise<string> {
   const customToken = await auth.createCustomToken(uid)
   const response = await axios.post(
@@ -16,13 +24,6 @@ async function getIdTokenForUid(uid: string): Promise<string> {
   )
   return response.data.idToken as string
 }
-
-if (!admin.apps.length) {
-  admin.initializeApp({ projectId: 'hero-stack-local' })
-}
-
-const db = admin.firestore()
-const auth = admin.auth()
 
 describe('GET /todos', () => {
   const uid = `test-todos-get-${Date.now()}`
@@ -34,20 +35,20 @@ describe('GET /todos', () => {
     // Seed one todo for this user
     await db.collection('todos').add({
       uid, title: 'My Todo', completed: false,
-      createdAt: admin.firestore.Timestamp.now(),
-      updatedAt: admin.firestore.Timestamp.now(),
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
     })
     // Seed one todo with dueDate for this user
     await db.collection('todos').add({
       uid, title: 'Todo With Due', dueDate: '2026-01-15', completed: false,
-      createdAt: admin.firestore.Timestamp.now(),
-      updatedAt: admin.firestore.Timestamp.now(),
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
     })
     // Seed one todo for another user (must NOT be returned)
     await db.collection('todos').add({
       uid: 'other-user', title: 'Other Todo', completed: false,
-      createdAt: admin.firestore.Timestamp.now(),
-      updatedAt: admin.firestore.Timestamp.now(),
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
     })
   })
 
@@ -154,8 +155,8 @@ describe('PATCH /todos/:id/toggle', () => {
     idToken = await getIdTokenForUid(uid)
     const doc = await db.collection('todos').add({
       uid, title: 'Toggle Me', completed: false,
-      createdAt: admin.firestore.Timestamp.now(),
-      updatedAt: admin.firestore.Timestamp.now(),
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
     })
     todoId = doc.id
   })
@@ -208,8 +209,8 @@ describe('PATCH /todos/:id', () => {
       description: 'desc',
       completed: false,
       dueDate: '2026-02-01',
-      createdAt: admin.firestore.Timestamp.now(),
-      updatedAt: admin.firestore.Timestamp.now(),
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
     })
     todoId = doc.id
   })
@@ -293,8 +294,8 @@ describe('DELETE /todos/:id', () => {
       uid,
       title: 'To Delete',
       completed: false,
-      createdAt: admin.firestore.Timestamp.now(),
-      updatedAt: admin.firestore.Timestamp.now(),
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
     })
     todoId = doc.id
   })

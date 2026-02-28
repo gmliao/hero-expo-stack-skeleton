@@ -1,5 +1,5 @@
 import { onRequest } from 'firebase-functions/v2/https'
-import * as admin from 'firebase-admin'
+import { initializeApp } from 'firebase-admin/app'
 import express, { Request, RequestHandler, Response } from 'express'
 import cors from 'cors'
 import { createRequireAuth } from './middleware/auth'
@@ -11,7 +11,7 @@ import { createTodoHandlers } from './handlers/todos'
 import { FirebaseAuthVerifier } from './services/auth.firebase.service'
 import { TodosFirestoreRepository } from './repositories/todos.firestore.repository'
 
-admin.initializeApp()
+initializeApp()
 
 const authVerifier = new FirebaseAuthVerifier()
 const todosRepo = new TodosFirestoreRepository()

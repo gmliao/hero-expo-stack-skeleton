@@ -1,4 +1,5 @@
-import * as admin from 'firebase-admin'
+import { getApps, initializeApp } from 'firebase-admin/app'
+import { getAuth } from 'firebase-admin/auth'
 import axios from 'axios'
 
 process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099'
@@ -9,7 +10,7 @@ const PROJECT_ID = 'hero-stack-local'
 const BASE_URL = `http://127.0.0.1:5001/${PROJECT_ID}/us-central1/api`
 
 async function getIdTokenForUid(uid: string): Promise<string> {
-  const customToken = await admin.auth().createCustomToken(uid)
+  const customToken = await getAuth().createCustomToken(uid)
   const response = await axios.post(
     'http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=demo-key',
     { token: customToken, returnSecureToken: true },
@@ -17,8 +18,8 @@ async function getIdTokenForUid(uid: string): Promise<string> {
   return response.data.idToken as string
 }
 
-if (!admin.apps.length) {
-  admin.initializeApp({ projectId: 'hero-stack-local' })
+if (!getApps().length) {
+  initializeApp({ projectId: 'hero-stack-local' })
 }
 
 describe('Auth Middleware', () => {
@@ -39,7 +40,7 @@ describe('Auth Middleware', () => {
 
   it('returns 200 with valid emulator ID token', async () => {
     const uid = `test-auth-${Date.now()}`
-    await admin.auth().createUser({ uid, email: `${uid}@example.com` })
+    await getAuth().createUser({ uid, email: `${uid}@example.com` })
     const token = await getIdTokenForUid(uid)
 
     const res = await axios.get(`${BASE_URL}/health`, {
@@ -47,7 +48,7 @@ describe('Auth Middleware', () => {
       validateStatus: () => true,
     })
 
-    await admin.auth().deleteUser(uid)
+    await getAuth().deleteUser(uid)
     expect(res.status).toBe(200)
   })
 })
