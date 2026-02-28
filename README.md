@@ -14,6 +14,8 @@ Production-ready reference skeleton for React Native / Expo projects with Fireba
 - **測試完整**：unit / backend / web e2e 都有最小可跑的測試集
 - **Emulator-first**：本地與 CI 一律用 Firebase Emulators，不碰正式雲端
 
+> **Documentation Index**：詳見 [docs/README.md](docs/README.md)
+
 ---
 
 ## Tech Stack
@@ -28,6 +30,7 @@ Production-ready reference skeleton for React Native / Expo projects with Fireba
 | Unit Test | Jest + React Native Testing Library |
 | Web E2E | Playwright |
 | Mobile E2E | Detox |
+| Design | [Pencil](https://pencil.so) + `.pen` files + MCP |
 | CI | GitHub Actions |
 
 ---
@@ -62,13 +65,50 @@ bun run dev
 
 ## Prerequisites
 
+### 必要安裝（系統工具與 CLI）
+
 | 工具 | 版本需求 | 安裝方式 |
 |------|----------|----------|
 | [Homebrew](https://brew.sh) | 最新 | `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` |
 | [Bun](https://bun.sh) | ≥ 1.1 | `brew install bun` |
 | Java (JDK) | ≥ 11 | `brew install openjdk` |
+| Firebase CLI | 透過 bunx | 專案內 `bunx firebase --version` 即可（`bun install` 後） |
 
-**Java PATH 設定（macOS Homebrew）**
+一鍵安裝與驗證：
+
+```bash
+bash scripts/setup-prerequisites.sh
+source ~/.zshrc   # 讓 Java PATH 生效
+```
+
+### 必要套件（專案依賴）
+
+根目錄 `bun install` 會安裝所有依賴，包含：
+
+| 套件 | 用途 |
+|------|------|
+| `firebase-tools` | Firebase CLI（Emulators、deploy） |
+| `@playwright/test` | Web E2E 測試 |
+| `dotenv-cli` | 載入 `.env` |
+| `tsx` | 執行 TypeScript（seed 腳本） |
+| `concurrently` | 並行執行 dev 腳本 |
+| `wait-on` | 等待 Emulator 埠就緒 |
+
+子專案（`apps/client`、`backend/firebase/functions`）會由 monorepo 或 `bun install` 一併處理。
+
+### Web E2E 所需（Playwright 瀏覽器）
+
+執行 `bun run e2e:web` 或 `bun run check:pw:console` 前，需安裝 Chromium：
+
+```bash
+bunx playwright install --with-deps chromium
+```
+
+### 選用（Mobile E2E）
+
+執行 `bun run e2e:ios` 需 Detox 與 Xcode；詳見 `apps/client` 內設定。不進 CI。
+
+### Java PATH 設定（macOS Homebrew）
 
 Homebrew 的 `openjdk` 是 keg-only，需手動加入 PATH：
 
@@ -135,7 +175,7 @@ hero-stack-skeleton/
 │   └── firebase/
 │       ├── functions/
 │       │   ├── src/
-│       │   ├── tests/           # emulator integration tests
+│       │   ├── tests/           # unit + integration（integration 需 emulator）
 │       │   └── package.json
 │       ├── firestore.rules
 │       ├── firebase.json
@@ -144,6 +184,17 @@ hero-stack-skeleton/
 ├── e2e-web/                     # Playwright (web e2e)
 │   ├── tests/
 │   └── playwright.config.ts
+│
+├── pencil/                      # Pencil 設計檔（.pen）
+│   └── app/
+│       └── app-core-screens.pen # UI 設計稿 + DS 元件
+│
+├── docs/
+│   ├── design-system/           # Pen ↔ Code mapping、color-scheme、pen-gap-spec
+│   └── runbooks/                # pen-add-card-input-stack 等操作手冊
+│
+├── .vscode/
+│   └── settings.json            # Jest virtualFolders、cSpell 等
 │
 ├── shared/
 │   └── types/
@@ -220,10 +271,10 @@ bun run dev
 ## Test Commands
 
 ```bash
-# App unit/integration tests
+# App unit/integration tests（apps/client）
 bun run test
 
-# Backend emulator tests
+# Backend tests（需 Emulator，含 unit + integration）
 bun run test:backend
 
 # Web E2E（Playwright，自動起 Emulators）
@@ -232,9 +283,45 @@ bun run e2e:web
 # Mobile E2E（Detox，本地執行）
 bun run e2e:ios
 
-# 完整 CI pipeline
+# 完整 CI pipeline（含各項 check）
 bun run ci
 ```
+
+### 子專案測試（Watch 模式）
+
+```bash
+# 僅 client（watch）
+cd apps/client && bun run test:watch
+
+# 僅 backend（watch，單元測試可直接跑；整合測試需 Emulator）
+cd backend/firebase/functions && bun run test -- --watch
+```
+
+### IDE 設定（Jest）
+
+本專案在 monorepo 內有兩個 Jest 專案，透過 `.vscode/settings.json` 的 `jest.virtualFolders` 讓 VS Code / Cursor 的 Jest 擴充同時跑 client 與 backend：
+
+| Virtual Folder | rootPath | 說明 |
+|----------------|----------|------|
+| client | apps/client | React Native / Expo 單元測試（watch） |
+| backend | backend/firebase/functions | Firebase Functions 單元/整合測試（watch） |
+
+後端整合測試需 Emulator；若未起 Emulator，watch 時會顯示部分失敗。完整後端測試請用 `bun run test:backend`。
+
+### CI 相關 Check 指令
+
+```bash
+bun run check:client:ui    # 檢查 UI 元件使用規範
+bun run check:pw:console   # Playwright 檢查 console 錯誤
+bun run check:expo         # Expo doctor + 編譯
+bun run check:web          # Web 打包
+```
+
+---
+
+## Pencil 整合
+
+本專案使用 [Pencil](https://pencil.so) 作為 UI 設計工具，`.pen` 檔案與 Code 元件雙向對應。設計檔：`pencil/app/app-core-screens.pen`。詳細流程、Pen ↔ Code mapping、Pencil MCP 見 [docs/design-system/pencil-integration.md](docs/design-system/pencil-integration.md)。
 
 ---
 
@@ -250,69 +337,23 @@ App → Firebase Functions (HTTP) → Firestore
 
 - App **不直連** Firestore，不做任何直接讀寫
 - 所有 data fetching 透過 `data/api.ts` → Functions endpoint
-- 好處：security rules 極簡、App 層不感知 DB schema
 
 ### State 分層
 
-```
-Server State  →  TanStack Query   (todos / profile / settings)
-UI State      →  Zustand          (filter / modal / selected / banner)
-```
+- **Server State** → TanStack Query（todos / profile / settings）
+- **UI State** → Zustand（filter / modal / selected / banner）
+- **禁止**將可重抓的 server data 放進 Zustand
 
-**禁止**將可重抓的 server data 放進 Zustand。
+### 架構詳細說明
 
-### QueryKey Factory
+| 層級 | 文件 |
+|------|------|
+| Client | [docs/architecture/client.md](docs/architecture/client.md)（目錄、API、State、QueryKey、UI 邊界） |
+| Server | [docs/architecture/server.md](docs/architecture/server.md)（Repository、DTO、Zod、middleware） |
 
-```ts
-// ❌ 禁止
-useQuery({ queryKey: ['todos', uid, filter] })
+### Test Matrix
 
-// ✅ 正確
-useQuery({ queryKey: queryKeys.todos.list(uid, filter) })
-```
-
-所有 query key 從 `data/queryKeys.ts` 集中管理，確保 invalidation 正確。
-
----
-
-## Test Matrix
-
-### App Unit/Integration（Jest + RNTL）
-
-| 測試項目 | 驗證內容 |
-|----------|----------|
-| `queryKeys` | 穩定、可序列化、無隨機值 |
-| `api client` | token 注入、401/403 mapping、timeout/retry |
-| `useTodosQuery` | success / error / loading 狀態 |
-| `useCreateTodoMutation` | 成功後 invalidate 正確 key |
-| `zustand stores` | UI store reducer-like 行為（純函式測） |
-
-### Backend Emulator Tests（Jest）
-
-| 測試項目 | 驗證內容 |
-|----------|----------|
-| `getTodos` | 只能讀自己 uid 的資料 |
-| `createTodo` | 未登入 → 401；錯 uid → 403 |
-| `toggleTodo` | transaction 正確 + updatedAt 正確 |
-
-### Web E2E（Playwright）
-
-| 測試情境 | 步驟 |
-|----------|------|
-| Login | emulator auth 登入 |
-| Create Todo | 建立新項目 |
-| Toggle Todo | 切換完成狀態 |
-| List Update | 驗證 TanStack Query invalidate/refetch |
-
-### Mobile E2E（Detox）
-
-Happy path（iOS 優先）：
-
-```
-login → create todo → toggle todo
-```
-
-> Mobile E2E 目前為本地執行，不進 CI（成本考量）。
+詳見 [docs/testing.md](docs/testing.md)（App / Backend / Web E2E / Mobile E2E 測試項目與執行方式）。
 
 ---
 
