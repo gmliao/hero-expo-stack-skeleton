@@ -47,6 +47,7 @@ node_modules
 firebase-debug.log
 firebase-debug.*.log
 emulator_data/
+firebase-export-*/
 backend/firebase/functions/lib/
 backend/firebase/.firebaserc
 
@@ -57,6 +58,9 @@ __pycache__/
 *.pyo
 .pytest_cache/
 .mypy_cache/
+
+# Jest coverage (HTML report + lcov)
+coverage/
 
 # Playwright
 test-results/
