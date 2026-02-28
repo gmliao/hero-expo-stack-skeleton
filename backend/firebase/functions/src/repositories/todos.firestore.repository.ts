@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin'
-import { Timestamp } from 'firebase-admin/firestore'
+import { FieldValue, Timestamp } from 'firebase-admin/firestore'
 import type { Todo, UpdateTodoRequest } from '../types/api'
 import type { ITodosRepository, CreateTodoInput } from './types'
 
@@ -70,7 +70,7 @@ export class TodosFirestoreRepository implements ITodosRepository {
           updates.completed = body.completed
         } else if (key === 'dueDate') {
           const val = body.dueDate != null ? String(body.dueDate).trim() : ''
-          updates.dueDate = val !== '' ? val : admin.firestore.FieldValue.delete()
+          updates.dueDate = val !== '' ? val : FieldValue.delete()
         }
       }
     }
