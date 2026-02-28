@@ -30,6 +30,7 @@ export function exceptionMiddleware(
     res.status(err.statusCode).json(body)
     return
   }
+  console.error('[500]', req.method, req.path, err)
   res.status(500).json({
     success: false,
     error: 'Internal server error',
