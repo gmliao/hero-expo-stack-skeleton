@@ -8,6 +8,7 @@ export const zhTW = {
     signInTitle: '登入',
     email: '電子郵件',
     password: '密碼',
+    fieldsRequired: '請填寫電子郵件與密碼。',
     invalidCredentials: '帳號或密碼錯誤',
     networkError: '網路錯誤，請檢查您的網路連線。',
     signingIn: '登入中...',
@@ -25,6 +26,7 @@ export const zhTW = {
   options: {
     title: '選項',
     logout: '登出',
+    logoutFailed: '登出失敗，請再試一次。',
   },
   todos: {
     title: '我的待辦',

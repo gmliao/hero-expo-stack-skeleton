@@ -18,11 +18,14 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null)
 
   async function handleSubmit() {
-    if (!email.trim() || !password) return
+    if (!email.trim() || !password) {
+      setError(t('auth.fieldsRequired'))
+      return
+    }
     setLoading(true)
     setError(null)
     try {
-      const result = await onSubmit(email, password)
+      const result = await onSubmit(email.trim(), password)
       if (result?.error) setError(result.error)
     } finally {
       setLoading(false)

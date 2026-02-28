@@ -8,6 +8,7 @@ describe('OptionsScreen', () => {
   beforeEach(() => {
     useAuthStore.setState({ uid: 'user-1' })
     jest.mocked(router.replace).mockClear()
+    jest.mocked(firebaseAuth.signOut).mockResolvedValue(undefined)
   })
 
   it('renders title and logout button', () => {
@@ -17,7 +18,7 @@ describe('OptionsScreen', () => {
     expect(screen.getByTestId('options-back')).toBeOnTheScreen()
   })
 
-  it('on logout calls signOut, setUid(null), router.replace to login', async () => {
+  it('on logout success calls signOut, setUid(null), router.replace to login', async () => {
     render(<OptionsScreen />)
     fireEvent.press(screen.getByTestId('options-logout'))
     await waitFor(() => {
@@ -25,5 +26,17 @@ describe('OptionsScreen', () => {
       expect(useAuthStore.getState().uid).toBeNull()
       expect(router.replace).toHaveBeenCalledWith('/(auth)/login')
     })
+  })
+
+  it('on logout failure does not clear uid or redirect, shows error', async () => {
+    jest.mocked(firebaseAuth.signOut).mockRejectedValueOnce(new Error('signOut failed'))
+    render(<OptionsScreen />)
+    fireEvent.press(screen.getByTestId('options-logout'))
+    await waitFor(() => {
+      expect(useAuthStore.getState().uid).toBe('user-1')
+      expect(router.replace).not.toHaveBeenCalled()
+    })
+    expect(screen.getByTestId('options-logout-error')).toBeOnTheScreen()
+    expect(screen.getByTestId('options-logout-error')).toHaveTextContent('options.logoutFailed')
   })
 })

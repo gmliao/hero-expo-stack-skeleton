@@ -1,8 +1,9 @@
 import { Response } from 'express'
 import type { AuthenticatedRequest } from '../middleware/auth'
 import type { ITodosRepository } from '../repositories/types'
-import { createTodoSchema, updateTodoSchema } from '../schemas/todos.schema'
-import { parseBody } from '../lib/validate'
+import type { CreateTodoInput, UpdateTodoInput } from '../schemas/todos.schema'
+import type { ValidatedBodyRequest } from '../lib/validate'
+import { NotFoundError, ForbiddenError } from '../lib/errors'
 
 export function createTodoHandlers(repo: ITodosRepository) {
   async function getTodos(req: AuthenticatedRequest, res: Response): Promise<void> {
@@ -11,10 +12,12 @@ export function createTodoHandlers(repo: ITodosRepository) {
     res.json(todos)
   }
 
-  async function createTodo(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async function createTodo(
+    req: AuthenticatedRequest & ValidatedBodyRequest<CreateTodoInput>,
+    res: Response,
+  ): Promise<void> {
     const uid = req.uid!
-    const data = parseBody(res, req.body, createTodoSchema)
-    if (!data) return
+    const data = req.validatedBody
     const todo = await repo.create(uid, {
       title: data.title,
       description: data.description,
@@ -25,33 +28,31 @@ export function createTodoHandlers(repo: ITodosRepository) {
 
   async function toggleTodo(req: AuthenticatedRequest, res: Response): Promise<void> {
     const uid = req.uid!
-    const { id } = req.params
+    const id = typeof req.params.id === 'string' ? req.params.id : req.params.id?.[0] ?? ''
     const todo = await repo.toggle(id, uid)
     if (!todo) {
       const existing = await repo.findById(id)
       if (!existing) {
-        res.status(404).json({ error: 'Todo not found' })
-        return
+        throw new NotFoundError('Todo not found')
       }
-      res.status(403).json({ error: 'Forbidden' })
-      return
+      throw new ForbiddenError('Forbidden')
     }
     res.json(todo)
   }
 
-  async function updateTodo(req: AuthenticatedRequest, res: Response): Promise<void> {
+  async function updateTodo(
+    req: AuthenticatedRequest & ValidatedBodyRequest<UpdateTodoInput>,
+    res: Response,
+  ): Promise<void> {
     const uid = req.uid!
-    const { id } = req.params
-    const body = parseBody(res, req.body, updateTodoSchema)
-    if (!body) return
+    const id = typeof req.params.id === 'string' ? req.params.id : req.params.id?.[0] ?? ''
+    const body = req.validatedBody
     const existing = await repo.findById(id)
     if (!existing) {
-      res.status(404).json({ error: 'Todo not found' })
-      return
+      throw new NotFoundError('Todo not found')
     }
     if (existing.uid !== uid) {
-      res.status(403).json({ error: 'Forbidden' })
-      return
+      throw new ForbiddenError('Forbidden')
     }
     const updates = {
       ...body,
@@ -59,23 +60,20 @@ export function createTodoHandlers(repo: ITodosRepository) {
     }
     const todo = await repo.update(id, updates)
     if (!todo) {
-      res.status(404).json({ error: 'Todo not found' })
-      return
+      throw new NotFoundError('Todo not found')
     }
     res.json(todo)
   }
 
   async function deleteTodo(req: AuthenticatedRequest, res: Response): Promise<void> {
     const uid = req.uid!
-    const { id } = req.params
+    const id = typeof req.params.id === 'string' ? req.params.id : req.params.id?.[0] ?? ''
     const existing = await repo.findById(id)
     if (!existing) {
-      res.status(404).json({ error: 'Todo not found' })
-      return
+      throw new NotFoundError('Todo not found')
     }
     if (existing.uid !== uid) {
-      res.status(403).json({ error: 'Forbidden' })
-      return
+      throw new ForbiddenError('Forbidden')
     }
     await repo.delete(id)
     res.status(204).send()

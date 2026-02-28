@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import type { IAuthVerifier } from '../services/auth.types'
+import { UnauthorizedError } from '../lib/errors'
 
 export interface AuthenticatedRequest extends Request {
   uid?: string
@@ -9,13 +10,14 @@ export interface AuthenticatedRequest extends Request {
 export function createRequireAuth(verifier: IAuthVerifier) {
   return async function requireAuth(
     req: AuthenticatedRequest,
-    res: Response,
+    _res: Response,
     next: NextFunction,
   ): Promise<void> {
     const header = req.headers.authorization
     if (!header?.startsWith('Bearer ')) {
-      res.status(401).json({ error: 'Missing Authorization header' })
-      return
+      throw new UnauthorizedError('Missing Authorization header', {
+        code: 'MISSING_AUTH_HEADER',
+      })
     }
 
     const token = header.slice(7)
@@ -29,7 +31,7 @@ export function createRequireAuth(verifier: IAuthVerifier) {
         (err as { code?: string })?.code === 'auth/id-token-expired'
           ? 'TOKEN_EXPIRED'
           : 'INVALID_TOKEN'
-      res.status(401).json({ error: 'Unauthorized', code })
+      throw new UnauthorizedError('Unauthorized', { code })
     }
   }
 }
