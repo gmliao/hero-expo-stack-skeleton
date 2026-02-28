@@ -10,8 +10,8 @@ export const useUpdateTodoMutation = () => {
   return useMutation({
     mutationFn: ({ id, ...body }: { id: string } & UpdateTodoRequest) =>
       api.updateTodo(id, body),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.todos.lists() })
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.todos.lists() })
     },
   })
 }
