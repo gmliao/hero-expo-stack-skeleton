@@ -13,8 +13,15 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command:
-      "dotenv -e .env -- sh -c 'cd apps/client && CI=1 EXPO_PUBLIC_USE_EMULATOR=true EXPO_PUBLIC_FIREBASE_PROJECT_ID=hero-stack-local EXPO_PUBLIC_FIREBASE_API_KEY=${EXPO_PUBLIC_FIREBASE_API_KEY:-demo-api-key} EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=${EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN:-hero-stack-local.firebaseapp.com} bun run web -- --port 8081'",
+    command: (() => {
+      const authHost = process.env.E2E_EMULATOR_AUTH_HOST
+      const functionsUrl = process.env.E2E_EMULATOR_FUNCTIONS_URL
+      const extra =
+        authHost || functionsUrl
+          ? ` EXPO_PUBLIC_AUTH_EMULATOR_HOST=${authHost ?? ''} EXPO_PUBLIC_FUNCTIONS_URL=${functionsUrl ?? ''}`
+          : ''
+      return `dotenv -e .env -- sh -c 'cd apps/client && CI=1 EXPO_PUBLIC_USE_EMULATOR=true EXPO_PUBLIC_FIREBASE_PROJECT_ID=hero-stack-local EXPO_PUBLIC_FIREBASE_API_KEY=\${EXPO_PUBLIC_FIREBASE_API_KEY:-demo-api-key} EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=\${EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN:-hero-stack-local.firebaseapp.com}${extra} bun run web -- --port 8081'`
+    })(),
     url: 'http://127.0.0.1:8081/login',
     reuseExistingServer: true,
     timeout: 180_000,

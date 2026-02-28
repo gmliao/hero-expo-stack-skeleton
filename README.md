@@ -277,8 +277,8 @@ bun run test
 # Backend tests（需 Emulator，含 unit + integration）
 bun run test:backend
 
-# Web E2E（Playwright，自動起 Emulators）
-bun run e2e:web
+# Web E2E（Playwright）
+bun run e2e:web          # 自己起一組「e2e 專用」Emulator（port 9199/8180/5011）→ seed → 跑測試；與 dev 並存，無需關閉開發用 Emulator
 
 # Mobile E2E（Detox，本地執行）
 bun run e2e:ios
@@ -392,8 +392,7 @@ eas submit
 
 本地開發使用 Firebase Local Emulator Suite：
 
-- **Auth Emulator**：`localhost:9099`
-- **Firestore Emulator**：`localhost:8080`
-- **Functions Emulator**：`localhost:5001`
+- **開發用（預設）**：Auth `9099`、Firestore `8080`、Functions `5001`
+- **e2e 專用**（`bun run e2e:web`）：Auth `9199`、Firestore `8180`、Functions `5011`（與開發並存）
 
-所有 E2E 測試打 emulator endpoint，確保可重現且不影響正式環境。
+所有 E2E 測試打 emulator endpoint，確保可重現且不影響正式環境。**e2e:web** 使用專用 port（Auth 9199、Firestore 8180、Functions 5011），與 **dev** 的預設 port（9099/8080/5001）分開，可同時跑開發與 e2e。
