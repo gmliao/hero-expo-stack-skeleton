@@ -87,15 +87,16 @@ test.describe('Todos flow', () => {
     await expect(page.getByTestId('create-todo-input')).toBeVisible()
     const newTitle = 'E2E Edited ' + Date.now()
     await page.getByTestId('create-todo-input').fill(newTitle)
-    // onSuccess fires void invalidateQueries (no await), so mutateAsync resolves
-    // immediately after PATCH response and closeModal() is called promptly.
+    // Wait for the update PATCH (exclude /toggle endpoints) then wait for
+    // the modal to close. Use a generous timeout because CI runners are slow.
     const updateDone = page.waitForResponse(
       resp => resp.request().method() === 'PATCH' && /\/api\/todos\/[^/]+$/.test(resp.url()),
       { timeout: 15_000 },
     )
     await page.getByTestId('create-todo-save').click()
-    await updateDone
-    await expect(page.getByTestId('create-todo-modal-title')).not.toBeVisible()
+    const patchResp = await updateDone
+    expect(patchResp.status()).toBe(200)
+    await expect(page.getByTestId('create-todo-modal-title')).not.toBeVisible({ timeout: 15_000 })
     await expect(page.getByText(newTitle)).toBeVisible()
   })
 
