@@ -95,7 +95,9 @@ export function CreateTodoModal() {
     const payload = {
       title: title.trim(),
       description: description.trim() || undefined,
-      dueDate: dueDate.trim() || undefined,
+      dueDate: isEdit
+        ? (dueDate.trim() ? dueDate.trim() : null)
+        : (dueDate.trim() || undefined),
     }
 
     try {

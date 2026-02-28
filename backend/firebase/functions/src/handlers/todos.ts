@@ -54,10 +54,7 @@ export function createTodoHandlers(repo: ITodosRepository) {
     if (existing.uid !== uid) {
       throw new ForbiddenError('Forbidden')
     }
-    const updates = {
-      ...body,
-      dueDate: body.dueDate ?? undefined,
-    }
+    const updates = { ...body }
     const todo = await repo.update(id, updates)
     if (!todo) {
       throw new NotFoundError('Todo not found')
