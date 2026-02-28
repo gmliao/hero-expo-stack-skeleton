@@ -32,6 +32,20 @@ Read this before editing code or docs in this repository.
 - **Backend abstraction layer (required):** All external I/O (Firestore, Auth) must be isolated behind interfaces. Handlers and middleware depend on injected abstractions (e.g. `ITodosRepository`, `IAuthVerifier`), not on `firebase-admin` directly. This enables unit tests with mock implementations, similar to NestJS/ORM repository injection. See `backend/firebase/functions/src/repositories/` and `src/services/`; unit tests live in `tests/*.unit.test.ts` and use mocks from `tests/mocks/`.
 - **Backend validation (required):** Validate request bodies with **Zod** before touching Firestore. Use schemas in `src/schemas/` (e.g. `todos.schema.ts`) and the `parseBody(res, body, schema)` helper in `lib/validate.ts`; on parse failure it sends 400 with `FailureDto` and returns `null`.
 - **DTO base types (required):** Use `SuccessDto<T>`, `FailureDto`, and `ApiResponseDto<T>` from `shared/types/api.ts` for typed success/failure responses. Validation errors return `{ success: false, error: string, message?: string }`; success responses may return raw data or wrap in `{ success: true, data: T }` as needed.
+- **firebase-admin modular imports (required):** Always import Firestore helpers directly from `firebase-admin/firestore` — never via `admin.firestore.FieldValue` / `admin.firestore.Timestamp` namespace syntax. The Functions emulator patches `firebase-admin` at runtime and can make namespace accessors `undefined`, causing 500s that only appear in CI/emulator context.
+
+```typescript
+// ❌ WRONG — admin.firestore namespace can be undefined inside the emulator
+import * as admin from 'firebase-admin'
+admin.firestore.FieldValue.delete()
+admin.firestore.Timestamp.now()
+
+// ✅ CORRECT — modular imports are always stable
+import { FieldValue, Timestamp } from 'firebase-admin/firestore'
+FieldValue.delete()
+Timestamp.now()
+```
+
 - Query/state split:
   - TanStack Query for server state.
   - Zustand for UI state only.
@@ -145,7 +159,7 @@ Read this before editing code or docs in this repository.
 - **Feature development verification (required):**
   - **All feature development** (client, backend, shared) must be verified by unit tests and, where applicable, E2E tests. Do not claim a feature complete until the relevant tests pass.
   - **Client:** Add or extend unit tests in `apps/client/tests/` (Jest + React Native Testing Library for components and routes; data/hooks/stores per existing conventions). User-facing flows must pass E2E: `bun run e2e:web` for web; `bun run e2e:ios` when the feature touches mobile.
-  - **Backend:** Add or extend tests in `backend/firebase/functions/tests/`; run `bun run test:backend` (emulator). Must cover authenticated happy path, unauthenticated (401), wrong uid (403).
+  - **Backend:** Add or extend tests in `backend/firebase/functions/tests/`; run `bun run test:backend` (emulator). Must cover authenticated happy path, unauthenticated (401), wrong uid (403). **Also cover edge / boundary cases for every optional field:** for any field that supports a "clear" or "reset" semantic (e.g. `dueDate: null`, `description: ''`), add an explicit test that sends the null/clear value and asserts the field is absent or empty in the response. These paths often invoke distinct code branches (e.g. `FieldValue.delete()`) that are invisible to happy-path-only tests and can silently fail in the emulator while passing locally.
   - **If something cannot be verified** (e.g. no feasible unit test for a piece of code, or E2E not applicable), **report it explicitly** in the same thread or in the PR: what was not verified and why. Do not silently skip verification.
 - **Client unit test scope:** Include `@/ui/components` (design-system components) as well as features and routes. Tests live in `apps/client/tests/` mirroring `src/` (e.g. `tests/ui/components/AppButton.test.tsx`).
 - **Coverage threshold (client):** `apps/client/jest.config.js` defines a **global** minimum (statements 55%, branches 40%, functions 55%, lines 55%) and **per-path** minimums: `src/features/**` 50/30/55/50, `src/data/hooks/**` 85/65/80/85, `src/stores/**` 90/85/90/90, `src/ui/utils/**` 90/85/90/90, `src/ui/components/**` 80/50/80/80, `app/**` 50/0/50/50. CI fails if coverage drops below. **Policy:** Do **not** arbitrarily lower thresholds when they fail. Instead, **analyze the cause** (which lines/branches are uncovered) and add the **necessary unit tests** to reach the thresholds.
