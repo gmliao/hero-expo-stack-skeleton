@@ -12,15 +12,26 @@ Read this before editing code or docs in this repository.
 
 - **Default: develop directly in this repo.** Do not use git worktrees unless the user explicitly requests them.
 - If the user asks for worktree isolation, then use `using-git-worktrees` skill and create an isolated worktree.
+- **Use Superpowers guidance when developing:** Follow the relevant skills (e.g. brainstorming, writing-plans, test-driven-development, verification-before-completion). For implementation plans with multiple independent tasks, use **subagent-driven development**: one subagent per task, two-stage review after each (spec compliance then code quality), then final review and finishing-a-development-branch. Do not skip plan writing, tests, or reviews; if a step cannot be done, report why.
 
 ## Package Manager
 
 - Use `bun` only.
 - Do not use `npm`, `yarn`, or `pnpm` for repo tasks.
 
+## Tech stack
+
+- **Client**: Expo (React Native), NativeWind (Tailwind CSS), TanStack Query, Zustand, i18next.
+- **Backend**: Firebase (Auth, Functions, Firestore). App talks to Functions over HTTP only; no Firestore SDK in app.
+- **Shared**: `shared/types` for API contracts; design tokens in `apps/client/src/ui/theme/design-tokens.js` (consumed by Tailwind, tokens, semantic).
+- See `CLAUDE.md` for architecture and directory conventions.
+
 ## Non-Negotiable Architecture
 
 - API-first: app code never reads/writes Firestore directly.
+- **Backend abstraction layer (required):** All external I/O (Firestore, Auth) must be isolated behind interfaces. Handlers and middleware depend on injected abstractions (e.g. `ITodosRepository`, `IAuthVerifier`), not on `firebase-admin` directly. This enables unit tests with mock implementations, similar to NestJS/ORM repository injection. See `backend/firebase/functions/src/repositories/` and `src/services/`; unit tests live in `tests/*.unit.test.ts` and use mocks from `tests/mocks/`.
+- **Backend validation (required):** Validate request bodies with **Zod** before touching Firestore. Use schemas in `src/schemas/` (e.g. `todos.schema.ts`) and the `parseBody(res, body, schema)` helper in `lib/validate.ts`; on parse failure it sends 400 with `FailureDto` and returns `null`.
+- **DTO base types (required):** Use `SuccessDto<T>`, `FailureDto`, and `ApiResponseDto<T>` from `shared/types/api.ts` for typed success/failure responses. Validation errors return `{ success: false, error: string, message?: string }`; success responses may return raw data or wrap in `{ success: true, data: T }` as needed.
 - Query/state split:
   - TanStack Query for server state.
   - Zustand for UI state only.
@@ -42,18 +53,26 @@ Read this before editing code or docs in this repository.
   - Do not import `@gluestack-ui/*` directly in route/feature files.
   - Do not add inline `style={{...}}` literals in route/feature files.
   - Run `bun run check:client:ui` after UI changes.
+- **NativeWind / styling (best practice):**
+  - Prefer `className` with Tailwind tokens (e.g. `flex-1 px-5 py-8`); avoid `StyleSheet.create` when equivalent.
+  - Use `StyleSheet` only when: dynamic values, platform-specific styles, or styles NativeWind cannot express.
+  - Keep StyleSheet for: `insets`/breakpoint-driven values, `ScrollView.contentContainerStyle` (NativeWind's `contentContainerClassName` has unstable layout support; `contentContainerStyle` is more reliable), `AppStatusBar`, `AppScreenContainer` maxWidth.
 - Web a11y baseline is required for feature completion:
   - Keyboard operable core flow (login/create/toggle).
   - Inputs/actions expose accessible names.
   - Error feedback is announced via live-region style semantics.
+- **Screen and route structure (best practice):**
+  - Keep route files thin: orchestration only (hooks, a few handlers, composition of feature components). Avoid long JSX and inline layout in the route file.
+  - Extract screen-specific UI into feature components under `src/features/<feature>/` (e.g. `TodosScreenHeader`, `TodosList`). Reuse shared UI from `@/ui/components`.
+  - Root route files (e.g. `app/index.tsx`) may be a single redirect; nested route files compose feature components and data hooks only.
 
 ## Design System First Workflow (Required)
 
-- **UI 功能開發流程（順序不可顛倒）：**
-  1. **先確認 Pen UI**：在 `.pen` 內完成或確認畫面／元件（版面、語意色變數、可重用元件）。必要時用 Pencil MCP 查詢或調整。
-  2. **再訂計劃**：依據 Pen 結果撰寫實作計劃（要動的檔案、對應的 Pen 元件／ID、i18n keys）。
-  3. **最後實作**：依計劃寫 Code（`@/ui/components`、route/feature、design-tokens 若需同步），並更新 `docs/design-system/pen-code-component-mapping.md`。
-  - 不要先寫畫面再回頭補 Pen；不要跳過計劃直接改 Code。
+- **UI feature workflow (order is fixed):**
+  1. **Confirm Pen UI first**: Finalize or confirm screens/components in `.pen` (layout, semantic color variables, reusable components). Use Pencil MCP to query or adjust if needed.
+  2. **Plan**: Write an implementation plan from Pen output (files to touch, Pen component IDs, i18n keys).
+  3. **Implement**: Follow the plan in Code (`@/ui/components`, route/feature, design-tokens if synced), and update `docs/design-system/pen-code-component-mapping.md`.
+  - Do not build screens in Code first and backfill Pen later; do not skip planning and edit Code directly.
 - **DS-first for all UI work**:
   - Start from design-system primitives/tokens, then compose features/screens.
   - Do not build ad-hoc screen styles first and “backfill” DS later.
@@ -122,6 +141,15 @@ Read this before editing code or docs in this repository.
 - Never rely on `.firebaserc` default for cloud deploy target.
 
 ## Testing and Verification
+
+- **Feature development verification (required):**
+  - **All feature development** (client, backend, shared) must be verified by unit tests and, where applicable, E2E tests. Do not claim a feature complete until the relevant tests pass.
+  - **Client:** Add or extend unit tests in `apps/client/tests/` (Jest + React Native Testing Library for components and routes; data/hooks/stores per existing conventions). User-facing flows must pass E2E: `bun run e2e:web` for web; `bun run e2e:ios` when the feature touches mobile.
+  - **Backend:** Add or extend tests in `backend/firebase/functions/tests/`; run `bun run test:backend` (emulator). Must cover authenticated happy path, unauthenticated (401), wrong uid (403).
+  - **If something cannot be verified** (e.g. no feasible unit test for a piece of code, or E2E not applicable), **report it explicitly** in the same thread or in the PR: what was not verified and why. Do not silently skip verification.
+- **Client unit test scope:** Include `@/ui/components` (design-system components) as well as features and routes. Tests live in `apps/client/tests/` mirroring `src/` (e.g. `tests/ui/components/AppButton.test.tsx`).
+- **Coverage threshold (client):** `apps/client/jest.config.js` defines a **global** minimum (statements 55%, branches 40%, functions 55%, lines 55%) and **per-path** minimums: `src/features/**` 50/30/55/50, `src/data/hooks/**` 85/65/80/85, `src/stores/**` 90/85/90/90, `src/ui/utils/**` 90/85/90/90, `src/ui/components/**` 80/50/80/80, `app/**` 50/0/50/50. CI fails if coverage drops below. **Policy:** Do **not** arbitrarily lower thresholds when they fail. Instead, **analyze the cause** (which lines/branches are uncovered) and add the **necessary unit tests** to reach the thresholds.
+- **Coverage threshold (backend):** `backend/firebase/functions/jest.config.js` collects coverage; thresholds apply to `src/handlers/**` (65/45/65/65) and `src/middleware/**` (65/55/65/65). Unit tests (`*.unit.test.ts`) inject mock `ITodosRepository` and `IAuthVerifier` — no emulator needed. Integration tests (`auth.test.ts`, `todos.test.ts`) run via `bun run test:backend` (emulator). Same policy: add tests rather than lower thresholds.
 
 Run relevant checks before claiming completion:
 

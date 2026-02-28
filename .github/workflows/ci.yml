@@ -1,3 +1,7 @@
+# CI: unit tests (client + backend), client checks, Playwright console check, Web E2E.
+# Covers: check:client:ui, check:expo, test (client unit), check:web, check:pw:console, test:backend, e2e:web.
+# Mobile E2E (e2e:ios) is not run in CI; run locally before merging when feature touches mobile.
+
 name: CI
 
 on:
@@ -6,11 +10,14 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  FIREBASE_PROJECT_ID: hero-stack-local
+
 jobs:
-  app-unit:
+  client-checks-and-unit:
     runs-on: ubuntu-latest
-    name: App Unit Tests
-    timeout-minutes: 5
+    name: Client checks + Unit + Web bundle
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -18,17 +25,67 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: bun-${{ hashFiles('app/bun.lock') }}
+          key: bun-${{ hashFiles('bun.lock', 'apps/client/bun.lock') }}
           restore-keys: |
             bun-
-      - run: cd app && bun install --frozen-lockfile
-      - run: cd app && bun run test
-      - name: Web bundle check (catch resolve errors)
-        run: cd app && bun run build:web
+      - name: Install root
+        run: bun install --frozen-lockfile
+      - name: Install client
+        run: cd apps/client && bun install --frozen-lockfile
+      - name: Client UI boundary check
+        run: bun run check:client:ui
+      - name: Prepare .env for check:expo
+        run: cp .env.example .env
+      - name: Expo / type check
+        run: bun run check:expo
+        env:
+          CI: 1
+      - name: Client unit tests (with coverage)
+        run: cd apps/client && bun run test -- --coverage
+      - name: Web bundle check
+        run: bun run check:web
+      - name: Upload client coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-coverage
+          path: apps/client/coverage/
+          retention-days: 7
 
-  backend-tests:
+  playwright-console:
     runs-on: ubuntu-latest
-    name: Backend Emulator Tests
+    name: Playwright console (no console.error)
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: Cache bun
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ hashFiles('bun.lock', 'apps/client/bun.lock') }}
+          restore-keys: |
+            bun-
+      - name: Cache Playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('bun.lock') }}
+      - run: bun install --frozen-lockfile
+      - run: cd apps/client && bun install --frozen-lockfile
+      - run: cp .env.example .env
+      - run: bunx playwright install --with-deps chromium
+      - name: Playwright console check
+        run: bun run check:pw:console
+        env:
+          CI: 1
+          EXPO_PUBLIC_USE_EMULATOR: "false"
+          EXPO_PUBLIC_FIREBASE_PROJECT_ID: hero-stack-local
+          EXPO_PUBLIC_FIREBASE_API_KEY: demo-api-key
+          EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: hero-stack-local.firebaseapp.com
+
+  backend-unit:
+    runs-on: ubuntu-latest
+    name: Backend unit (emulator)
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -39,26 +96,38 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: bun-${{ hashFiles('bun.lock', 'app/bun.lock') }}
+          key: bun-${{ hashFiles('bun.lock', 'backend/firebase/functions/bun.lock') }}
           restore-keys: |
             bun-
-      - name: Cache Firebase emulator
+      - name: Cache Firebase emulators
         uses: actions/cache@v4
         with:
           path: ~/.cache/firebase/emulators
           key: firebase-emulators-${{ hashFiles('backend/firebase/firebase.json') }}
       - run: bun install --frozen-lockfile
-      - run: cd backend/firebase/functions && bun install && bun run build
+      - run: cd backend/firebase/functions && bun install --frozen-lockfile && bun run build
       - run: bun run test:backend
         env:
           FIREBASE_AUTH_EMULATOR_HOST: 127.0.0.1:9099
           FIRESTORE_EMULATOR_HOST: 127.0.0.1:8080
           GCLOUD_PROJECT: hero-stack-local
+      - name: Upload backend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/firebase/functions/coverage/
+          retention-days: 7
 
   web-e2e:
     runs-on: ubuntu-latest
-    name: Web E2E (Playwright)
-    timeout-minutes: 20
+    name: Web E2E (Playwright + emulators)
+    timeout-minutes: 25
+    env:
+      EXPO_PUBLIC_USE_EMULATOR: "true"
+      EXPO_PUBLIC_FIREBASE_PROJECT_ID: hero-stack-local
+      EXPO_PUBLIC_FIREBASE_API_KEY: demo-api-key
+      EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: hero-stack-local.firebaseapp.com
+      EXPO_PUBLIC_FUNCTIONS_URL: http://127.0.0.1:5001
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -68,41 +137,29 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: bun-${{ hashFiles('bun.lock', 'app/bun.lock') }}
+          key: bun-${{ hashFiles('bun.lock', 'apps/client/bun.lock', 'backend/firebase/functions/bun.lock') }}
           restore-keys: |
             bun-
-      - name: Cache Firebase emulator
+      - name: Cache Firebase emulators
         uses: actions/cache@v4
         with:
           path: ~/.cache/firebase/emulators
           key: firebase-emulators-${{ hashFiles('backend/firebase/firebase.json') }}
-      - name: Cache Playwright browsers
+      - name: Cache Playwright
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ hashFiles('bun.lock') }}
+          key: playwright-${{ hashFiles('bun.lock') }}
       - run: bun install --frozen-lockfile
-      - run: cd app && bun install --frozen-lockfile
-      - run: cd backend/firebase/functions && bun install && bun run build
+      - run: cd apps/client && bun install --frozen-lockfile
+      - run: cd backend/firebase/functions && bun install --frozen-lockfile && bun run build
+      - run: cp .env.example .env
       - run: bunx playwright install --with-deps chromium
-      - name: Start emulators + app
-        run: |
-          cd backend/firebase && bunx firebase emulators:start --project hero-stack-local --only auth,firestore,functions &
-          cd app && EXPO_PUBLIC_USE_EMULATOR=true bun run web &
-          WAIT_EXPO_WEB=true bun run wait-emulators
-      - run: bun run seed
-        env:
-          FIREBASE_AUTH_EMULATOR_HOST: 127.0.0.1:9099
-          FIRESTORE_EMULATOR_HOST: 127.0.0.1:8080
-      - run: bun run e2e:web
-        env:
-          EXPO_PUBLIC_USE_EMULATOR: true
-          EXPO_PUBLIC_FUNCTIONS_URL: http://127.0.0.1:5001
-          EXPO_PUBLIC_FIREBASE_PROJECT_ID: hero-stack-local
-          EXPO_PUBLIC_FIREBASE_API_KEY: demo-key
-          EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: hero-stack-local.firebaseapp.com
+      - name: Web E2E (emulators:exec + seed + Playwright)
+        run: bun run e2e:web
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-report
           path: playwright-report/
+          retention-days: 7

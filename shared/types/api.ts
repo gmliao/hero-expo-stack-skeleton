@@ -31,6 +31,23 @@ export interface ApiError {
   code?: string;
 }
 
+/** Success response DTO */
+export interface SuccessDto<T> {
+  success: true;
+  data: T;
+}
+
+/** Failure response DTO */
+export interface FailureDto {
+  success: false;
+  error: string;
+  code?: string;
+  message?: string;
+}
+
+/** API response: either success with data or failure with error */
+export type ApiResponseDto<T> = SuccessDto<T> | FailureDto;
+
 export interface UserProfile {
   uid: string;
   email: string;

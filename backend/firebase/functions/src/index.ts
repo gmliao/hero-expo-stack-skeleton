@@ -2,13 +2,19 @@ import { onRequest } from 'firebase-functions/v2/https'
 import * as admin from 'firebase-admin'
 import express, { Request, Response } from 'express'
 import cors from 'cors'
-import { requireAuth } from './middleware/auth'
-import { getTodos, createTodo, toggleTodo, updateTodo, deleteTodo } from './handlers/todos'
+import { createRequireAuth } from './middleware/auth'
+import { createTodoHandlers } from './handlers/todos'
+import { FirebaseAuthVerifier } from './services/auth.firebase.service'
+import { TodosFirestoreRepository } from './repositories/todos.firestore.repository'
 
 admin.initializeApp()
 
+const authVerifier = new FirebaseAuthVerifier()
+const todosRepo = new TodosFirestoreRepository()
+const requireAuth = createRequireAuth(authVerifier)
+const todoHandlers = createTodoHandlers(todosRepo)
+
 const app = express()
-// CORS: allow Expo web (localhost:8081 etc.) and preflight
 app.use(
   cors({
     origin: true,
@@ -18,7 +24,6 @@ app.use(
   })
 )
 app.use(express.json())
-// Explicit OPTIONS for preflight (some runtimes don't pass OPTIONS to cors())
 app.options('*', (_req, res) => {
   res.set('Access-Control-Allow-Origin', '*')
   res.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
@@ -30,11 +35,11 @@ app.get('/health', requireAuth, (_req: Request, res: Response) => {
   res.json({ status: 'ok' })
 })
 
-app.get('/todos', requireAuth, getTodos)
-app.post('/todos', requireAuth, createTodo)
-app.patch('/todos/:id/toggle', requireAuth, toggleTodo)
-app.patch('/todos/:id', requireAuth, updateTodo)
-app.delete('/todos/:id', requireAuth, deleteTodo)
+app.get('/todos', requireAuth, todoHandlers.getTodos)
+app.post('/todos', requireAuth, todoHandlers.createTodo)
+app.patch('/todos/:id/toggle', requireAuth, todoHandlers.toggleTodo)
+app.patch('/todos/:id', requireAuth, todoHandlers.updateTodo)
+app.delete('/todos/:id', requireAuth, todoHandlers.deleteTodo)
 
 export const api = onRequest(
   { region: 'us-central1', memory: '256MiB', timeoutSeconds: 60 },
