@@ -103,7 +103,7 @@ backend/firebase/functions/src/  # Firebase Functions. No app imports allowed.
 - Use Firestore transactions for any multi-document write.
 - Always set `updatedAt` on writes.
 - Validate request body with a schema (zod or similar) before touching Firestore.
-- **firebase-admin modular imports:** Always import from `firebase-admin/firestore` directly — never via `admin.firestore.FieldValue` or `admin.firestore.Timestamp` namespace syntax. The Functions emulator patches `firebase-admin` at runtime and can make namespace accessors `undefined`, causing 500s that only surface in CI.
+- **firebase-admin modular imports:** Always import from `firebase-admin/firestore` directly — never via `admin.firestore.FieldValue` or `admin.firestore.Timestamp` namespace syntax. The Functions emulator patches `firebase-admin` at runtime and can make namespace accessors `undefined`. This affects both local and CI — `bun run test:backend` also uses `emulators:exec`, so the bug is reproducible locally as long as the code path has a test.
 
 ```typescript
 // ❌ namespace accessor — can be undefined inside the emulator
