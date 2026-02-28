@@ -1,0 +1,25 @@
+{
+  "jest.virtualFolders": [
+    {
+      "name": "client",
+      "rootPath": "apps/client",
+      "jestCommandLine": "bun run test:watch"
+    },
+    {
+      "name": "backend",
+      "rootPath": "backend/firebase/functions",
+      "jestCommandLine": "bun run test -- --watch"
+    }
+  ],
+  "cSpell.words": [
+    "firebaserc",
+    "Firestore",
+    "gluestack",
+    "nativewind",
+    "nunito",
+    "varela",
+    "worklets",
+    "worktree",
+    "worktrees"
+  ]
+}
