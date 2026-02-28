@@ -22,7 +22,8 @@ export interface UpdateTodoRequest {
   completed?: boolean
   title?: string
   description?: string
-  dueDate?: string
+  /** null = clear due date; omit = leave unchanged */
+  dueDate?: string | null
 }
 
 export interface ApiError {

@@ -15,8 +15,17 @@ describe('validateBody (unit)', () => {
     }
   })
 
-  it('throws BadRequestError when schema fails', () => {
+  it('throws BadRequestError when schema fails (empty title)', () => {
     const req = { body: { title: '' } } as Request
+
+    expect(() => {
+      validateBody(createTodoSchema)(req, mockRes as unknown as Response, mockNext)
+    }).toThrow(BadRequestError)
+    expect(mockNext).not.toHaveBeenCalled()
+  })
+
+  it('throws BadRequestError when title is only whitespace (validates trimmed value)', () => {
+    const req = { body: { title: '   ' } } as Request
 
     expect(() => {
       validateBody(createTodoSchema)(req, mockRes as unknown as Response, mockNext)
