@@ -22,7 +22,10 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
 
   async function handleSubmit() {
     setError(null)
-    if (!email.trim()) return
+    if (!email.trim()) {
+      setError(t('auth.fieldsRequired'))
+      return
+    }
     if (password.length < MIN_PASSWORD_LENGTH) {
       setError(t('auth.weakPassword'))
       return

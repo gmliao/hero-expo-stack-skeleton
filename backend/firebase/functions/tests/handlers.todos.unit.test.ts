@@ -1,30 +1,47 @@
 /**
  * Unit tests for todo handlers. No emulator needed — inject mock ITodosRepository.
  */
+import type { Response } from 'express'
 import { createTodoHandlers } from '../src/handlers/todos'
+import { NotFoundError, ForbiddenError } from '../src/lib/errors'
+import type { ValidatedBodyRequest } from '../src/lib/validate'
+import type { AuthenticatedRequest } from '../src/middleware/auth'
 import { createMockTodosRepository } from './mocks/todos.repository.mock'
 import type { Todo } from '../src/types/api'
+import type { CreateTodoInput, UpdateTodoInput } from '../src/schemas/todos.schema'
+
+/** Request shape used by todo handlers in tests; cast from minimal mock to satisfy AuthenticatedRequest. */
+type TodoHandlerRequest = AuthenticatedRequest &
+  Partial<ValidatedBodyRequest<CreateTodoInput | UpdateTodoInput>>
+
+/** Response mock with chainable status/json/send for assertions. No `extends Response` to avoid jest.Mock vs Express `this` conflict. */
+interface MockTodoResponse {
+  status: jest.Mock<MockTodoResponse, [number]>
+  json: jest.Mock<MockTodoResponse, [unknown]>
+  send: jest.Mock<MockTodoResponse, [unknown?]>
+}
 
 describe('Todo handlers (unit)', () => {
   function mockReq(overrides: {
     uid?: string
     params?: Record<string, string>
     body?: Record<string, unknown>
-  } = {}) {
+    validatedBody?: CreateTodoInput | UpdateTodoInput
+  } = {}): TodoHandlerRequest {
     return {
       uid: overrides.uid ?? 'test-uid',
       params: overrides.params ?? {},
       body: overrides.body ?? {},
-    } as any
+      validatedBody: overrides.validatedBody,
+    } as TodoHandlerRequest
   }
 
-  function mockRes() {
-    const res: any = {
+  function mockRes(): MockTodoResponse & Response {
+    return {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
       send: jest.fn().mockReturnThis(),
-    }
-    return res
+    } as MockTodoResponse & Response
   }
 
   describe('getTodos', () => {
@@ -65,30 +82,22 @@ describe('Todo handlers (unit)', () => {
   })
 
   describe('createTodo', () => {
-    it('returns 400 without title', async () => {
-      const repo = createMockTodosRepository()
-      const handlers = createTodoHandlers(repo)
-      const req = mockReq({ body: {} })
-      const res = mockRes()
-
-      await handlers.createTodo(req, res)
-
-      expect(res.status).toHaveBeenCalledWith(400)
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: false, error: expect.any(String) }),
-      )
-      expect(repo.todos).toHaveLength(0)
-    })
-
-    it('creates todo and returns 201', async () => {
+    it('creates todo and returns 201 using validatedBody', async () => {
       const repo = createMockTodosRepository()
       const handlers = createTodoHandlers(repo)
       const req = mockReq({
-        body: { title: 'New Todo', description: 'desc', dueDate: '2026-03-15' },
+        validatedBody: {
+          title: 'New Todo',
+          description: 'desc',
+          dueDate: '2026-03-15',
+        },
       })
       const res = mockRes()
 
-      await handlers.createTodo(req, res)
+      await handlers.createTodo(
+        req as AuthenticatedRequest & ValidatedBodyRequest<CreateTodoInput>,
+        res,
+      )
 
       expect(res.status).toHaveBeenCalledWith(201)
       expect(res.json).toHaveBeenCalledWith(
@@ -105,19 +114,24 @@ describe('Todo handlers (unit)', () => {
   })
 
   describe('updateTodo', () => {
-    it('returns 404 for non-existent id', async () => {
+    it('throws NotFoundError for non-existent id', async () => {
       const repo = createMockTodosRepository()
       const handlers = createTodoHandlers(repo)
-      const req = mockReq({ params: { id: 'non-existent' }, body: { title: 'x' } })
+      const req = mockReq({
+        params: { id: 'non-existent' },
+        validatedBody: { title: 'x' },
+      })
       const res = mockRes()
 
-      await handlers.updateTodo(req, res)
-
-      expect(res.status).toHaveBeenCalledWith(404)
-      expect(res.json).toHaveBeenCalledWith({ error: 'Todo not found' })
+      await expect(
+        handlers.updateTodo(
+          req as AuthenticatedRequest & ValidatedBodyRequest<UpdateTodoInput>,
+          res,
+        ),
+      ).rejects.toBeInstanceOf(NotFoundError)
     })
 
-    it('returns 403 when uid does not own todo', async () => {
+    it('throws ForbiddenError when uid does not own todo', async () => {
       const repo = createMockTodosRepository({
         todos: [
           {
@@ -131,16 +145,21 @@ describe('Todo handlers (unit)', () => {
         ],
       })
       const handlers = createTodoHandlers(repo)
-      const req = mockReq({ params: { id: 't1' }, body: { title: 'Hacked' } })
+      const req = mockReq({
+        params: { id: 't1' },
+        validatedBody: { title: 'Hacked' },
+      })
       const res = mockRes()
 
-      await handlers.updateTodo(req, res)
-
-      expect(res.status).toHaveBeenCalledWith(403)
-      expect(res.json).toHaveBeenCalledWith({ error: 'Forbidden' })
+      await expect(
+        handlers.updateTodo(
+          req as AuthenticatedRequest & ValidatedBodyRequest<UpdateTodoInput>,
+          res,
+        ),
+      ).rejects.toBeInstanceOf(ForbiddenError)
     })
 
-    it('updates todo and returns it', async () => {
+    it('updates todo and returns it using validatedBody', async () => {
       const repo = createMockTodosRepository({
         todos: [
           {
@@ -156,11 +175,14 @@ describe('Todo handlers (unit)', () => {
       const handlers = createTodoHandlers(repo)
       const req = mockReq({
         params: { id: 't1' },
-        body: { title: 'Updated', completed: true },
+        validatedBody: { title: 'Updated', completed: true },
       })
       const res = mockRes()
 
-      await handlers.updateTodo(req, res)
+      await handlers.updateTodo(
+        req as AuthenticatedRequest & ValidatedBodyRequest<UpdateTodoInput>,
+        res,
+      )
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -173,18 +195,16 @@ describe('Todo handlers (unit)', () => {
   })
 
   describe('deleteTodo', () => {
-    it('returns 404 for non-existent id', async () => {
+    it('throws NotFoundError for non-existent id', async () => {
       const repo = createMockTodosRepository()
       const handlers = createTodoHandlers(repo)
       const req = mockReq({ params: { id: 'non-existent' } })
       const res = mockRes()
 
-      await handlers.deleteTodo(req, res)
-
-      expect(res.status).toHaveBeenCalledWith(404)
+      await expect(handlers.deleteTodo(req, res)).rejects.toBeInstanceOf(NotFoundError)
     })
 
-    it('returns 403 when uid does not own todo', async () => {
+    it('throws ForbiddenError when uid does not own todo', async () => {
       const repo = createMockTodosRepository({
         todos: [
           {
@@ -201,9 +221,7 @@ describe('Todo handlers (unit)', () => {
       const req = mockReq({ params: { id: 't1' } })
       const res = mockRes()
 
-      await handlers.deleteTodo(req, res)
-
-      expect(res.status).toHaveBeenCalledWith(403)
+      await expect(handlers.deleteTodo(req, res)).rejects.toBeInstanceOf(ForbiddenError)
     })
 
     it('deletes own todo and returns 204', async () => {
@@ -231,18 +249,16 @@ describe('Todo handlers (unit)', () => {
   })
 
   describe('toggleTodo', () => {
-    it('returns 404 for non-existent id', async () => {
+    it('throws NotFoundError for non-existent id', async () => {
       const repo = createMockTodosRepository()
       const handlers = createTodoHandlers(repo)
       const req = mockReq({ params: { id: 'non-existent' } })
       const res = mockRes()
 
-      await handlers.toggleTodo(req, res)
-
-      expect(res.status).toHaveBeenCalledWith(404)
+      await expect(handlers.toggleTodo(req, res)).rejects.toBeInstanceOf(NotFoundError)
     })
 
-    it('returns 403 when uid does not own todo', async () => {
+    it('throws ForbiddenError when uid does not own todo', async () => {
       const repo = createMockTodosRepository({
         todos: [
           {
@@ -259,9 +275,7 @@ describe('Todo handlers (unit)', () => {
       const req = mockReq({ params: { id: 't1' } })
       const res = mockRes()
 
-      await handlers.toggleTodo(req, res)
-
-      expect(res.status).toHaveBeenCalledWith(403)
+      await expect(handlers.toggleTodo(req, res)).rejects.toBeInstanceOf(ForbiddenError)
     })
 
     it('toggles completed and returns todo', async () => {

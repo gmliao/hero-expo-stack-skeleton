@@ -1,9 +1,9 @@
 /**
  * Unit tests for auth middleware. No emulator needed — inject mock IAuthVerifier.
  */
-import { Response } from 'express'
 import { createRequireAuth } from '../src/middleware/auth'
 import { createMockAuthVerifier } from './mocks/auth.verifier.mock'
+import { UnauthorizedError } from '../src/lib/errors'
 
 describe('requireAuth (unit)', () => {
   function mockReq(overrides: { headers?: Record<string, string> } = {}) {
@@ -33,10 +33,12 @@ describe('requireAuth (unit)', () => {
     const req = mockReq()
     const res = mockRes()
 
-    await requireAuth(req, res, next)
-
-    expect(res.status).toHaveBeenCalledWith(401)
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing Authorization header' })
+    await expect(requireAuth(req, res, next)).rejects.toMatchObject({
+      name: UnauthorizedError.name,
+      statusCode: 401,
+      code: 'MISSING_AUTH_HEADER',
+      message: 'Missing Authorization header',
+    })
     expect(next).not.toHaveBeenCalled()
   })
 
@@ -46,10 +48,12 @@ describe('requireAuth (unit)', () => {
     const req = mockReq({ headers: { authorization: 'Basic xyz' } })
     const res = mockRes()
 
-    await requireAuth(req, res, next)
-
-    expect(res.status).toHaveBeenCalledWith(401)
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing Authorization header' })
+    await expect(requireAuth(req, res, next)).rejects.toMatchObject({
+      name: UnauthorizedError.name,
+      statusCode: 401,
+      code: 'MISSING_AUTH_HEADER',
+      message: 'Missing Authorization header',
+    })
     expect(next).not.toHaveBeenCalled()
   })
 
@@ -63,10 +67,12 @@ describe('requireAuth (unit)', () => {
     const req = mockReq({ headers: { authorization: 'Bearer bad-token' } })
     const res = mockRes()
 
-    await requireAuth(req, res, next)
-
-    expect(res.status).toHaveBeenCalledWith(401)
-    expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized', code: 'INVALID_TOKEN' })
+    await expect(requireAuth(req, res, next)).rejects.toMatchObject({
+      name: UnauthorizedError.name,
+      statusCode: 401,
+      code: 'INVALID_TOKEN',
+      message: 'Unauthorized',
+    })
     expect(next).not.toHaveBeenCalled()
   })
 
@@ -82,10 +88,12 @@ describe('requireAuth (unit)', () => {
     const req = mockReq({ headers: { authorization: 'Bearer expired-token' } })
     const res = mockRes()
 
-    await requireAuth(req, res, next)
-
-    expect(res.status).toHaveBeenCalledWith(401)
-    expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized', code: 'TOKEN_EXPIRED' })
+    await expect(requireAuth(req, res, next)).rejects.toMatchObject({
+      name: UnauthorizedError.name,
+      statusCode: 401,
+      code: 'TOKEN_EXPIRED',
+      message: 'Unauthorized',
+    })
     expect(next).not.toHaveBeenCalled()
   })
 
@@ -102,6 +110,5 @@ describe('requireAuth (unit)', () => {
     expect(req.uid).toBe('user-123')
     expect(req.email).toBe('u@example.com')
     expect(next).toHaveBeenCalled()
-    expect(res.status).not.toHaveBeenCalled()
   })
 })

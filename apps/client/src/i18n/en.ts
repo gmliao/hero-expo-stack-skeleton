@@ -8,6 +8,7 @@ export const en = {
     signInTitle: 'Sign In',
     email: 'Email',
     password: 'Password',
+    fieldsRequired: 'Email and password are required.',
     invalidCredentials: 'Invalid email or password',
     networkError: 'Network error. Please check your connection.',
     signingIn: 'Signing in...',
@@ -25,6 +26,7 @@ export const en = {
   options: {
     title: 'Options',
     logout: 'Log out',
+    logoutFailed: 'Log out failed. Please try again.',
   },
   todos: {
     title: 'My Todos',

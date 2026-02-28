@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -9,15 +10,16 @@ import { AppButton, AppScreenContainer, AppStack, AppText } from '@/ui/component
 export default function OptionsScreen() {
   const { t } = useTranslation()
   const setUid = useAuthStore(s => s.setUid)
+  const [logoutError, setLogoutError] = useState<string | null>(null)
 
   async function handleLogout() {
+    setLogoutError(null)
     try {
       await firebaseAuth.signOut()
       setUid(null)
       router.replace('/(auth)/login')
     } catch {
-      setUid(null)
-      router.replace('/(auth)/login')
+      setLogoutError(t('options.logoutFailed'))
     }
   }
 
@@ -47,6 +49,15 @@ export default function OptionsScreen() {
             >
               {t('options.logout')}
             </AppButton>
+            {logoutError ? (
+              <AppText
+                tone="danger"
+                accessibilityLiveRegion="polite"
+                testID="options-logout-error"
+              >
+                {logoutError}
+              </AppText>
+            ) : null}
           </AppStack>
         </AppScreenContainer>
       </View>

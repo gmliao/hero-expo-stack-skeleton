@@ -13,6 +13,15 @@ describe('SignUpForm', () => {
     expect(screen.getByTestId('sign-up-link-login')).toBeOnTheScreen()
   })
 
+  it('does not call onSubmit when email is blank and shows fieldsRequired error', () => {
+    const onSubmit = jest.fn()
+    render(<SignUpForm onSubmit={onSubmit} />)
+    fireEvent.press(screen.getByTestId('sign-up-button'))
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(screen.getByTestId('sign-up-error')).toBeOnTheScreen()
+    expect(screen.getByText('auth.fieldsRequired')).toBeOnTheScreen()
+  })
+
   it('shows validation error when password too short', async () => {
     const onSubmit = jest.fn()
     render(<SignUpForm onSubmit={onSubmit} />)
@@ -33,6 +42,7 @@ describe('SignUpForm', () => {
     fireEvent.changeText(screen.getByTestId('sign-up-confirm-input'), 'other')
     fireEvent.press(screen.getByTestId('sign-up-button'))
     expect(onSubmit).not.toHaveBeenCalled()
+    expect(screen.getByTestId('sign-up-error')).toBeOnTheScreen()
     expect(screen.getByText('auth.passwordMismatch')).toBeOnTheScreen()
   })
 
