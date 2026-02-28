@@ -87,7 +87,13 @@ test.describe('Todos flow', () => {
     await expect(page.getByTestId('create-todo-input')).toBeVisible()
     const newTitle = 'E2E Edited ' + Date.now()
     await page.getByTestId('create-todo-input').fill(newTitle)
+    // Wait for update API (PATCH) to complete before asserting modal closed
+    const updateDone = page.waitForResponse(
+      resp => resp.request().method() === 'PATCH' && resp.url().includes('api'),
+      { timeout: 15_000 },
+    )
     await page.getByTestId('create-todo-save').click()
+    await updateDone
     await expect(page.getByTestId('create-todo-modal-title')).not.toBeVisible()
     await expect(page.getByText(newTitle)).toBeVisible()
   })
