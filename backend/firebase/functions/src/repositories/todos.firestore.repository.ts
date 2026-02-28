@@ -1,11 +1,10 @@
-import * as admin from 'firebase-admin'
-import { FieldValue, Timestamp } from 'firebase-admin/firestore'
+import { DocumentData, FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import type { Todo, UpdateTodoRequest } from '../types/api'
 import type { ITodosRepository, CreateTodoInput } from './types'
 
-const db = () => admin.firestore()
+const db = () => getFirestore()
 
-function docToTodo(docId: string, data: admin.firestore.DocumentData): Todo {
+function docToTodo(docId: string, data: DocumentData): Todo {
   return {
     id: docId,
     uid: data.uid,
@@ -13,8 +12,8 @@ function docToTodo(docId: string, data: admin.firestore.DocumentData): Todo {
     description: data.description,
     completed: data.completed,
     dueDate: data.dueDate ?? undefined,
-    createdAt: (data.createdAt as admin.firestore.Timestamp).toDate().toISOString(),
-    updatedAt: (data.updatedAt as admin.firestore.Timestamp).toDate().toISOString(),
+    createdAt: (data.createdAt as Timestamp).toDate().toISOString(),
+    updatedAt: (data.updatedAt as Timestamp).toDate().toISOString(),
   }
 }
 
