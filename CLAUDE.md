@@ -103,6 +103,16 @@ backend/firebase/functions/src/  # Firebase Functions. No app imports allowed.
 - Use Firestore transactions for any multi-document write.
 - Always set `updatedAt` on writes.
 - Validate request body with a schema (zod or similar) before touching Firestore.
+- **firebase-admin modular imports:** Always import from `firebase-admin/firestore` directly — never via `admin.firestore.FieldValue` or `admin.firestore.Timestamp` namespace syntax. The Functions emulator patches `firebase-admin` at runtime and can make namespace accessors `undefined`, causing 500s that only surface in CI.
+
+```typescript
+// ❌ namespace accessor — can be undefined inside the emulator
+admin.firestore.FieldValue.delete()
+
+// ✅ modular import — always stable
+import { FieldValue, Timestamp } from 'firebase-admin/firestore'
+FieldValue.delete()
+```
 
 ---
 
@@ -127,6 +137,7 @@ backend/firebase/functions/src/  # Firebase Functions. No app imports allowed.
 - Tests run against the Firebase Functions Emulator (not unit-mocked Firestore).
 - Each test file seeds its own isolated data using a unique uid to avoid cross-test pollution.
 - Must test: authenticated happy path, unauthenticated (401), wrong uid (403).
+- **Edge / boundary cases for optional fields:** For any field that can be cleared or reset (e.g. `dueDate: null`, `description: ''`), add an explicit test that sends the null/empty value and asserts the field is absent or empty in the response. These "clear" paths often invoke distinct code branches (e.g. `FieldValue.delete()`) that are missed by happy-path tests and can fail silently in the emulator.
 
 ### Web E2E (`e2e-web/tests/`)
 
