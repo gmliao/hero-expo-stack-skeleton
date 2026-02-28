@@ -9,6 +9,7 @@
     "android": "expo run:android",
     "web": "expo start --web",
     "test": "jest --watchAll=false",
+    "test:coverage": "jest --watchAll=false --coverage",
     "test:watch": "jest --watch",
     "type-check": "tsc --noEmit",
     "e2e:ios": "detox test --configuration ios",

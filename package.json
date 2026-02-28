@@ -13,7 +13,7 @@
     "wait-emulators": "bun run scripts/wait-on-emulators.ts",
     "clean-emulators": "bun run scripts/clean-emulator.ts",
     "test": "cd apps/client && bun run test",
-    "test:backend": "cd backend/firebase/functions && bunx firebase emulators:exec --project hero-stack-local --only auth,firestore,functions \"bun run test\"",
+    "test:backend": "cd backend/firebase/functions && bunx firebase emulators:exec --project hero-stack-local --only auth,firestore,functions \"bun run test -- --coverage\"",
     "e2e:web": "cd backend/firebase/functions && bunx firebase emulators:exec --project hero-stack-local --only auth,firestore,functions \"cd ../../.. && FIREBASE_PROJECT_ID=hero-stack-local bun run seed && bunx playwright test\"",
     "check:client:ui": "bash scripts/check-client-ui-usage.sh",
     "check:pw:console": "bunx playwright test tests/console.spec.ts --config e2e-web/playwright.console.config.ts --reporter=line",
