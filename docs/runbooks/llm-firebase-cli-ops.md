@@ -12,6 +12,35 @@
 - Never run `firebase deploy` (any target) without explicit user instruction in the active thread.
 - Always include `--project <id>` for non-emulator commands.
 - Log each session using `docs/runbooks/firebase-cli-session-template.md`.
+- Cloud project id must come from local `.env` (`FIREBASE_PROJECT_ID`), not `.firebaserc`.
+- If `.env` is missing `FIREBASE_PROJECT_ID` or still points at `hero-stack-local`, fix targeting before cloud operations.
+
+## Cloud checklist
+
+Before any cloud Firebase command:
+
+1. `firebase login:list`
+2. `firebase projects:list`
+3. Confirm `.env` has the intended `FIREBASE_PROJECT_ID`
+
+If project id is missing:
+
+```bash
+bash scripts/firebase/setup-cloud-project.sh <project-id>
+```
+
+If the user does not yet have a cloud project:
+
+```bash
+firebase projects:create <project-id> --display-name "Hero Stack"
+```
+
+Preferred command forms:
+
+```bash
+bun run firebase functions:log
+bun run firebase deploy --only functions
+```
 
 ## Prompt template for LLM
 

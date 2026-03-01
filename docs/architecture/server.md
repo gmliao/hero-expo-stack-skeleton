@@ -1,90 +1,84 @@
-# Server 設計架構
+# Server Architecture Rules
 
 > **入口**：[README Architecture](../README.md#architecture)
+>  
+> **相關規範**：
+> [Firebase CLI Ops](../runbooks/llm-firebase-cli-ops.md),
+> [Testing](../testing.md)
 
-`backend/firebase/functions/src` 為 Firebase Functions 後端，採 Repository、DTO、Zod 分層。
+`backend/firebase/functions/src` 是 Firebase Functions 後端。這份文件記錄 backend 的非協商規則。
 
----
+## Required Layering
 
-## 目錄分層
+後端固定三層，且只能向下一層呼叫：
 
-| 目錄 | 用途 | 規則 |
-|------|------|------|
-| `handlers/` | HTTP 請求處理 | 依賴 repository、parseBody、res.json |
-| `middleware/` | auth、cors 等 | 注入 `IAuthVerifier` |
-| `repositories/` | 資料存取抽象 | `ITodosRepository`，實作 Firestore |
-| `services/` | Auth 驗證等 | `IAuthVerifier`，實作 Firebase Admin |
-| `schemas/` | Zod 驗證 schema | 所有 request body 用 Zod |
-| `lib/` | validate、parseBody | 共用 helper |
-| `types/` | 型別定義 | 對齊 `shared/types/api.ts` |
+| Layer | 位置 | 職責 | 禁止 |
+|------|------|------|------|
+| Controller / Endpoint | `src/controllers/**` | HTTP input/output、schema validated input、response wrapping | 不得碰 repository，不得放業務邏輯 |
+| Service | `src/services/*.service.ts` | business logic、authorization、ownership checks | 不得依賴 HTTP/Express 概念 |
+| Repository | `src/repositories/**` | Firestore CRUD | 不得做 uid ownership / business rules |
 
----
+規則：
 
-## DTO（Data Transfer Object）
+- Endpoint 不得直接存取 repository
+- 所有 ownership checks 由 service 負責
+- Repository 只做 generic data access
 
-- **契約來源**：`shared/types/api.ts`（App 與 Backend 共用）
-- **Success**：`SuccessDto<T>` 或直接回傳 `T`
-- **Failure**：`FailureDto`，含 `success: false`、`error`、可選 `message`
+## Controller And Endpoint DSL
 
-```ts
-// shared/types/api.ts
-export interface SuccessDto<T> { success: true; data: T }
-export interface FailureDto { success: false; error: string; message?: string }
-```
+- domain routes 必須用 controller class 組織
+- controller 必須繼承 `BaseController`
+- 每個 controller 定義 `prefix` 與 `endpoints()`
+- route path 在 `endpoints()` 內必須是 relative path
+- 新 endpoint 必須用 `defineEndpoint()`
+- 不要手動在 `app.ts` 或 `routes/index.ts` 註冊 route
+- auth 預設為 required，只有刻意公開的 endpoint 才設 `public: true`
 
----
+## Dependency Injection Rules
 
-## Zod 驗證
+- domain services 一律掛在 `Deps.services`
+- infrastructure 依賴（`auth`、`logger`）留在 `Deps` top level
+- 不得把 repository 暴露回 endpoint 層
+- 新 domain service 需要同步更新 `DepsServices` 與 `createDeps()`
 
-- 所有 request body **必須**以 Zod schema 驗證後再寫入 Firestore
-- Schema 定義在 `schemas/`（如 `todos.schema.ts`）
-- 使用 `parseBody(res, body, schema)`：驗證失敗自動回 400 + `FailureDto` 並 return
+## Service Typing Rules
 
-```ts
-// schemas/todos.schema.ts
-export const createTodoSchema = z.object({
-  title: z.string().min(1).transform(s => s.trim()),
-  description: z.string().optional().default(''),
-  dueDate: z.string().optional(),
-})
+每個 service 都必須有對應的 `<Domain>.types.ts`：
 
-// handlers/todos.ts
-const data = parseBody(res, req.body, createTodoSchema)
-if (!data) return  // 已送 400
-```
+- 放 `I<Domain>Service`
+- 放該 service 的 input/output DTO
+- service implementation 從 `.types.ts` 引入型別
+- 不要把 DTO 分散定義在 `.service.ts`
 
----
+## Validation And Error Contract
 
-## Repository 抽象
+- request input 一律用 Zod，並在 `defineEndpoint({ schemas })` 宣告
+- schema 放在 `src/schemas/`
+- backend error 一律使用 `AppError`
+- `ErrorCode` 只能用：
+  - `VALIDATION_ERROR`
+  - `UNAUTHENTICATED`
+  - `FORBIDDEN`
+  - `NOT_FOUND`
+  - `INTERNAL`
+- HTTP fail response 必須符合 `FailureDto`
+- success / failure 基礎型別以 `shared/types/api.ts` 為單一來源
 
-- Handler 不直接使用 Firestore，只依賴 `ITodosRepository` 等介面
-- 實作（如 `TodosFirestoreRepository`）注入到 handler
-- 單元測試可 mock repository，無需 Emulator
+## Firebase Usage Rules
 
-```ts
-// repositories/types.ts
-export interface ITodosRepository {
-  findAllByUid(uid: string): Promise<Todo[]>
-  create(uid: string, data: CreateTodoInput): Promise<Todo>
-  findById(id: string): Promise<Todo | null>
-  update(id: string, data: Partial<UpdateTodoRequest>): Promise<Todo | null>
-  toggle(id: string, uid: string): Promise<Todo | null>
-  delete(id: string): Promise<boolean>
-}
-```
+- server-side Firebase imports 必須走 direct subpath imports
+- 不要使用 `admin.firestore.*`、`admin.auth.*` namespace accessor
+- multi-document write 用 transaction
+- writes 要維持 `updatedAt`
 
----
+## Testing Expectations
 
-## Auth Middleware
+- service unit tests 用 mock repository
+- endpoint/controller unit tests 用 mock service
+- backend integration tests 用 emulator
+- authenticated happy path / unauthenticated 401 / wrong uid 403 都必須測
+- 支援 clear/reset semantics 的 optional field 必須有明確測試案例
 
-- 每個 endpoint 皆需驗證 Firebase Auth token
-- 未登入 → `401`
-- 路徑參數（如 todo id）若屬於他人 → `403`
-- `IAuthVerifier` 可 mock，方便單元測試
+## Cloud And CLI Operations
 
----
-
-## Firestore 寫入規約
-
-- 多 document 寫入使用 transaction
-- 寫入時一律設定 `updatedAt`
+Firebase CLI、project targeting、deploy guardrails 不放在這份文件，請讀 [Firebase CLI Ops](../runbooks/llm-firebase-cli-ops.md)。
