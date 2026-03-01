@@ -15,14 +15,14 @@ class PingController extends BaseController {
         id: "ping.get",
         method: "get",
         path: "",
-        auth: false,
+        public: true,
         execute: async () => ({ pong: true }),
       }),
       defineEndpoint({
         id: "ping.item",
         method: "get",
         path: "/:id",
-        auth: false,
+        public: true,
         execute: async ({ input }) => ({
           id: (input.params as { id: string }).id,
         }),

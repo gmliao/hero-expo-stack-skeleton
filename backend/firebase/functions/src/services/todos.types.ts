@@ -1,10 +1,22 @@
-import type { Todo } from '../types/api'
-import type { CreateTodoInput, UpdateTodoInput } from './todos.service'
+import type { Todo } from "../types/api";
+
+export type CreateTodoInput = {
+  title: string;
+  description?: string;
+  dueDate?: string;
+};
+
+export type UpdateTodoInput = {
+  title?: string;
+  description?: string;
+  completed?: boolean;
+  dueDate?: string | null;
+};
 
 export interface ITodosService {
-  listTodos(uid: string): Promise<Todo[]>
-  createTodo(uid: string, input: CreateTodoInput): Promise<Todo>
-  updateTodo(uid: string, id: string, data: UpdateTodoInput): Promise<Todo>
-  toggleTodo(uid: string, id: string): Promise<Todo>
-  deleteTodo(uid: string, id: string): Promise<void>
+  listTodos(uid: string): Promise<Todo[]>;
+  createTodo(uid: string, input: CreateTodoInput): Promise<Todo>;
+  updateTodo(uid: string, id: string, data: UpdateTodoInput): Promise<Todo>;
+  toggleTodo(uid: string, id: string): Promise<Todo>;
+  deleteTodo(uid: string, id: string): Promise<void>;
 }
