@@ -3,23 +3,7 @@ import request from "supertest";
 import { BaseController } from "../src/controllers/base.controller";
 import { createRouteBuilder } from "../src/http/builder";
 import { defineEndpoint } from "../src/http/endpoint";
-import type { Deps } from "../src/http/endpoint";
-
-function createMockDeps(): Deps {
-  return {
-    services: {
-      todos: {
-        listTodos: jest.fn().mockResolvedValue([]),
-        createTodo: jest.fn().mockResolvedValue({}),
-        updateTodo: jest.fn().mockResolvedValue({}),
-        toggleTodo: jest.fn().mockResolvedValue({}),
-        deleteTodo: jest.fn().mockResolvedValue(undefined),
-      },
-    },
-    auth: { verifyIdToken: async () => ({ uid: "test-uid" }) },
-    logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
-  };
-}
+import { createMockDeps } from "./mocks/deps.mock";
 
 // Concrete test subclass
 class PingController extends BaseController {
