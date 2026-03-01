@@ -1,3 +1,28 @@
 {
-  "git.ignoreLimitWarning": true
+  "jest.virtualFolders": [
+    {
+      "name": "client",
+      "rootPath": "apps/client",
+      "jestCommandLine": "bun run test:watch"
+    },
+    {
+      "name": "backend",
+      "rootPath": "backend/firebase/functions",
+      "jestCommandLine": "bun run test -- --watch"
+    }
+  ],
+  "cSpell.words": [
+    "bunx",
+    "firebaserc",
+    "Firestore",
+    "gluestack",
+    "herostack",
+    "nativewind",
+    "nunito",
+    "RNTL",
+    "varela",
+    "worklets",
+    "worktree",
+    "worktrees"
+  ]
 }
