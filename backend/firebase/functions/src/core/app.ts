@@ -1,10 +1,10 @@
 import express from "express";
 import cors from "cors";
 import type { Deps } from "./http/endpoint";
-import type { FailureDto } from "./types/api";
+import type { FailureDto } from "../types/api";
 import { createRouteBuilder } from "./http/builder";
 import { registerControllers } from "./routes";
-import { preflightMiddleware } from "./middleware/preflight";
+import { preflightMiddleware } from "../middleware/preflight";
 
 export function buildApp(deps: Deps) {
   const app = express();

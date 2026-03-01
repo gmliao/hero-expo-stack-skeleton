@@ -13,7 +13,7 @@ module.exports = {
   coverageReporters: ['text', 'text-summary', 'lcov', 'html'],
   coverageThreshold: {
     global: { statements: 0, branches: 0, functions: 0, lines: 0 },
-    'src/http/**/*.ts': { statements: 65, branches: 45, functions: 65, lines: 65 },
-    'src/controllers/**/*.ts': { statements: 65, branches: 45, functions: 65, lines: 65 },
+    'src/core/http/**/*.ts': { statements: 65, branches: 45, functions: 65, lines: 65 },
+    'src/modules/**/*.controller.ts': { statements: 65, branches: 45, functions: 65, lines: 65 },
   },
 }

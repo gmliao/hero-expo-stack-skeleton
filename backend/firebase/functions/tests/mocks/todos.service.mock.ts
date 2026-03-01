@@ -1,4 +1,4 @@
-import type { ITodosService } from '../../src/services/todos.types'
+import type { ITodosService } from '../../src/modules/todos/todos.types'
 import type { Todo } from '../../src/types/api'
 
 export function createMockTodosService(overrides: Partial<ITodosService> = {}): ITodosService {

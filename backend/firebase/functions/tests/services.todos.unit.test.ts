@@ -1,5 +1,5 @@
-import { TodosService } from '../src/services/todos.service'
-import { AppError } from '../src/http/errors'
+import { TodosService } from '../src/modules/todos/todos.service'
+import { AppError } from '../src/core/http/errors'
 import { createMockTodosRepository } from './mocks/todos.repository.mock'
 import type { Todo } from '../src/types/api'
 

@@ -1,10 +1,10 @@
 import express from "express";
 import request from "supertest";
-import { TodosController } from "../src/controllers/todos.controller";
-import { createRouteBuilder } from "../src/http/builder";
-import { AppError } from "../src/http/errors";
+import { TodosController } from "../src/modules/todos/todos.controller";
+import { createRouteBuilder } from "../src/core/http/builder";
+import { AppError } from "../src/core/http/errors";
 import { createMockTodosService } from "./mocks/todos.service.mock";
-import type { Deps, RequestContext } from "../src/http/endpoint";
+import type { Deps, RequestContext } from "../src/core/http/endpoint";
 
 function mockCtx(uid = "test-uid"): RequestContext {
   return {

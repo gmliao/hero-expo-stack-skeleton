@@ -1,8 +1,8 @@
 import express from "express";
 import request from "supertest";
-import { BaseController } from "../src/controllers/base.controller";
-import { createRouteBuilder } from "../src/http/builder";
-import { defineEndpoint } from "../src/http/endpoint";
+import { BaseController } from "../src/core/routes/base.controller";
+import { createRouteBuilder } from "../src/core/http/builder";
+import { defineEndpoint } from "../src/core/http/endpoint";
 import { createMockDeps } from "./mocks/deps.mock";
 
 // Concrete test subclass

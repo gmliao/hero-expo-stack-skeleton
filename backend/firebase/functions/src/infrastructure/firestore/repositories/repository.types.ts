@@ -2,7 +2,7 @@
  * Repository interfaces — abstract all external I/O (Firestore, etc.).
  * Implementations inject real or mock backends; handlers depend only on these interfaces.
  */
-import type { Todo, CreateTodoRequest, UpdateTodoRequest } from '../types/api'
+import type { Todo, CreateTodoRequest, UpdateTodoRequest } from '../../../types/api'
 
 export interface CreateTodoInput {
   title: string

@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { BaseController } from "./base.controller";
-import { defineEndpoint } from "../http/endpoint";
-import { createTodoSchema, updateTodoSchema } from "../schemas/todos.schema";
+import { BaseController } from "../../core/routes/base.controller";
+import { defineEndpoint } from "../../core/http/endpoint";
+import { createTodoSchema, updateTodoSchema } from "./todos.schema";
 
 const idParams = z.object({ id: z.string().min(1) });
 

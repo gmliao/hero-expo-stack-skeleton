@@ -1,7 +1,7 @@
 import { onRequest } from "firebase-functions/v2/https";
 import { initializeApp } from "firebase-admin/app";
-import { buildApp } from "./app";
-import { createDeps } from "./deps";
+import { buildApp } from "./core/app";
+import { createDeps } from "./core/deps";
 
 initializeApp();
 

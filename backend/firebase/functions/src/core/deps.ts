@@ -1,7 +1,7 @@
 import type { Deps, Logger } from "./http/endpoint";
-import { TodosFirestoreRepository } from "./repositories/todos.firestore.repository";
-import { TodosService } from "./services/todos.service";
-import { FirebaseAuthVerifier } from "./services/auth.firebase.service";
+import { FirebaseAuthVerifier } from "../infrastructure/auth/auth.firebase.service";
+import { TodosFirestoreRepository } from "../modules/todos/todos.firestore.repository";
+import { TodosService } from "../modules/todos/todos.service";
 
 class ConsoleLogger implements Logger {
   info(msg: string, extra?: unknown) {
