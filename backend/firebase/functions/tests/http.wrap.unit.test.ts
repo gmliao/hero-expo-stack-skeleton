@@ -8,12 +8,14 @@ import { z } from "zod";
 
 function createMockDeps(overrides: Partial<Deps> = {}): Deps {
   return {
-    todosService: {
-      listTodos: jest.fn().mockResolvedValue([]),
-      createTodo: jest.fn().mockResolvedValue({}),
-      updateTodo: jest.fn().mockResolvedValue({}),
-      toggleTodo: jest.fn().mockResolvedValue({}),
-      deleteTodo: jest.fn().mockResolvedValue(undefined),
+    services: {
+      todos: {
+        listTodos: jest.fn().mockResolvedValue([]),
+        createTodo: jest.fn().mockResolvedValue({}),
+        updateTodo: jest.fn().mockResolvedValue({}),
+        toggleTodo: jest.fn().mockResolvedValue({}),
+        deleteTodo: jest.fn().mockResolvedValue(undefined),
+      },
     },
     auth: {
       verifyIdToken: async () => ({

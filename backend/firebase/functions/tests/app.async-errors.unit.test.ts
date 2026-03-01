@@ -5,12 +5,14 @@ import type { Deps } from '../src/http/endpoint'
 describe('app async errors (unit)', () => {
   it('returns 500 and FailureDto when async route throws', async () => {
     const deps: Deps = {
-      todosService: {
-        listTodos: async () => { throw new Error('db') },
-        createTodo: async () => { throw new Error('db') },
-        updateTodo: async () => { throw new Error('db') },
-        toggleTodo: async () => { throw new Error('db') },
-        deleteTodo: async () => { throw new Error('db') },
+      services: {
+        todos: {
+          listTodos: async () => { throw new Error('db') },
+          createTodo: async () => { throw new Error('db') },
+          updateTodo: async () => { throw new Error('db') },
+          toggleTodo: async () => { throw new Error('db') },
+          deleteTodo: async () => { throw new Error('db') },
+        },
       },
       auth: { verifyIdToken: async () => ({ uid: 'test-uid' }) },
       logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },

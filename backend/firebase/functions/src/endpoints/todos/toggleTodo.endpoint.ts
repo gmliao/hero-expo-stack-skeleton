@@ -11,6 +11,6 @@ export const toggleTodoEndpoint = defineEndpoint({
   schemas: { params: paramsSchema },
   execute: async ({ deps, ctx, input }) => {
     const params = input.params as { id: string };
-    return deps.todosService.toggleTodo(ctx.uid!, params.id);
+    return deps.services.todos.toggleTodo(ctx.uid!, params.id);
   },
 });
