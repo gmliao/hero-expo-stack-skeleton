@@ -3,6 +3,8 @@ export const zhTW = {
     loading: '載入中...',
     retry: '重試',
     back: '返回',
+    errorTitle: '錯誤',
+    unknownError: '未知錯誤',
   },
   auth: {
     signInTitle: '登入',

@@ -3,6 +3,8 @@ export const en = {
     loading: 'Loading...',
     retry: 'Retry',
     back: 'Back',
+    errorTitle: 'Error',
+    unknownError: 'Unknown error',
   },
   auth: {
     signInTitle: 'Sign In',
