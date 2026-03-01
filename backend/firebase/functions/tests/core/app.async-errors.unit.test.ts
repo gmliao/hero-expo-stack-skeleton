@@ -1,6 +1,6 @@
 import request from 'supertest'
-import { buildApp } from '../src/core/app'
-import { createMockDeps } from './mocks/deps.mock'
+import { buildApp } from '../../src/core/app'
+import { createMockDeps } from '../mocks/deps.mock'
 
 describe('app async errors (unit)', () => {
   it('returns 500 and FailureDto when async route throws', async () => {

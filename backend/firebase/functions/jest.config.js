@@ -13,7 +13,13 @@ module.exports = {
   coverageReporters: ['text', 'text-summary', 'lcov', 'html'],
   coverageThreshold: {
     global: { statements: 0, branches: 0, functions: 0, lines: 0 },
+    'src/core/deps.ts': { statements: 100, branches: 65, functions: 100, lines: 100 },
     'src/core/http/**/*.ts': { statements: 65, branches: 45, functions: 65, lines: 65 },
+    'src/core/routes/**/*.ts': { statements: 100, branches: 100, functions: 100, lines: 100 },
+    'src/infrastructure/auth/**/*.ts': { statements: 100, branches: 100, functions: 100, lines: 100 },
     'src/modules/**/*.controller.ts': { statements: 65, branches: 45, functions: 65, lines: 65 },
+    'src/modules/**/*.firestore.repository.ts': { statements: 95, branches: 80, functions: 100, lines: 100 },
+    'src/modules/**/*.service.ts': { statements: 90, branches: 75, functions: 100, lines: 100 },
+    'src/modules/**/*.schema.ts': { statements: 100, branches: 60, functions: 100, lines: 100 },
   },
 }

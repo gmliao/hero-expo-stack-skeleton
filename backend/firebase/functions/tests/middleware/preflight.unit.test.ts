@@ -3,7 +3,7 @@
  * with CORS headers and never calls next(); non-OPTIONS calls next().
  */
 import type { Request, Response } from 'express'
-import { preflightMiddleware } from '../src/middleware/preflight'
+import { preflightMiddleware } from '../../src/middleware/preflight'
 
 describe('preflightMiddleware (unit)', () => {
   const mockNext = jest.fn()

@@ -1,5 +1,5 @@
-import { AppError, mapErrorToFailureDto } from "../src/core/http/errors";
-import type { ErrorCode } from "../src/core/http/errors";
+import { AppError, mapErrorToFailureDto } from "../../../src/core/http/errors";
+import type { ErrorCode } from "../../../src/core/http/errors";
 
 describe("AppError (unit)", () => {
   it("NOT_FOUND has status 404", () => {
