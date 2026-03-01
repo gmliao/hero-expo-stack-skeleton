@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "kill-dev-ports": "bash scripts/kill-dev-ports.sh",
+    "kill-test-ports": "bash scripts/kill-test-ports.sh",
     "dev": "bun run kill-dev-ports && concurrently \"bun run emulators\" \"bun run wait-emulators && bun run seed && bun run app\"",
     "app": "cd apps/client && dotenv -e ../../.env -- bun run start",
     "firebase:cli": "cd backend/firebase && bunx firebase",
@@ -16,8 +17,8 @@
     "test:client": "cd apps/client && bun run test",
     "test:backend:unit": "cd backend/firebase/functions && bun run test:unit",
     "test": "bun run test:client && bun run test:backend:unit && bun run test:backend && bun run e2e:web",
-    "test:backend": "cd backend/firebase/functions && bunx firebase emulators:exec --project hero-stack-local --only auth,firestore,functions \"bun run test:integration\"",
-    "e2e:web": "cd backend/firebase && bunx firebase emulators:exec --project hero-stack-local --config firebase.e2e.json --only auth,firestore,functions \"cd ../.. && FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9199 FIRESTORE_EMULATOR_HOST=127.0.0.1:8180 FIREBASE_PROJECT_ID=hero-stack-local bun run seed && lsof -ti:8099 | xargs kill -9 2>/dev/null || true && E2E_EMULATOR_AUTH_HOST=127.0.0.1:9199 E2E_EMULATOR_FUNCTIONS_URL=http://127.0.0.1:5011/hero-stack-local/us-central1 bunx playwright test\"",
+    "test:backend": "bun run kill-test-ports && cd backend/firebase/functions && bunx firebase emulators:exec --project hero-stack-local --only auth,firestore,functions \"bun run test:integration\"",
+    "e2e:web": "bun run kill-test-ports && cd backend/firebase && bunx firebase emulators:exec --project hero-stack-local --config firebase.e2e.json --only auth,firestore,functions \"cd ../.. && FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9199 FIRESTORE_EMULATOR_HOST=127.0.0.1:8180 FIREBASE_PROJECT_ID=hero-stack-local bun run seed && E2E_EMULATOR_AUTH_HOST=127.0.0.1:9199 E2E_EMULATOR_FUNCTIONS_URL=http://127.0.0.1:5011/hero-stack-local/us-central1 bunx playwright test\"",
     "check:client:ui": "bash scripts/check-client-ui-usage.sh",
     "check:pw:console": "bunx playwright test tests/console.spec.ts --config e2e-web/playwright.console.config.ts --reporter=line",
     "check:expo": "dotenv -e .env -- bash scripts/check-expo.sh",
