@@ -1,8 +1,8 @@
 import express from "express";
 import request from "supertest";
-import { createRouteBuilder } from "../src/core/http/builder";
-import { defineEndpoint } from "../src/core/http/endpoint";
-import { createMockDeps } from "./mocks/deps.mock";
+import { createRouteBuilder } from "../../../src/core/http/builder";
+import { defineEndpoint } from "../../../src/core/http/endpoint";
+import { createMockDeps } from "../../mocks/deps.mock";
 
 describe("createRouteBuilder (unit)", () => {
   it("mounts GET and POST endpoints", async () => {

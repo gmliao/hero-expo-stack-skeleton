@@ -1,11 +1,11 @@
 import express from "express";
 import request from "supertest";
-import { defineEndpoint } from "../src/core/http/endpoint";
-import { wrapEndpoint } from "../src/core/http/wrap";
-import { AppError } from "../src/core/http/errors";
-import type { Deps } from "../src/core/http/endpoint";
+import { defineEndpoint } from "../../../src/core/http/endpoint";
+import { wrapEndpoint } from "../../../src/core/http/wrap";
+import { AppError } from "../../../src/core/http/errors";
+import type { Deps } from "../../../src/core/http/endpoint";
 import { z } from "zod";
-import { createMockDeps } from "./mocks/deps.mock";
+import { createMockDeps } from "../../mocks/deps.mock";
 
 function createApp(def: ReturnType<typeof defineEndpoint>, deps: Deps) {
   const app = express();

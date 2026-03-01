@@ -25,6 +25,16 @@
 | Unit（`*.unit.test.ts`） | `bun run test:backend:unit`，不需 Emulator | mocks 注入、handler 邏輯 |
 | Integration（`auth.test.ts`、`todos.test.ts`） | `bun run test:backend`（emulators:exec） | 未登入 → 401；錯 uid → 403；getTodos / createTodo / toggleTodo 行為 |
 
+Backend test tree 應 mirror source layout：
+
+- `tests/core/**`
+- `tests/infrastructure/**`
+- `tests/modules/**`
+- `tests/integration/**`
+- `tests/mocks/**` for shared test doubles
+
+Repository implementations that depend directly on Firestore emulator behavior can stay primarily covered by integration tests, while core glue, services, schemas, and mockable infrastructure adapters should have direct unit coverage.
+
 ### Web E2E（Playwright）
 
 > 詳細準則：[`docs/runbooks/playwright-web-e2e.md`](./runbooks/playwright-web-e2e.md)
