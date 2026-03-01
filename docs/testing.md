@@ -1,7 +1,8 @@
 # Testing
 
 > **入口**：[README Test Commands](../README.md#test-commands)  
-> **CI**：`.github/workflows/ci.yml`
+> **CI**：`.github/workflows/ci.yml`  
+> **Web E2E 細則**：[Playwright Web E2E](./runbooks/playwright-web-e2e.md)
 
 ---
 
@@ -26,6 +27,8 @@
 
 ### Web E2E（Playwright）
 
+> 詳細準則：[`docs/runbooks/playwright-web-e2e.md`](./runbooks/playwright-web-e2e.md)
+
 #### 目錄結構
 
 | 路徑 | 用途 |
@@ -46,9 +49,9 @@
 
 1. `firebase emulators:exec` 啟動 Auth / Firestore / Functions
 2. `bun run seed` 寫入測試帳號與 todos
-3. Playwright `webServer` 起 Expo web（port 8081）
+3. Playwright `webServer` 起 Expo web（port 8099）
 4. 執行 `e2e-web/tests/`（排除 `console.spec.ts`）
-5. baseURL：`http://127.0.0.1:8081`
+5. baseURL：`http://127.0.0.1:8099`
 
 #### Playwright 瀏覽器安裝
 
@@ -74,3 +77,22 @@ login → create todo → toggle todo
 ```
 
 > Mobile E2E 目前為本地執行，不進 CI（成本考量）。
+
+---
+
+## Verification Policy
+
+- 不要在未執行相關指令前宣稱完成
+- 做完 feature 後，依改動類型執行對應驗證
+- 若有未執行的檢查，必須明確說明原因
+
+### Common verification commands
+
+- `bun run check:client:ui`
+- `bun run check:pw:console`
+- `bun run check:expo`
+- `bun run test`
+- `bun run check:web`
+- `bun run test:backend`
+- `bun run e2e:web`
+- `bun run ci`
