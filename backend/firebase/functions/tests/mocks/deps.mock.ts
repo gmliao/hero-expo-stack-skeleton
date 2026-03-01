@@ -5,8 +5,8 @@ import type { Deps } from "../../src/http/endpoint";
  *
  * **Shallow merge warning:** `overrides` is spread at the top level.
  * Passing `{ services: { todos: { listTodos: fn } } }` replaces the
- * entire `services` object — all other `todos` methods become the mock
- * defaults only if you include them. To override a single method on
+ * entire `services` object — all other `todos` methods will be `undefined`
+ * rather than jest mocks. To override a single method on
  * `services.todos`, spread the existing mock manually:
  *
  * ```ts
