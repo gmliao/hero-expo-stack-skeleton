@@ -4,7 +4,7 @@ Read this before editing code or docs in this repository.
 
 ## Required Startup
 
-1. Run: `~/.codex/superpowers/.codex/superpowers-codex bootstrap`
+1. **Superpowers:** Skills must already be installed (Cursor: marketplace or `~/.cursor/skills/superpowers`; Codex: clone repo + symlink to `~/.agents/skills/superpowers` — one-time setup, see that repo’s `.codex/INSTALL.md` if needed).
 2. Read `CLAUDE.md`
 3. Follow this file for agent-specific execution rules
 
