@@ -26,7 +26,7 @@ export default function TodosScreen() {
   const deleteMutation = useDeleteTodoMutation()
   const openModal = useUIStore(s => s.openCreateModal)
   const setSelectedTodoId = useUIStore(s => s.setSelectedTodoId)
-  const showBanner = useUIStore(s => s.showBanner)
+
 
   const handleCreatePress = useCallback(() => {
     setSelectedTodoId(null)
@@ -53,9 +53,7 @@ export default function TodosScreen() {
           `${t('todos.deleteConfirmTitle')}\n\n${t('todos.deleteConfirmMessage')}`,
         )
         if (ok) {
-          deleteMutation.mutate(todo.id, {
-            onError: () => showBanner(t('todos.deleteError')),
-          })
+          deleteMutation.mutate(todo.id)
         }
         return
       }
@@ -67,15 +65,12 @@ export default function TodosScreen() {
           {
             text: t('todos.deleteConfirmDelete'),
             style: 'destructive',
-            onPress: () =>
-              deleteMutation.mutate(todo.id, {
-                onError: () => showBanner(t('todos.deleteError')),
-              }),
+            onPress: () => deleteMutation.mutate(todo.id),
           },
         ],
       )
     },
-    [t, deleteMutation, showBanner],
+    [t, deleteMutation],
   )
 
   return (
