@@ -38,26 +38,37 @@ Production-ready reference skeleton for React Native / Expo projects with Fireba
 ## Quickstart
 
 ```bash
-# 0. 安裝本機必要工具（bun / Java / Firebase emulator smoke）
+# 0. 安裝 fnm，並切到 repo 指定的 Node 20
+brew install fnm
+echo 'eval "$(fnm env --use-on-cd)"' >> ~/.zshrc
+source ~/.zshrc
+fnm install 20
+fnm use 20
+
+# 0b. 安裝本機必要工具（bun / Java / Firebase emulator smoke）
 #    腳本會自動安裝 openjdk 並寫入 shell profile（~/.zshrc 或 ~/.bash_profile）
 bash scripts/setup-prerequisites.sh
 
-# 0b. 重新載入 shell，讓 Java PATH 生效（或開新 Terminal）
+# 0c. 重新載入 shell，讓 Java PATH 生效（或開新 Terminal）
 source ~/.zshrc   # zsh 用戶
 # source ~/.bash_profile  # bash 用戶
 
-# 1. 安裝依賴
+# 1. 確認 Node 版本
+node -v   # 預期 v20.x
+
+# 2. 安裝依賴
 bun install
 
-# 2. 複製環境變數
+# 3. 複製環境變數
 cp .env.example .env
 
-# 3. 一鍵起環境（app + emulators + seed）
+# 4. 一鍵起環境（app + emulators + seed）
 bun run dev
 ```
 
 > **注意：** Firebase Emulators 需要 Java。`setup-prerequisites.sh` 會自動安裝並設定 PATH。
 > 若跳過 setup 腳本手動安裝，需確保 `java` 在 PATH 中（參見下方 Prerequisites）。
+> Backend Functions `engines.node` 固定為 `20`。repo 根目錄已提供 `.node-version`，建議用 `fnm` 進 repo 自動切到 Node 20。
 
 詳細安裝流程請看：`docs/runbooks/local-prerequisites-setup.md`
 
@@ -70,9 +81,21 @@ bun run dev
 | 工具 | 版本需求 | 安裝方式 |
 |------|----------|----------|
 | [Homebrew](https://brew.sh) | 最新 | `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` |
+| [fnm](https://github.com/Schniz/fnm) | 最新 | `brew install fnm` |
+| Node.js | 20.x | `fnm install 20 && fnm use 20` |
 | [Bun](https://bun.sh) | ≥ 1.1 | `brew install bun` |
 | Java (JDK) | ≥ 11 | `brew install openjdk` |
 | Firebase CLI | 透過 bunx | 專案內 `bunx firebase --version` 即可（`bun install` 後） |
+
+先把 `fnm` 掛進 shell，讓進入 repo 時會自動套用 `.node-version`：
+
+```bash
+echo 'eval "$(fnm env --use-on-cd)"' >> ~/.zshrc
+source ~/.zshrc
+fnm install 20
+fnm use 20
+node -v   # 預期 v20.x
+```
 
 一鍵安裝與驗證：
 
