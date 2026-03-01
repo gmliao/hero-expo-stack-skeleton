@@ -12,8 +12,9 @@ import { Stack, useRouter, useSegments } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect, useState } from 'react'
 import { I18nextProvider } from 'react-i18next'
-import { Alert, AppState } from 'react-native'
+import { AppState } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { handleMutationError } from '@/lib/mutationError'
 import { firebaseAuth } from '@/lib/firebase'
 import i18n from '@/lib/i18n'
 import { useAuthStore } from '@/stores/useAuthStore'
@@ -31,11 +32,7 @@ const queryClient = new QueryClient({
     },
     mutations: {
       retry: 0,
-      onError: (error: Error) => {
-        const message =
-          error instanceof Error ? error.message : 'Unknown error'
-        Alert.alert('Error', message)
-      },
+      onError: handleMutationError,
     },
   },
 })

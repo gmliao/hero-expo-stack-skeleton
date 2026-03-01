@@ -111,10 +111,127 @@ test.describe('Todos flow', () => {
       itemsBefore = 1
     }
     // Accept native confirm dialog before triggering delete.
-    page.once('dialog', d => d.accept())
+    const dialogPromise = page.waitForEvent('dialog')
     const firstDeleteBtn = page.getByTestId(/^todo-delete-/).first()
     await firstDeleteBtn.click()
+    const dialog = await dialogPromise
+    expect(dialog.type()).toBe('confirm')
+    await dialog.accept()
     await expect(todoItems).toHaveCount(itemsBefore - 1)
+  })
+})
+
+test.describe('Mutation error alerts', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/login')
+    await page.getByTestId('email-input').fill('test1@example.com')
+    await page.getByTestId('password-input').fill('password')
+    await page.getByTestId('login-button').click()
+    await page.waitForURL('**/')
+    await expect(page.getByTestId('todos-title')).toBeVisible({ timeout: 15_000 })
+  })
+
+  test('shows alert when create todo fails (500 INTERNAL)', async ({ page }) => {
+    await page.route('**/api/todos', async (route) => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 500,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: false, error: 'INTERNAL', message: 'Internal error' }),
+        })
+      } else {
+        await route.continue()
+      }
+    })
+
+    await page.getByTestId('create-todo-button').click()
+    await page.getByTestId('create-todo-input').fill('Will Fail')
+
+    const dialogPromise = page.waitForEvent('dialog', { timeout: 10_000 })
+    await page.getByTestId('create-todo-save').click()
+
+    const dialog = await dialogPromise
+    expect(dialog.type()).toBe('alert')
+    expect(dialog.message()).toContain('Internal error')
+    await dialog.dismiss()
+  })
+
+  test('shows alert when toggle todo fails (404 NOT_FOUND)', async ({ page }) => {
+    const firstToggle = page.getByTestId(/^todo-toggle-/).first()
+    await expect(firstToggle).toBeVisible()
+
+    await page.route('**/api/todos/*/toggle', async (route) => {
+      await route.fulfill({
+        status: 404,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: false, error: 'NOT_FOUND', message: 'Todo not found' }),
+      })
+    })
+
+    const dialogPromise = page.waitForEvent('dialog', { timeout: 10_000 })
+    await firstToggle.click()
+
+    const dialog = await dialogPromise
+    expect(dialog.type()).toBe('alert')
+    expect(dialog.message()).toContain('Todo not found')
+    await dialog.dismiss()
+  })
+
+  test('shows alert when update todo fails (403 FORBIDDEN)', async ({ page }) => {
+    const firstEditBtn = page.getByTestId(/^todo-edit-/).first()
+    await expect(firstEditBtn).toBeVisible()
+    await firstEditBtn.click()
+    await expect(page.getByTestId('create-todo-input')).toBeVisible()
+
+    await page.route(/\/api\/todos\/[^/]+$/, async (route) => {
+      if (route.request().method() === 'PATCH') {
+        await route.fulfill({
+          status: 403,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: false, error: 'FORBIDDEN', message: 'Forbidden' }),
+        })
+      } else {
+        await route.continue()
+      }
+    })
+
+    const dialogPromise = page.waitForEvent('dialog', { timeout: 10_000 })
+    await page.getByTestId('create-todo-input').fill('Forbidden Edit')
+    await page.getByTestId('create-todo-save').click()
+
+    const dialog = await dialogPromise
+    expect(dialog.type()).toBe('alert')
+    expect(dialog.message()).toContain('Forbidden')
+    await dialog.dismiss()
+  })
+
+  test('shows alert when delete todo fails (500 INTERNAL)', async ({ page }) => {
+    const todoItems = page.getByTestId(/^todo-item-/)
+    await expect(todoItems.first()).toBeVisible()
+
+    await page.route(/\/api\/todos\/[^/]+$/, async (route) => {
+      if (route.request().method() === 'DELETE') {
+        await route.fulfill({
+          status: 500,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: false, error: 'INTERNAL', message: 'Internal error' }),
+        })
+      } else {
+        await route.continue()
+      }
+    })
+
+    // Accept confirm dialog, then wait for the error alert
+    const dialogPromise = page.waitForEvent('dialog', { timeout: 10_000 })
+    await page.getByTestId(/^todo-delete-/).first().click()
+    const confirmDialog = await dialogPromise
+    expect(confirmDialog.type()).toBe('confirm')
+    await confirmDialog.accept()
+
+    const alertDialog = await page.waitForEvent('dialog', { timeout: 10_000 })
+    expect(alertDialog.type()).toBe('alert')
+    expect(alertDialog.message()).toContain('Internal error')
+    await alertDialog.dismiss()
   })
 })
 
