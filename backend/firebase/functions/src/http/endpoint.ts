@@ -1,6 +1,6 @@
 import type { ZodSchema } from "zod";
-import type { IAuthVerifier, TokenPayload } from "../services/auth.types";
-import type { ITodosRepository } from "../repositories/types";
+import type { IAuthVerifier } from "../services/auth.types";
+import type { ITodosService } from "../services/todos.types";
 
 export type HttpMethod = "get" | "post" | "put" | "patch" | "delete";
 
@@ -24,7 +24,7 @@ export interface RequestContext {
 }
 
 export interface Deps {
-  todosRepo: ITodosRepository;
+  todosService: ITodosService;
   auth: IAuthVerifier;
   logger: Logger;
 }

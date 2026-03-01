@@ -1,5 +1,6 @@
 import type { Deps, Logger } from "./http/endpoint";
 import { TodosFirestoreRepository } from "./repositories/todos.firestore.repository";
+import { TodosService } from "./services/todos.service";
 import { FirebaseAuthVerifier } from "./services/auth.firebase.service";
 
 class ConsoleLogger implements Logger {
@@ -15,8 +16,9 @@ class ConsoleLogger implements Logger {
 }
 
 export function createDeps(): Deps {
+  const todosRepo = new TodosFirestoreRepository();
   return {
-    todosRepo: new TodosFirestoreRepository(),
+    todosService: new TodosService(todosRepo),
     auth: new FirebaseAuthVerifier(),
     logger: new ConsoleLogger(),
   };
