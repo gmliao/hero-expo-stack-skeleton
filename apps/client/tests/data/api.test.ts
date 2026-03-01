@@ -23,7 +23,7 @@ describe('api client', () => {
     ;(global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 401,
-      json: async () => ({ error: 'Unauthorized' }),
+      json: async () => ({ success: false, error: 'UNAUTHENTICATED', message: 'Unauthorized' }),
     })
 
     await expect(api.getTodos('user-1')).rejects.toBeInstanceOf(AuthError)
@@ -33,7 +33,7 @@ describe('api client', () => {
     ;(global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 403,
-      json: async () => ({ error: 'Forbidden' }),
+      json: async () => ({ success: false, error: 'FORBIDDEN', message: 'Forbidden' }),
     })
 
     await expect(api.getTodos('user-1')).rejects.toBeInstanceOf(PermissionError)
@@ -43,7 +43,7 @@ describe('api client', () => {
     ;(global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 400,
-      json: async () => ({ error: 'Bad Request' }),
+      json: async () => ({ success: false, error: 'VALIDATION_ERROR', message: 'Bad Request' }),
     })
 
     await expect(api.getTodos('user-1')).rejects.toBeInstanceOf(ApiError)
@@ -66,7 +66,7 @@ describe('api client', () => {
     ;(global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 400,
-      json: async () => ({ error: 'Bad Request' }),
+      json: async () => ({ success: false, error: 'VALIDATION_ERROR', message: 'Bad Request' }),
     })
 
     await expect(api.getTodos('user-1')).rejects.toBeInstanceOf(ApiError)
