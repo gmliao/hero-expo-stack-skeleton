@@ -1,5 +1,5 @@
-# CI: unit tests (client + backend), client checks, Playwright console check, Web E2E.
-# Covers: check:client:ui, check:expo, test (client unit), check:web, check:pw:console, test:backend, e2e:web.
+# CI: client checks, client unit, backend unit, backend integration, Playwright console check, Web E2E.
+# Covers: check:client:ui, check:expo, test:client, test:backend:unit, test:backend, check:web, check:pw:console, e2e:web.
 # Mobile E2E (e2e:ios) is not run in CI; run locally before merging when feature touches mobile.
 
 name: CI
@@ -85,7 +85,31 @@ jobs:
 
   backend-unit:
     runs-on: ubuntu-latest
-    name: Backend unit (emulator)
+    name: Backend unit
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: Cache bun
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ hashFiles('bun.lock', 'backend/firebase/functions/bun.lock') }}
+          restore-keys: |
+            bun-
+      - run: bun install --frozen-lockfile
+      - run: cd backend/firebase/functions && bun install --frozen-lockfile && bun run build
+      - run: bun run test:backend:unit
+      - name: Upload backend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/firebase/functions/coverage/
+          retention-days: 7
+
+  backend-integration:
+    runs-on: ubuntu-latest
+    name: Backend integration (emulator)
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -111,12 +135,6 @@ jobs:
           FIREBASE_AUTH_EMULATOR_HOST: 127.0.0.1:9099
           FIRESTORE_EMULATOR_HOST: 127.0.0.1:8080
           GCLOUD_PROJECT: hero-stack-local
-      - name: Upload backend coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-coverage
-          path: backend/firebase/functions/coverage/
-          retention-days: 7
 
   web-e2e:
     runs-on: ubuntu-latest

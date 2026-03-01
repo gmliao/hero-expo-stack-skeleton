@@ -271,10 +271,16 @@ bun run dev
 ## Test Commands
 
 ```bash
-# App unit/integration tests（apps/client）
+# Full test suite（client + backend unit + backend emulator + web e2e）
 bun run test
 
-# Backend tests（需 Emulator，含 unit + integration）
+# App unit/integration tests（apps/client）
+bun run test:client
+
+# Backend unit tests（no emulator）
+bun run test:backend:unit
+
+# Backend integration tests（需 Emulator）
 bun run test:backend
 
 # Web E2E（Playwright）
@@ -306,7 +312,7 @@ cd backend/firebase/functions && bun run test -- --watch
 | client | apps/client | React Native / Expo 單元測試（watch） |
 | backend | backend/firebase/functions | Firebase Functions 單元/整合測試（watch） |
 
-後端整合測試需 Emulator；若未起 Emulator，watch 時會顯示部分失敗。完整後端測試請用 `bun run test:backend`。
+後端整合測試需 Emulator；若未起 Emulator，watch 時會顯示部分失敗。整合測試請用 `bun run test:backend`，unit tests 請用 `bun run test:backend:unit`。
 
 ### CI 相關 Check 指令
 

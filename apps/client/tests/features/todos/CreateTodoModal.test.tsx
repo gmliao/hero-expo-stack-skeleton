@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Alert } from 'react-native'
 import { CreateTodoModal } from '@/features/todos/CreateTodoModal'
 import { queryKeys } from '@/data/queryKeys'
 import { useAuthStore } from '@/stores/useAuthStore'
@@ -21,6 +22,8 @@ function wrapper({ children }: { children: React.ReactNode }) {
 
 const mockCreateMutateAsync = jest.fn()
 const mockUpdateMutateAsync = jest.fn()
+
+jest.spyOn(Alert, 'alert').mockImplementation(() => {})
 
 describe('CreateTodoModal', () => {
   beforeEach(() => {
@@ -121,14 +124,21 @@ describe('CreateTodoModal', () => {
     expect(closeModal).toHaveBeenCalled()
   })
 
-  it('shows save error when mutation fails', async () => {
+  it('does not surface a local alert when mutation fails', async () => {
     mockCreateMutateAsync.mockRejectedValue(new Error('API error'))
 
     render(<CreateTodoModal />, { wrapper })
     fireEvent.changeText(screen.getByTestId('create-todo-input'), 'New todo')
     fireEvent.press(screen.getByTestId('create-todo-save'))
 
-    expect(await screen.findByTestId('create-todo-save-error')).toBeOnTheScreen()
+    await waitFor(() => {
+      expect(mockCreateMutateAsync).toHaveBeenCalledWith({
+        title: 'New todo',
+        description: undefined,
+        dueDate: undefined,
+      })
+    })
+    expect(Alert.alert).not.toHaveBeenCalled()
   })
 
   it('clears title error when user types after validation error', async () => {
