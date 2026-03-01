@@ -130,7 +130,7 @@ describe('POST /todos', () => {
     const res = await axios.post<ApiResponseDto<Todo>>(`${BASE_URL}/todos`, body, {
       headers: { Authorization: `Bearer ${idToken}` },
     })
-    expect(res.status).toBe(200)
+    expect(res.status).toBe(201)
     const todo = unwrapSuccess(res.data)
     expect(todo.uid).toBe(uid)
     expect(todo.title).toBe('New Todo')
@@ -145,7 +145,7 @@ describe('POST /todos', () => {
     const res = await axios.post<ApiResponseDto<Todo>>(`${BASE_URL}/todos`, body, {
       headers: { Authorization: `Bearer ${idToken}` },
     })
-    expect(res.status).toBe(200)
+    expect(res.status).toBe(201)
     const todo = unwrapSuccess(res.data)
     expect(todo.dueDate).toBe('2026-03-01')
     expect(todo.title).toBe('With Due')
@@ -339,13 +339,13 @@ describe('DELETE /todos/:id', () => {
     await auth.deleteUser(otherUid)
   })
 
-  it('deletes own todo and returns success payload', async () => {
-    const res = await axios.delete<ApiResponseDto<null>>(`${BASE_URL}/todos/${todoId}`, {
+  it('deletes own todo and returns 204 with no body', async () => {
+    const res = await axios.delete(`${BASE_URL}/todos/${todoId}`, {
       headers: { Authorization: `Bearer ${idToken}` },
       validateStatus: () => true,
     })
-    expect(res.status).toBe(200)
-    expect(unwrapSuccess(res.data)).toBeNull()
+    expect(res.status).toBe(204)
+    expect(res.data).toBe('')
     const snap = await db.collection('todos').doc(todoId).get()
     expect(snap.exists).toBe(false)
   })

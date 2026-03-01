@@ -1,27 +1,62 @@
 import { Alert } from 'react-native'
 import { handleMutationError } from '@/lib/mutationError'
 import { ApiError, AuthError, PermissionError } from '@/data/api'
+import i18n from '@/lib/i18n'
+
+const mockTranslations = {
+  en: {
+    'common.errorTitle': 'Error',
+    'common.unknownError': 'Unknown error',
+  },
+  'zh-TW': {
+    'common.errorTitle': '錯誤',
+    'common.unknownError': '未知錯誤',
+  },
+} as const
+
+let mockCurrentLanguage: keyof typeof mockTranslations = 'en'
+
+jest.mock('@/lib/i18n', () => ({
+  __esModule: true,
+  default: {
+    changeLanguage: jest.fn(async (language: keyof typeof mockTranslations) => {
+      mockCurrentLanguage = language
+    }),
+    t: jest.fn((key: keyof (typeof mockTranslations)['en']) => {
+      return mockTranslations[mockCurrentLanguage][key] ?? key
+    }),
+  },
+}))
 
 jest.spyOn(Alert, 'alert').mockImplementation(() => {})
 
 describe('handleMutationError', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks()
+    await i18n.changeLanguage('en')
   })
 
-  it('calls Alert.alert with Error message', () => {
+  it('uses localized title and message in English', () => {
     handleMutationError(new Error('Server is down'))
     expect(Alert.alert).toHaveBeenCalledWith('Error', 'Server is down')
   })
 
-  it('calls Alert.alert with "Unknown error" for non-Error values', () => {
+  it('uses localized fallback message for non-Error values', () => {
     handleMutationError('string error')
     expect(Alert.alert).toHaveBeenCalledWith('Error', 'Unknown error')
   })
 
-  it('calls Alert.alert with "Unknown error" for null', () => {
+  it('uses localized fallback message for null', () => {
     handleMutationError(null)
     expect(Alert.alert).toHaveBeenCalledWith('Error', 'Unknown error')
+  })
+
+  it('uses translated strings for zh-TW locale', async () => {
+    await i18n.changeLanguage('zh-TW')
+
+    handleMutationError(null)
+
+    expect(Alert.alert).toHaveBeenCalledWith('錯誤', '未知錯誤')
   })
 
   it('uses ApiError message', () => {
