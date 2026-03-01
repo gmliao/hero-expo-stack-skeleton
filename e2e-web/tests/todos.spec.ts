@@ -1,7 +1,7 @@
 // React Native Web maps testID prop to data-testid attribute on the DOM.
 // This file uses page.getByTestId() which is equivalent to [data-testid="..."] selector.
 
-import { test, expect, type Locator } from '@playwright/test'
+import { test, expect, type Dialog, type Locator } from '@playwright/test'
 
 const isTodoChecked = async (toggle: Locator) => {
   const ariaChecked = await toggle.getAttribute('aria-checked')
@@ -9,6 +9,32 @@ const isTodoChecked = async (toggle: Locator) => {
   if (ariaChecked === 'false') return false
   const marker = await toggle.textContent()
   return (marker ?? '').includes('✓')
+}
+
+const acceptConfirmDuringClick = async (trigger: Locator): Promise<void> => {
+  const page = trigger.page()
+  const dialogPromise = page.waitForEvent('dialog', { timeout: 5_000 })
+  const clickPromise = trigger.click()
+  const dialog = await dialogPromise
+
+  expect(dialog.type()).toBe('confirm')
+  await dialog.accept()
+  await clickPromise
+}
+
+const clickDeleteAndCaptureAlert = async (trigger: Locator): Promise<Dialog> => {
+  const page = trigger.page()
+  const confirmPromise = page.waitForEvent('dialog', { timeout: 5_000 })
+  const clickPromise = trigger.click()
+  const confirmDialog = await confirmPromise
+
+  expect(confirmDialog.type()).toBe('confirm')
+
+  const alertPromise = page.waitForEvent('dialog', { timeout: 5_000 })
+  await confirmDialog.accept()
+  await clickPromise
+
+  return alertPromise
 }
 
 // Root script bun run e2e:web starts Firebase emulators + Expo web server automatically.
@@ -110,13 +136,8 @@ test.describe('Todos flow', () => {
       await expect(page.getByText('E2E To Delete')).toBeVisible()
       itemsBefore = 1
     }
-    // Accept native confirm dialog before triggering delete.
-    const dialogPromise = page.waitForEvent('dialog')
     const firstDeleteBtn = page.getByTestId(/^todo-delete-/).first()
-    await firstDeleteBtn.click()
-    const dialog = await dialogPromise
-    expect(dialog.type()).toBe('confirm')
-    await dialog.accept()
+    await acceptConfirmDuringClick(firstDeleteBtn)
     await expect(todoItems).toHaveCount(itemsBefore - 1)
   })
 })
@@ -221,14 +242,7 @@ test.describe('Mutation error alerts', () => {
       }
     })
 
-    // Accept confirm dialog, then wait for the error alert
-    const dialogPromise = page.waitForEvent('dialog', { timeout: 10_000 })
-    await page.getByTestId(/^todo-delete-/).first().click()
-    const confirmDialog = await dialogPromise
-    expect(confirmDialog.type()).toBe('confirm')
-    await confirmDialog.accept()
-
-    const alertDialog = await page.waitForEvent('dialog', { timeout: 10_000 })
+    const alertDialog = await clickDeleteAndCaptureAlert(page.getByTestId(/^todo-delete-/).first())
     expect(alertDialog.type()).toBe('alert')
     expect(alertDialog.message()).toContain('Internal error')
     await alertDialog.dismiss()
