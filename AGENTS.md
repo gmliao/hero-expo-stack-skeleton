@@ -96,7 +96,7 @@ Read this before editing code or docs in this repository.
 - **Feature development verification (required):**
   - **All feature development** (client, backend, shared) must be verified by unit tests and, where applicable, E2E tests. Do not claim a feature complete until the relevant tests pass.
   - **Client:** Add or extend unit tests in `apps/client/tests/` (Jest + React Native Testing Library for components and routes; data/hooks/stores per existing conventions). User-facing flows must pass E2E: `bun run e2e:web` for web; `bun run e2e:ios` when the feature touches mobile.
-  - **Backend:** Add or extend tests in `backend/firebase/functions/tests/`; run `bun run test:backend` (emulator). Must cover authenticated happy path, unauthenticated (401), wrong uid (403). **Also cover edge / boundary cases for every optional field:** for any field that supports a "clear" or "reset" semantic (e.g. `dueDate: null`, `description: ''`), add an explicit test that sends the null/clear value and asserts the field is absent or empty in the response. These paths invoke distinct code branches (e.g. `FieldValue.delete()`) that happy-path tests never hit. If a bug occurs here, it is not because of local vs CI differences: both run via `emulators:exec`. The real causes are: (1) missing backend test coverage (e.g. no `dueDate: null` test case), and (2) E2E hitting the path first (e.g. seeded todo without dueDate → edit sends null). Add explicit backend tests so these paths are exercised in the emulator.
+  - **Backend:** Add or extend tests in `backend/firebase/functions/tests/`; run `bun run test:backend:unit` for unit coverage and `bun run test:backend` for emulator integration coverage. Must cover authenticated happy path, unauthenticated (401), wrong uid (403). **Also cover edge / boundary cases for every optional field:** for any field that supports a "clear" or "reset" semantic (e.g. `dueDate: null`, `description: ''`), add an explicit test that sends the null/clear value and asserts the field is absent or empty in the response. These paths invoke distinct code branches (e.g. `FieldValue.delete()`) that happy-path tests never hit. If a bug occurs here, it is not because of local vs CI differences: both run via `emulators:exec`. The real causes are: (1) missing backend test coverage (e.g. no `dueDate: null` test case), and (2) E2E hitting the path first (e.g. seeded todo without dueDate → edit sends null). Add explicit backend tests so these paths are exercised in the emulator.
   - **If something cannot be verified** (e.g. no feasible unit test for a piece of code, or E2E not applicable), **report it explicitly** in the same thread or in the PR: what was not verified and why. Do not silently skip verification.
 - Client unit tests include `@/ui/components`, features, and routes.
 - Do not lower coverage thresholds to make failures disappear; add the missing tests.
@@ -109,6 +109,7 @@ Run relevant checks before claiming completion:
 - `bun run check:pw:console` (Playwright CLI must show no browser `console.error` / `pageerror`)
 - `bun run check:expo` (Expo doctor + compile/export)
 - `bun run test`
+- `bun run test:backend:unit`
 - `bun run check:web` (web bundle; catches "Unable to resolve" and similar)
 - `bun run test:backend`
 - `bun run e2e:web`

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Modal, Pressable, View } from 'react-native'
+import { Modal, Pressable, View } from 'react-native'
 import { useQueryClient } from '@tanstack/react-query'
 
 import type { Todo } from '@shared/types/api'
@@ -108,8 +108,8 @@ export function CreateTodoModal() {
       setDueDate('')
       setSelectedTodoId(null)
       closeModal()
-    } catch (err) {
-      Alert.alert('Error', err instanceof Error ? err.message : t('todos.modal.saveError'))
+    } catch {
+      // QueryClient global mutation onError owns user-visible error surfacing.
     }
   }
 

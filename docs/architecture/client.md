@@ -101,7 +101,7 @@ route / feature 層：
 
 - `bun run check:client:ui`
 - `bun run check:web`
-- `bun run test`
+- `bun run test:client`
 - `bun run e2e:web`
 
 如果改到 Playwright 測試或 Web 失敗路徑，再讀 [Playwright Web E2E](../runbooks/playwright-web-e2e.md)。

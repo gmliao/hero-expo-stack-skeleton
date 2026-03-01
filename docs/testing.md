@@ -22,7 +22,7 @@
 
 | 類型 | 執行方式 | 驗證內容 |
 |------|----------|----------|
-| Unit（`*.unit.test.ts`） | 直接 `jest`，不需 Emulator | mocks 注入、handler 邏輯 |
+| Unit（`*.unit.test.ts`） | `bun run test:backend:unit`，不需 Emulator | mocks 注入、handler 邏輯 |
 | Integration（`auth.test.ts`、`todos.test.ts`） | `bun run test:backend`（emulators:exec） | 未登入 → 401；錯 uid → 403；getTodos / createTodo / toggleTodo 行為 |
 
 ### Web E2E（Playwright）
@@ -88,6 +88,8 @@ login → create todo → toggle todo
 
 ### Common verification commands
 
+- `bun run test:client`
+- `bun run test:backend:unit`
 - `bun run check:client:ui`
 - `bun run check:pw:console`
 - `bun run check:expo`

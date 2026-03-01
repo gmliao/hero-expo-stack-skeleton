@@ -9,7 +9,8 @@
     "build": "tsc -p tsconfig.build.json",
     "build:watch": "tsc -p tsconfig.build.json --watch",
     "test": "jest --runInBand",
-    "test:unit": "jest --runInBand --testPathPattern=unit.test"
+    "test:unit": "jest --runInBand --testPathPattern=unit.test --coverage",
+    "test:integration": "jest --runInBand --testPathIgnorePatterns=unit.test --coverage=false"
   },
   "dependencies": {
     "cors": "^2.8.5",
