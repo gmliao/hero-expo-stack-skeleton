@@ -18,7 +18,9 @@ class ConsoleLogger implements Logger {
 export function createDeps(): Deps {
   const todosRepo = new TodosFirestoreRepository();
   return {
-    todosService: new TodosService(todosRepo),
+    services: {
+      todos: new TodosService(todosRepo),
+    },
     auth: new FirebaseAuthVerifier(),
     logger: new ConsoleLogger(),
   };

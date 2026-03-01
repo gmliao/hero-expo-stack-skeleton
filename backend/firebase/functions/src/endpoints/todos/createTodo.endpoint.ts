@@ -10,6 +10,6 @@ export const createTodoEndpoint = defineEndpoint({
   schemas: { body: createTodoSchema },
   execute: async ({ deps, ctx, input }) => {
     const body = input.body as CreateTodoInput;
-    return deps.todosService.createTodo(ctx.uid!, body);
+    return deps.services.todos.createTodo(ctx.uid!, body);
   },
 });

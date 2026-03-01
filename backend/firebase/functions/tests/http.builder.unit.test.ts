@@ -6,12 +6,14 @@ import type { Deps } from "../src/http/endpoint";
 
 function createMockDeps(): Deps {
   return {
-    todosService: {
-      listTodos: jest.fn().mockResolvedValue([]),
-      createTodo: jest.fn().mockResolvedValue({}),
-      updateTodo: jest.fn().mockResolvedValue({}),
-      toggleTodo: jest.fn().mockResolvedValue({}),
-      deleteTodo: jest.fn().mockResolvedValue(undefined),
+    services: {
+      todos: {
+        listTodos: jest.fn().mockResolvedValue([]),
+        createTodo: jest.fn().mockResolvedValue({}),
+        updateTodo: jest.fn().mockResolvedValue({}),
+        toggleTodo: jest.fn().mockResolvedValue({}),
+        deleteTodo: jest.fn().mockResolvedValue(undefined),
+      },
     },
     auth: {
       verifyIdToken: async () => ({ uid: "test-uid", email: "test@test.com" }),

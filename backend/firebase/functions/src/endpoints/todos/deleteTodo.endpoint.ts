@@ -11,7 +11,7 @@ export const deleteTodoEndpoint = defineEndpoint({
   schemas: { params: paramsSchema },
   execute: async ({ deps, ctx, input }) => {
     const params = input.params as { id: string };
-    await deps.todosService.deleteTodo(ctx.uid!, params.id);
+    await deps.services.todos.deleteTodo(ctx.uid!, params.id);
     return null;
   },
 });

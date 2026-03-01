@@ -18,7 +18,9 @@ function mockCtx(uid = 'test-uid'): RequestContext {
 
 function mockDeps(overrides: Partial<ReturnType<typeof createMockTodosService>> = {}): Deps {
   return {
-    todosService: createMockTodosService(overrides),
+    services: {
+      todos: createMockTodosService(overrides),
+    },
     auth: { verifyIdToken: async () => ({ uid: 'test-uid' }) },
     logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
   }
@@ -33,7 +35,7 @@ describe('Todo endpoints (unit)', () => {
         ctx: mockCtx(),
         input: { body: { title: 'New', description: '', dueDate: undefined }, query: {}, params: {} },
       })
-      expect(deps.todosService.createTodo).toHaveBeenCalledWith('test-uid', expect.objectContaining({ title: 'New' }))
+      expect(deps.services.todos.createTodo).toHaveBeenCalledWith('test-uid', expect.objectContaining({ title: 'New' }))
       expect(result).toBeDefined()
     })
   })
@@ -42,7 +44,7 @@ describe('Todo endpoints (unit)', () => {
     it('delegates to todosService.listTodos with uid', async () => {
       const deps = mockDeps()
       await listTodosEndpoint.execute({ deps, ctx: mockCtx(), input: { body: {}, query: {}, params: {} } })
-      expect(deps.todosService.listTodos).toHaveBeenCalledWith('test-uid')
+      expect(deps.services.todos.listTodos).toHaveBeenCalledWith('test-uid')
     })
   })
 
@@ -54,7 +56,7 @@ describe('Todo endpoints (unit)', () => {
         ctx: mockCtx(),
         input: { body: { title: 'Updated' }, query: {}, params: { id: 't1' } },
       })
-      expect(deps.todosService.updateTodo).toHaveBeenCalledWith('test-uid', 't1', expect.objectContaining({ title: 'Updated' }))
+      expect(deps.services.todos.updateTodo).toHaveBeenCalledWith('test-uid', 't1', expect.objectContaining({ title: 'Updated' }))
     })
 
     it('propagates AppError from service', async () => {
@@ -71,7 +73,7 @@ describe('Todo endpoints (unit)', () => {
     it('delegates to todosService.toggleTodo with uid, id', async () => {
       const deps = mockDeps()
       await toggleTodoEndpoint.execute({ deps, ctx: mockCtx(), input: { body: {}, query: {}, params: { id: 't1' } } })
-      expect(deps.todosService.toggleTodo).toHaveBeenCalledWith('test-uid', 't1')
+      expect(deps.services.todos.toggleTodo).toHaveBeenCalledWith('test-uid', 't1')
     })
 
     it('propagates AppError from service', async () => {
@@ -92,7 +94,7 @@ describe('Todo endpoints (unit)', () => {
         ctx: mockCtx(),
         input: { body: {}, query: {}, params: { id: 't1' } },
       })
-      expect(deps.todosService.deleteTodo).toHaveBeenCalledWith('test-uid', 't1')
+      expect(deps.services.todos.deleteTodo).toHaveBeenCalledWith('test-uid', 't1')
       expect(result).toBeNull()
     })
   })

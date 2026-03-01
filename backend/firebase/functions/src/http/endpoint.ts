@@ -23,8 +23,12 @@ export interface RequestContext {
   now: Date;
 }
 
+export interface DepsServices {
+  todos: ITodosService;
+}
+
 export interface Deps {
-  todosService: ITodosService;
+  services: DepsServices;
   auth: IAuthVerifier;
   logger: Logger;
 }

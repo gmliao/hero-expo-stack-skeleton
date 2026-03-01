@@ -14,6 +14,6 @@ export const updateTodoEndpoint = defineEndpoint({
   execute: async ({ deps, ctx, input }) => {
     const params = input.params as { id: string };
     const body = input.body as UpdateTodoInput;
-    return deps.todosService.updateTodo(ctx.uid!, params.id, body);
+    return deps.services.todos.updateTodo(ctx.uid!, params.id, body);
   },
 });
