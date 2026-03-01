@@ -8,6 +8,7 @@ export default defineConfig({
   timeout: 60_000,
   reporter: process.env.CI ? [['html'], ['list']] : 'html',
   use: {
+    actionTimeout: 5_000,
     baseURL: 'http://127.0.0.1:8099',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
