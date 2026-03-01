@@ -1,10 +1,10 @@
 import request from 'supertest'
 import { buildApp } from '../src/app'
-import type { Deps } from '../src/http/endpoint'
+import { createMockDeps } from './mocks/deps.mock'
 
 describe('app async errors (unit)', () => {
   it('returns 500 and FailureDto when async route throws', async () => {
-    const deps: Deps = {
+    const deps = createMockDeps({
       services: {
         todos: {
           listTodos: async () => { throw new Error('db') },
@@ -14,9 +14,7 @@ describe('app async errors (unit)', () => {
           deleteTodo: async () => { throw new Error('db') },
         },
       },
-      auth: { verifyIdToken: async () => ({ uid: 'test-uid' }) },
-      logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
-    }
+    })
     const app = buildApp(deps)
     const res = await request(app)
       .get('/todos')

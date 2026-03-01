@@ -5,28 +5,7 @@ import { wrapEndpoint } from "../src/http/wrap";
 import { AppError } from "../src/http/errors";
 import type { Deps } from "../src/http/endpoint";
 import { z } from "zod";
-
-function createMockDeps(overrides: Partial<Deps> = {}): Deps {
-  return {
-    services: {
-      todos: {
-        listTodos: jest.fn().mockResolvedValue([]),
-        createTodo: jest.fn().mockResolvedValue({}),
-        updateTodo: jest.fn().mockResolvedValue({}),
-        toggleTodo: jest.fn().mockResolvedValue({}),
-        deleteTodo: jest.fn().mockResolvedValue(undefined),
-      },
-    },
-    auth: {
-      verifyIdToken: async () => ({
-        uid: "test-uid",
-        email: "test@example.com",
-      }),
-    },
-    logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
-    ...overrides,
-  };
-}
+import { createMockDeps } from "./mocks/deps.mock";
 
 function createApp(def: ReturnType<typeof defineEndpoint>, deps: Deps) {
   const app = express();
