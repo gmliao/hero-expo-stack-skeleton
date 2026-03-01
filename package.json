@@ -3,7 +3,8 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "dev": "concurrently \"bun run emulators\" \"bun run wait-emulators && bun run seed && bun run app\"",
+    "kill-dev-ports": "bash scripts/kill-dev-ports.sh",
+    "dev": "bun run kill-dev-ports && concurrently \"bun run emulators\" \"bun run wait-emulators && bun run seed && bun run app\"",
     "app": "cd apps/client && dotenv -e ../../.env -- bun run start",
     "firebase:cli": "cd backend/firebase && bunx firebase",
     "firebase:login": "cd backend/firebase && bunx firebase login",
