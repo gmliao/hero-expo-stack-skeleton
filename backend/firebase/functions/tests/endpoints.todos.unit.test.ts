@@ -28,7 +28,7 @@ function mockDeps(overrides: Partial<ReturnType<typeof createMockTodosService>> 
 
 describe('Todo endpoints (unit)', () => {
   describe('createTodo', () => {
-    it('delegates to todosService.createTodo with uid and body', async () => {
+    it('delegates to services.todos.createTodo with uid and body', async () => {
       const deps = mockDeps()
       const result = await createTodoEndpoint.execute({
         deps,
@@ -41,7 +41,7 @@ describe('Todo endpoints (unit)', () => {
   })
 
   describe('listTodos', () => {
-    it('delegates to todosService.listTodos with uid', async () => {
+    it('delegates to services.todos.listTodos with uid', async () => {
       const deps = mockDeps()
       await listTodosEndpoint.execute({ deps, ctx: mockCtx(), input: { body: {}, query: {}, params: {} } })
       expect(deps.services.todos.listTodos).toHaveBeenCalledWith('test-uid')
@@ -49,7 +49,7 @@ describe('Todo endpoints (unit)', () => {
   })
 
   describe('updateTodo', () => {
-    it('delegates to todosService.updateTodo with uid, id, body', async () => {
+    it('delegates to services.todos.updateTodo with uid, id, body', async () => {
       const deps = mockDeps()
       await updateTodoEndpoint.execute({
         deps,
@@ -70,7 +70,7 @@ describe('Todo endpoints (unit)', () => {
   })
 
   describe('toggleTodo', () => {
-    it('delegates to todosService.toggleTodo with uid, id', async () => {
+    it('delegates to services.todos.toggleTodo with uid, id', async () => {
       const deps = mockDeps()
       await toggleTodoEndpoint.execute({ deps, ctx: mockCtx(), input: { body: {}, query: {}, params: { id: 't1' } } })
       expect(deps.services.todos.toggleTodo).toHaveBeenCalledWith('test-uid', 't1')
@@ -87,7 +87,7 @@ describe('Todo endpoints (unit)', () => {
   })
 
   describe('deleteTodo', () => {
-    it('delegates to todosService.deleteTodo and returns null', async () => {
+    it('delegates to services.todos.deleteTodo and returns null', async () => {
       const deps = mockDeps()
       const result = await deleteTodoEndpoint.execute({
         deps,
