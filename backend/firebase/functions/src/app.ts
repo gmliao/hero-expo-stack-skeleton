@@ -3,7 +3,7 @@ import cors from "cors";
 import type { Deps } from "./http/endpoint";
 import type { FailureDto } from "./types/api";
 import { createRouteBuilder } from "./http/builder";
-import { registerEndpoints } from "./routes";
+import { registerControllers } from "./routes";
 import { preflightMiddleware } from "./middleware/preflight";
 
 export function buildApp(deps: Deps) {
@@ -21,7 +21,7 @@ export function buildApp(deps: Deps) {
   app.use(express.json());
 
   const builder = createRouteBuilder(deps);
-  registerEndpoints(builder);
+  registerControllers(builder);
   builder.mount(app);
 
   // 404 handler — FailureDto
