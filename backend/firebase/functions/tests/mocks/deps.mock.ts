@@ -1,4 +1,4 @@
-import type { Deps } from "../../src/core/http/endpoint";
+import type { Deps } from "../../src/core/deps.types";
 
 /**
  * Creates a mock `Deps` object for unit tests.

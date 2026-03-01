@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
-import { z } from "zod";
-import type { Deps, EndpointDef } from "./endpoint";
+import { z, type ZodType } from "zod";
+import type { Deps } from "../deps.types";
+import type { EndpointDef } from "./endpoint";
 import { AppError, mapErrorToFailureDto } from "./errors";
 import { createRequestContext } from "./context";
 
@@ -12,7 +13,18 @@ function getBearerToken(req: Request): string | null {
   return token ?? null;
 }
 
-export function wrapEndpoint(def: EndpointDef, deps: Deps) {
+function parseWithSchema<T>(schema: ZodType<T> | undefined, value: unknown): T {
+  if (!schema) {
+    return value as T;
+  }
+
+  return schema.parse(value);
+}
+
+export function wrapEndpoint<TBody, TQuery, TParams, TResult>(
+  def: EndpointDef<TBody, TQuery, TParams, TResult>,
+  deps: Deps,
+) {
   const requireAuth = !def.public;
 
   return async (req: Request, res: Response): Promise<void> => {
@@ -41,21 +53,24 @@ export function wrapEndpoint(def: EndpointDef, deps: Deps) {
 
       // 2) validate
       const schemas = def.schemas ?? {};
-      const params = schemas.params
-        ? schemas.params.parse(req.params)
-        : req.params;
-      const query = schemas.query ? schemas.query.parse(req.query) : req.query;
-      const body = schemas.body ? schemas.body.parse(req.body) : req.body;
+      const params = parseWithSchema(schemas.params, req.params);
+      const query = parseWithSchema(schemas.query, req.query);
+      const body = parseWithSchema(schemas.body, req.body);
 
       // 3) execute
       const result = await def.execute({
         deps,
         ctx,
         input: { body, query, params },
-      } as any);
+      });
 
       // 4) response → SuccessDto
-      res.status(200).json({ success: true, data: result });
+      if (def.successStatus === 204) {
+        res.sendStatus(204);
+        return;
+      }
+
+      res.status(def.successStatus ?? 200).json({ success: true, data: result });
     } catch (err) {
       // Zod → VALIDATION_ERROR
       if (err instanceof z.ZodError) {

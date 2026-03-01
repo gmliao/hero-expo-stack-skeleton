@@ -1,36 +1,18 @@
 import type { ZodType, z } from "zod";
-import type { IAuthVerifier } from "../../infrastructure/auth/auth.types";
-import type { ITodosService } from "../../modules/todos/todos.types";
+import type { Deps } from "../deps.types";
+export type { Logger, RequestContext } from "./types";
+import type { RequestContext } from "./types";
 
 export type HttpMethod = "get" | "post" | "put" | "patch" | "delete";
 
-export interface EndpointSchemas {
-  body?: ZodType;
-  query?: ZodType;
-  params?: ZodType;
-}
-
-export interface Logger {
-  info(msg: string, extra?: unknown): void;
-  warn(msg: string, extra?: unknown): void;
-  error(msg: string, extra?: unknown): void;
-}
-
-export interface RequestContext {
-  requestId: string;
-  uid?: string;
-  logger: Logger;
-  now: Date;
-}
-
-export interface DepsServices {
-  todos: ITodosService;
-}
-
-export interface Deps {
-  services: DepsServices;
-  auth: IAuthVerifier;
-  logger: Logger;
+export interface EndpointSchemas<
+  TBody = unknown,
+  TQuery = unknown,
+  TParams = unknown,
+> {
+  body?: ZodType<TBody>;
+  query?: ZodType<TQuery>;
+  params?: ZodType<TParams>;
 }
 
 export type ExecuteArgs<
@@ -53,9 +35,12 @@ export interface EndpointDef<
   method: HttpMethod;
   path?: string; // default ""
   public?: true; // omit = requires auth; explicit public: true = skip auth
-  schemas?: EndpointSchemas;
-  execute: (args: ExecuteArgs<TBody, TQuery, TParams>) => Promise<TResult>;
+  successStatus?: number;
+  schemas?: EndpointSchemas<TBody, TQuery, TParams>;
+  execute: (args: ExecuteArgs<TBody, TQuery, TParams>) => Promise<TResult> | TResult;
 }
+
+export type AnyEndpointDef = EndpointDef<any, any, any, any>;
 
 type SchemaOut<T extends ZodType | undefined> = T extends ZodType
   ? z.infer<T>
@@ -71,6 +56,7 @@ export function defineEndpoint<
   method: HttpMethod;
   path?: string;
   public?: true;
+  successStatus?: number;
   schemas?: {
     body?: TBodySchema;
     query?: TQuerySchema;
@@ -83,6 +69,18 @@ export function defineEndpoint<
       SchemaOut<TParamsSchema>
     >,
   ) => Promise<TResult> | TResult;
-}): EndpointDef {
-  return def as EndpointDef;
+}): EndpointDef<
+  SchemaOut<TBodySchema>,
+  SchemaOut<TQuerySchema>,
+  SchemaOut<TParamsSchema>,
+  TResult
+> {
+  return {
+    ...def,
+    schemas: def.schemas as EndpointSchemas<
+      SchemaOut<TBodySchema>,
+      SchemaOut<TQuerySchema>,
+      SchemaOut<TParamsSchema>
+    >,
+  };
 }

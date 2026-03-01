@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import type { Deps } from "./http/endpoint";
+import type { Deps } from "./deps.types";
 import type { FailureDto } from "../types/api";
 import { createRouteBuilder } from "./http/builder";
 import { registerControllers } from "./routes";

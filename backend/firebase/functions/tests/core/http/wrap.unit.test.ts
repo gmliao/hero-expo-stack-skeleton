@@ -1,13 +1,16 @@
 import express from "express";
 import request from "supertest";
-import { defineEndpoint } from "../../../src/core/http/endpoint";
+import { defineEndpoint, type EndpointDef } from "../../../src/core/http/endpoint";
 import { wrapEndpoint } from "../../../src/core/http/wrap";
 import { AppError } from "../../../src/core/http/errors";
-import type { Deps } from "../../../src/core/http/endpoint";
+import type { Deps } from "../../../src/core/deps.types";
 import { z } from "zod";
 import { createMockDeps } from "../../mocks/deps.mock";
 
-function createApp(def: ReturnType<typeof defineEndpoint>, deps: Deps) {
+function createApp<TBody, TQuery, TParams, TResult>(
+  def: EndpointDef<TBody, TQuery, TParams, TResult>,
+  deps: Deps,
+) {
   const app = express();
   app.use(express.json());
   const handler = wrapEndpoint(def, deps);
@@ -168,6 +171,25 @@ describe("wrapEndpoint (unit)", () => {
       expect(res.body).toEqual({
         success: true,
         data: { id: "1", name: "test" },
+      });
+    });
+
+    it("uses endpoint successStatus when provided", async () => {
+      const endpoint = defineEndpoint({
+        id: "test.created",
+        method: "post",
+        path: "/created",
+        public: true,
+        successStatus: 201,
+        execute: async () => ({ created: true }),
+      });
+      const app = createApp(endpoint, createMockDeps());
+      const res = await request(app).post("/created").send({});
+
+      expect(res.status).toBe(201);
+      expect(res.body).toEqual({
+        success: true,
+        data: { created: true },
       });
     });
   });
