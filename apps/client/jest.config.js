@@ -4,6 +4,7 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@shared/(.*)$': '<rootDir>/../../shared/$1',
+    '\\.css$': '<rootDir>/tests/__mocks__/fileMock.js',
   },
   transformIgnorePatterns: [
     'node_modules/(?!(jest-)?react-native|@react-native|expo|@expo|@unimodules|nativewind|@gluestack-ui|@gluestack-style)',

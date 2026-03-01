@@ -136,7 +136,12 @@ const request = async <T>(path: string, options: RequestInit = {}, timeoutMs: nu
         return undefined as T
       }
 
-      return response.json() as Promise<T>
+      const json = await response.json()
+      // Unwrap SuccessDto envelope: { success: true, data: T }
+      if (json && typeof json === 'object' && json.success === true && 'data' in json) {
+        return json.data as T
+      }
+      return json as T
     } catch (error) {
       lastError = error
 
