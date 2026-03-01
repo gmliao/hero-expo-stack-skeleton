@@ -21,7 +21,6 @@ describe("wrapEndpoint (unit)", () => {
       id: "test.auth",
       method: "get",
       path: "/test",
-      auth: true,
       execute: async () => ({ ok: true }),
     });
 
@@ -63,12 +62,12 @@ describe("wrapEndpoint (unit)", () => {
     });
   });
 
-  describe("auth: false", () => {
+  describe("public: true (no auth)", () => {
     const endpoint = defineEndpoint({
       id: "test.public",
       method: "get",
       path: "/public",
-      auth: false,
+      public: true,
       execute: async () => ({ message: "hello" }),
     });
 
@@ -86,9 +85,11 @@ describe("wrapEndpoint (unit)", () => {
       id: "test.validate",
       method: "post",
       path: "/items",
-      auth: false,
+      public: true,
       schemas: { body: bodySchema },
-      execute: async ({ input }) => ({ title: (input.body as { title: string }).title }),
+      execute: async ({ input }) => ({
+        title: (input.body as { title: string }).title,
+      }),
     });
 
     it("returns 400 VALIDATION_ERROR when body fails schema", async () => {
@@ -117,7 +118,7 @@ describe("wrapEndpoint (unit)", () => {
         id: "test.notfound",
         method: "get",
         path: "/missing",
-        auth: false,
+        public: true,
         execute: async () => {
           throw new AppError("NOT_FOUND", "Item not found");
         },
@@ -137,7 +138,7 @@ describe("wrapEndpoint (unit)", () => {
         id: "test.crash",
         method: "get",
         path: "/crash",
-        auth: false,
+        public: true,
         execute: async () => {
           throw new Error("db connection lost");
         },
@@ -159,7 +160,7 @@ describe("wrapEndpoint (unit)", () => {
         id: "test.raw",
         method: "get",
         path: "/raw",
-        auth: false,
+        public: true,
         execute: async () => ({ id: "1", name: "test" }),
       });
       const app = createApp(endpoint, createMockDeps());

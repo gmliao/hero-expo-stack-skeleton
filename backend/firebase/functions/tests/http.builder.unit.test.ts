@@ -14,7 +14,7 @@ describe("createRouteBuilder (unit)", () => {
         id: "test.get",
         method: "get",
         path: "/items",
-        auth: false,
+        public: true,
         execute: async () => [{ id: "1" }],
       }),
     );
@@ -24,7 +24,7 @@ describe("createRouteBuilder (unit)", () => {
         id: "test.post",
         method: "post",
         path: "/items",
-        auth: false,
+        public: true,
         schemas: {},
         execute: async ({ input }) => ({ created: true }),
       }),
@@ -52,7 +52,7 @@ describe("createRouteBuilder (unit)", () => {
         id: "test.chain",
         method: "get",
         path: "/chain",
-        auth: false,
+        public: true,
         execute: async () => ({}),
       }),
     );

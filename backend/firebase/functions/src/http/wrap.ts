@@ -13,7 +13,7 @@ function getBearerToken(req: Request): string | null {
 }
 
 export function wrapEndpoint(def: EndpointDef, deps: Deps) {
-  const requireAuth = def.auth !== false;
+  const requireAuth = !def.public;
 
   return async (req: Request, res: Response): Promise<void> => {
     const ctx = createRequestContext(req, deps);

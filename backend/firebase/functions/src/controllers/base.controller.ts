@@ -9,7 +9,7 @@ export abstract class BaseController {
 
   mount(builder: RouteBuilder): void {
     for (const def of this.endpoints()) {
-      builder.add({ ...def, path: this.prefix + def.path });
+      builder.add({ ...def, path: this.prefix + (def.path ?? "") });
     }
   }
 }

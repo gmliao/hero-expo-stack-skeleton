@@ -1,13 +1,13 @@
-import type { ZodSchema } from "zod";
+import type { ZodType, z } from "zod";
 import type { IAuthVerifier } from "../services/auth.types";
 import type { ITodosService } from "../services/todos.types";
 
 export type HttpMethod = "get" | "post" | "put" | "patch" | "delete";
 
 export interface EndpointSchemas {
-  body?: ZodSchema;
-  query?: ZodSchema;
-  params?: ZodSchema;
+  body?: ZodType;
+  query?: ZodType;
+  params?: ZodType;
 }
 
 export interface Logger {
@@ -51,19 +51,38 @@ export interface EndpointDef<
 > {
   id: string;
   method: HttpMethod;
-  path: string;
-  auth?: boolean; // default true
+  path?: string; // default ""
+  public?: true; // omit = requires auth; explicit public: true = skip auth
   schemas?: EndpointSchemas;
   execute: (args: ExecuteArgs<TBody, TQuery, TParams>) => Promise<TResult>;
 }
 
+type SchemaOut<T extends ZodType | undefined> = T extends ZodType
+  ? z.infer<T>
+  : unknown;
+
 export function defineEndpoint<
-  TBody = unknown,
-  TQuery = unknown,
-  TParams = unknown,
+  TBodySchema extends ZodType | undefined = undefined,
+  TQuerySchema extends ZodType | undefined = undefined,
+  TParamsSchema extends ZodType | undefined = undefined,
   TResult = unknown,
->(
-  def: EndpointDef<TBody, TQuery, TParams, TResult>,
-): EndpointDef<TBody, TQuery, TParams, TResult> {
-  return def;
+>(def: {
+  id: string;
+  method: HttpMethod;
+  path?: string;
+  public?: true;
+  schemas?: {
+    body?: TBodySchema;
+    query?: TQuerySchema;
+    params?: TParamsSchema;
+  };
+  execute: (
+    args: ExecuteArgs<
+      SchemaOut<TBodySchema>,
+      SchemaOut<TQuerySchema>,
+      SchemaOut<TParamsSchema>
+    >,
+  ) => Promise<TResult> | TResult;
+}): EndpointDef {
+  return def as EndpointDef;
 }
