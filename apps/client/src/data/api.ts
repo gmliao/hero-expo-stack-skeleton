@@ -1,4 +1,4 @@
-import type { CreateTodoRequest, Todo, UpdateTodoRequest } from '@shared/types/api'
+import type { CreateTodoRequest, FailureDto, Todo, UpdateTodoRequest } from '@shared/types/api'
 
 import { firebaseAuth } from '@/lib/firebase'
 import { env } from '@/lib/env'
@@ -55,20 +55,16 @@ const isRetryableError = (error: unknown): boolean => {
   return error instanceof TimeoutError || error instanceof TypeError
 }
 
-const toHttpError = (status: number, message: string): Error => {
-  if (status === 401) {
-    return new AuthError(message, status)
+const toApiError = (dto: FailureDto, status: number): Error => {
+  const message = dto.message ?? dto.error
+  switch (dto.error) {
+    case 'UNAUTHENTICATED':
+      return new AuthError(message, status)
+    case 'FORBIDDEN':
+      return new PermissionError(message, status)
+    default:
+      return new ApiError(message, status)
   }
-
-  if (status === 403) {
-    return new PermissionError(message, status)
-  }
-
-  if (status >= 400 && status < 500) {
-    return new ApiError(message, status)
-  }
-
-  return new Error(message)
 }
 
 const handleUnauthorized = async (): Promise<void> => {
@@ -119,14 +115,21 @@ const request = async <T>(path: string, options: RequestInit = {}, timeoutMs: nu
       )
 
       if (!response.ok) {
-        const body = await response.json().catch(() => ({}))
-        const message = typeof body?.error === 'string' ? body.error : `HTTP ${response.status}`
+        const body = await response.json().catch(() => null)
 
         if (response.status === 401) {
           await handleUnauthorized()
         }
 
-        throw toHttpError(response.status, message)
+        // 結構化 FailureDto
+        if (body && body.success === false) {
+          throw toApiError(body as FailureDto, response.status)
+        }
+
+        // fallback
+        const message =
+          typeof body?.error === 'string' ? body.error : `HTTP ${response.status}`
+        throw new ApiError(message, response.status)
       }
 
       if (response.status === 204) {
