@@ -1,5 +1,6 @@
 import { defineEndpoint } from "../../http/endpoint";
 import { createTodoSchema } from "../../schemas/todos.schema";
+import type { CreateTodoInput } from "../../services/todos.service";
 
 export const createTodoEndpoint = defineEndpoint({
   id: "todos.create",
@@ -8,10 +9,7 @@ export const createTodoEndpoint = defineEndpoint({
   auth: true,
   schemas: { body: createTodoSchema },
   execute: async ({ deps, ctx, input }) => {
-    return deps.todosRepo.create(ctx.uid!, {
-      title: (input.body as { title: string; description?: string; dueDate?: string }).title,
-      description: (input.body as { title: string; description?: string; dueDate?: string }).description,
-      dueDate: (input.body as { title: string; description?: string; dueDate?: string }).dueDate,
-    });
+    const body = input.body as CreateTodoInput;
+    return deps.todosService.createTodo(ctx.uid!, body);
   },
 });

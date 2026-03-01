@@ -6,6 +6,6 @@ export const listTodosEndpoint = defineEndpoint({
   path: "/todos",
   auth: true,
   execute: async ({ deps, ctx }) => {
-    return deps.todosRepo.findAllByUid(ctx.uid!);
+    return deps.todosService.listTodos(ctx.uid!);
   },
 });
