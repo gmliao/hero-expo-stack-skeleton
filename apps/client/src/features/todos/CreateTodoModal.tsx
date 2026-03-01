@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Modal, Pressable, View } from 'react-native'
+import { Alert, Modal, Pressable, View } from 'react-native'
 import { useQueryClient } from '@tanstack/react-query'
 
 import type { Todo } from '@shared/types/api'
@@ -46,7 +46,6 @@ export function CreateTodoModal() {
   const [description, setDescription] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [titleError, setTitleError] = useState<string | null>(null)
-  const [saveError, setSaveError] = useState<string | null>(null)
 
   const isEdit = selectedTodoId !== null
   const isPending = createMutation.isPending || updateMutation.isPending
@@ -70,7 +69,6 @@ export function CreateTodoModal() {
       setDueDate('')
     }
     setTitleError(null)
-    setSaveError(null)
   }, [isOpen, selectedTodoId, uid, filter, queryClient])
 
   function handleClose() {
@@ -78,7 +76,6 @@ export function CreateTodoModal() {
     setDescription('')
     setDueDate('')
     setTitleError(null)
-    setSaveError(null)
     setSelectedTodoId(null)
     closeModal()
   }
@@ -90,29 +87,29 @@ export function CreateTodoModal() {
     }
 
     setTitleError(null)
-    setSaveError(null)
-
-    const payload = {
-      title: title.trim(),
-      description: description.trim() || undefined,
-      dueDate: isEdit
-        ? (dueDate.trim() ? dueDate.trim() : null)
-        : (dueDate.trim() || undefined),
-    }
 
     try {
       if (isEdit && selectedTodoId) {
-        await updateMutation.mutateAsync({ id: selectedTodoId, ...payload })
+        await updateMutation.mutateAsync({
+          id: selectedTodoId,
+          title: title.trim(),
+          description: description.trim() || undefined,
+          dueDate: dueDate.trim() ? dueDate.trim() : null, // null = clear
+        })
       } else {
-        await createMutation.mutateAsync(payload)
+        await createMutation.mutateAsync({
+          title: title.trim(),
+          description: description.trim() || undefined,
+          dueDate: dueDate.trim() || undefined, // create doesn't support null
+        })
       }
       setTitle('')
       setDescription('')
       setDueDate('')
       setSelectedTodoId(null)
       closeModal()
-    } catch {
-      setSaveError(t('todos.modal.saveError'))
+    } catch (err) {
+      Alert.alert('Error', err instanceof Error ? err.message : t('todos.modal.saveError'))
     }
   }
 
@@ -196,16 +193,7 @@ export function CreateTodoModal() {
               />
             </AppStack>
 
-            {saveError ? (
-              <AppText
-                testID="create-todo-save-error"
-                tone="danger"
-                size="sm"
-                accessibilityLiveRegion="polite"
-              >
-                {saveError}
-              </AppText>
-            ) : null}
+
 
             <AppStack direction="horizontal" gap={3} className="justify-end">
               <AppButton
