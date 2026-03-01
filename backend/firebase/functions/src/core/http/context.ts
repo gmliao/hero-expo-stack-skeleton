@@ -1,5 +1,6 @@
 import type { Request } from "express";
-import type { Deps, RequestContext } from "./endpoint";
+import type { Deps } from "../deps.types";
+import type { RequestContext } from "./types";
 
 function genRequestId(): string {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;

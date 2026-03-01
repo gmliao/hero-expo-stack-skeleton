@@ -16,7 +16,10 @@ describe('api client', () => {
 
     await api.getTodos('user-1')
 
-    const [, options] = (global.fetch as jest.Mock).mock.calls[0]
+    const [url, options] = (global.fetch as jest.Mock).mock.calls[0]
+    const requestUrl = new URL(url as string)
+    expect(requestUrl.pathname).toBe('/api/todos')
+    expect(requestUrl.search).toBe('')
     expect((options.headers as Headers).get('Authorization')).toBe('Bearer mock-token')
   })
 

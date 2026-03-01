@@ -155,7 +155,7 @@ const request = async <T>(path: string, options: RequestInit = {}, timeoutMs: nu
 }
 
 export const api = {
-  getTodos: (uid: string) => request<Todo[]>(`/todos?uid=${uid}`),
+  getTodos: (_uid: string) => request<Todo[]>('/todos'),
   createTodo: (body: CreateTodoRequest) =>
     request<Todo>('/todos', {
       method: 'POST',

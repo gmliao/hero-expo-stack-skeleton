@@ -1,11 +1,11 @@
-import type { EndpointDef } from "../http/endpoint";
+import type { AnyEndpointDef } from "../http/endpoint";
 import type { createRouteBuilder } from "../http/builder";
 
 export type RouteBuilder = ReturnType<typeof createRouteBuilder>;
 
 export abstract class BaseController {
   abstract readonly prefix: string;
-  abstract endpoints(): EndpointDef[];
+  abstract endpoints(): AnyEndpointDef[];
 
   mount(builder: RouteBuilder): void {
     for (const def of this.endpoints()) {

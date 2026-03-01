@@ -18,6 +18,7 @@ export class TodosController extends BaseController {
       defineEndpoint({
         id: "todos.create",
         method: "post",
+        successStatus: 201,
         schemas: { body: createTodoSchema },
         execute: ({ deps, ctx, input }) =>
           deps.services.todos.createTodo(ctx.uid!, input.body),
@@ -42,6 +43,7 @@ export class TodosController extends BaseController {
         id: "todos.delete",
         method: "delete",
         path: "/:id",
+        successStatus: 204,
         schemas: { params: idParams },
         execute: async ({ deps, ctx, input }) => {
           await deps.services.todos.deleteTodo(ctx.uid!, input.params.id);

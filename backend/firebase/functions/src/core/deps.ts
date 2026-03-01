@@ -1,4 +1,5 @@
-import type { Deps, Logger } from "./http/endpoint";
+import type { Deps } from "./deps.types";
+import type { Logger } from "./http/types";
 import { FirebaseAuthVerifier } from "../infrastructure/auth/auth.firebase.service";
 import { TodosFirestoreRepository } from "../modules/todos/todos.firestore.repository";
 import { TodosService } from "../modules/todos/todos.service";

@@ -4,7 +4,8 @@ import { TodosController } from "../../../src/modules/todos/todos.controller";
 import { createRouteBuilder } from "../../../src/core/http/builder";
 import { AppError } from "../../../src/core/http/errors";
 import { createMockTodosService } from "../../mocks/todos.service.mock";
-import type { Deps, RequestContext } from "../../../src/core/http/endpoint";
+import type { Deps } from "../../../src/core/deps.types";
+import type { RequestContext } from "../../../src/core/http/endpoint";
 
 function mockCtx(uid = "test-uid"): RequestContext {
   return {
@@ -152,12 +153,12 @@ describe("TodosController", () => {
       expect(res.body.success).toBe(true);
     });
 
-    it("POST /todos returns 200 SuccessDto", async () => {
+    it("POST /todos returns 201 SuccessDto", async () => {
       const res = await request(buildApp())
         .post("/todos")
         .set("Authorization", "Bearer tok")
         .send({ title: "New Todo" });
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
     });
 
@@ -176,11 +177,12 @@ describe("TodosController", () => {
       expect(res.status).toBe(200);
     });
 
-    it("DELETE /todos/:id returns 200 SuccessDto", async () => {
+    it("DELETE /todos/:id returns 204", async () => {
       const res = await request(buildApp())
         .delete("/todos/t1")
         .set("Authorization", "Bearer tok");
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
+      expect(res.text).toBe("");
     });
   });
 });
