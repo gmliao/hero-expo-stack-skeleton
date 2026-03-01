@@ -2,7 +2,7 @@ import { getApps, initializeApp } from 'firebase-admin/app'
 import { getAuth } from 'firebase-admin/auth'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import axios from 'axios'
-import type { Todo, CreateTodoRequest } from '../../../../shared/types/api'
+import type { ApiResponseDto, CreateTodoRequest, Todo } from '../../../../shared/types/api'
 
 process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099'
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'
@@ -15,6 +15,13 @@ if (!getApps().length) {
 }
 const db = getFirestore()
 const auth = getAuth()
+
+function unwrapSuccess<T>(body: ApiResponseDto<T>): T {
+  if (!body || typeof body !== 'object' || body.success !== true) {
+    throw new Error('Expected success response')
+  }
+  return body.data
+}
 
 async function getIdTokenForUid(uid: string): Promise<string> {
   const customToken = await auth.createCustomToken(uid)
@@ -66,22 +73,22 @@ describe('GET /todos', () => {
   })
 
   it('returns only this user\'s todos', async () => {
-    const res = await axios.get(`${BASE_URL}/todos`, {
+    const res = await axios.get<ApiResponseDto<Todo[]>>(`${BASE_URL}/todos`, {
       headers: { Authorization: `Bearer ${idToken}` },
     })
     expect(res.status).toBe(200)
-    const todos: Todo[] = res.data
+    const todos = unwrapSuccess(res.data)
     expect(todos.every(t => t.uid === uid)).toBe(true)
     expect(todos.find(t => t.title === 'My Todo')).toBeDefined()
     expect(todos.find(t => t.title === 'Other Todo')).toBeUndefined()
   })
 
   it('returns dueDate for todos that have it', async () => {
-    const res = await axios.get(`${BASE_URL}/todos`, {
+    const res = await axios.get<ApiResponseDto<Todo[]>>(`${BASE_URL}/todos`, {
       headers: { Authorization: `Bearer ${idToken}` },
     })
     expect(res.status).toBe(200)
-    const withDue = (res.data as Todo[]).find(t => t.title === 'Todo With Due')
+    const withDue = unwrapSuccess(res.data).find(t => t.title === 'Todo With Due')
     expect(withDue).toBeDefined()
     expect(withDue!.dueDate).toBe('2026-01-15')
   })
@@ -120,11 +127,11 @@ describe('POST /todos', () => {
 
   it('creates todo and returns it', async () => {
     const body: CreateTodoRequest = { title: 'New Todo', description: 'desc' }
-    const res = await axios.post(`${BASE_URL}/todos`, body, {
+    const res = await axios.post<ApiResponseDto<Todo>>(`${BASE_URL}/todos`, body, {
       headers: { Authorization: `Bearer ${idToken}` },
     })
-    expect(res.status).toBe(201)
-    const todo: Todo = res.data
+    expect(res.status).toBe(200)
+    const todo = unwrapSuccess(res.data)
     expect(todo.uid).toBe(uid)
     expect(todo.title).toBe('New Todo')
     expect(todo.completed).toBe(false)
@@ -135,11 +142,11 @@ describe('POST /todos', () => {
 
   it('creates todo with dueDate and returns it', async () => {
     const body: CreateTodoRequest = { title: 'With Due', dueDate: '2026-03-01' }
-    const res = await axios.post(`${BASE_URL}/todos`, body, {
+    const res = await axios.post<ApiResponseDto<Todo>>(`${BASE_URL}/todos`, body, {
       headers: { Authorization: `Bearer ${idToken}` },
     })
-    expect(res.status).toBe(201)
-    const todo: Todo = res.data
+    expect(res.status).toBe(200)
+    const todo = unwrapSuccess(res.data)
     expect(todo.dueDate).toBe('2026-03-01')
     expect(todo.title).toBe('With Due')
   })
@@ -181,13 +188,13 @@ describe('PATCH /todos/:id/toggle', () => {
 
   it('toggles completed and updates updatedAt', async () => {
     const before = (await db.collection('todos').doc(todoId).get()).data()!
-    const res = await axios.patch(
+    const res = await axios.patch<ApiResponseDto<Todo>>(
       `${BASE_URL}/todos/${todoId}/toggle`,
       {},
       { headers: { Authorization: `Bearer ${idToken}` } },
     )
     expect(res.status).toBe(200)
-    const todo: Todo = res.data
+    const todo = unwrapSuccess(res.data)
     expect(todo.completed).toBe(!before.completed)
     expect(new Date(todo.updatedAt).getTime()).toBeGreaterThan(
       before.updatedAt.toDate().getTime(),
@@ -252,7 +259,7 @@ describe('PATCH /todos/:id', () => {
   })
 
   it('updates title, description, dueDate, completed and returns todo', async () => {
-    const res = await axios.patch(
+    const res = await axios.patch<ApiResponseDto<Todo>>(
       `${BASE_URL}/todos/${todoId}`,
       {
         title: 'Updated Title',
@@ -263,7 +270,7 @@ describe('PATCH /todos/:id', () => {
       { headers: { Authorization: `Bearer ${idToken}` } },
     )
     expect(res.status).toBe(200)
-    const todo: Todo = res.data
+    const todo = unwrapSuccess(res.data)
     expect(todo.title).toBe('Updated Title')
     expect(todo.description).toBe('new desc')
     expect(todo.dueDate).toBe('2026-04-01')
@@ -271,13 +278,13 @@ describe('PATCH /todos/:id', () => {
   })
 
   it('clears dueDate when null is sent', async () => {
-    const res = await axios.patch(
+    const res = await axios.patch<ApiResponseDto<Todo>>(
       `${BASE_URL}/todos/${todoId}`,
       { dueDate: null },
       { headers: { Authorization: `Bearer ${idToken}` } },
     )
     expect(res.status).toBe(200)
-    const todo: Todo = res.data
+    const todo = unwrapSuccess(res.data)
     expect(todo.dueDate).toBeUndefined()
   })
 })
@@ -332,12 +339,13 @@ describe('DELETE /todos/:id', () => {
     await auth.deleteUser(otherUid)
   })
 
-  it('deletes own todo and returns 204', async () => {
-    const res = await axios.delete(`${BASE_URL}/todos/${todoId}`, {
+  it('deletes own todo and returns success payload', async () => {
+    const res = await axios.delete<ApiResponseDto<null>>(`${BASE_URL}/todos/${todoId}`, {
       headers: { Authorization: `Bearer ${idToken}` },
       validateStatus: () => true,
     })
-    expect(res.status).toBe(204)
+    expect(res.status).toBe(200)
+    expect(unwrapSuccess(res.data)).toBeNull()
     const snap = await db.collection('todos').doc(todoId).get()
     expect(snap.exists).toBe(false)
   })

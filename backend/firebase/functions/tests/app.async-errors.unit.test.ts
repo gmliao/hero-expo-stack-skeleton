@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { buildApp } from '../src/app'
+import { buildApp } from '../src/core/app'
 import { createMockDeps } from './mocks/deps.mock'
 
 describe('app async errors (unit)', () => {

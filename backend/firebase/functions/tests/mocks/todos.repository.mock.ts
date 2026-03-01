@@ -1,5 +1,5 @@
 import type { Todo } from '../../src/types/api'
-import type { ITodosRepository, CreateTodoInput } from '../../src/repositories/types'
+import type { ITodosRepository, CreateTodoInput } from '../../src/infrastructure/firestore/repositories/repository.types'
 import type { UpdateTodoRequest } from '../../src/types/api'
 
 export function createMockTodosRepository(initial: {

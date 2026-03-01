@@ -3,9 +3,9 @@ import type {
   CreateTodoInput,
   UpdateTodoInput,
 } from "./todos.types";
-import type { Todo } from "../types/api";
-import type { ITodosRepository } from "../repositories/types";
-import { AppError } from "../http/errors";
+import type { Todo } from "../../types/api";
+import type { ITodosRepository } from "../../infrastructure/firestore/repositories/repository.types";
+import { AppError } from "../../core/http/errors";
 
 export class TodosService {
   constructor(private readonly repo: ITodosRepository) {}

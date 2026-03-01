@@ -1,6 +1,6 @@
 import { DocumentData, FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
-import type { Todo, UpdateTodoRequest } from '../types/api'
-import type { ITodosRepository, CreateTodoInput } from './types'
+import type { Todo, UpdateTodoRequest } from '../../types/api'
+import type { ITodosRepository, CreateTodoInput } from '../../infrastructure/firestore/repositories/repository.types'
 
 const db = () => getFirestore()
 

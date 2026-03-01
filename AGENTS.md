@@ -30,6 +30,11 @@ Read this before editing code or docs in this repository.
 
 - App is API-first: app code never reads/writes Firestore directly.
 - Backend must remain Controller -> Service -> Repository; no Endpoint -> Repository access.
+- Backend source must be split by responsibility:
+  - `src/core/**` for HTTP/app assembly and framework glue
+  - `src/infrastructure/**` for external-system implementations
+  - `src/modules/<domain>/**` for domain code
+- New backend domain code must go under `src/modules/<domain>/`; do not reintroduce flat top-level `controllers/`, `services/`, `repositories/`, or `schemas/` directories for new work.
 - Domain services are injected under `Deps.services`; infra deps stay at top level.
 - Service interfaces and DTOs live together in `<Domain>.types.ts`.
 - Backend endpoints must use `defineEndpoint()` and Zod schemas; auth is required by default.

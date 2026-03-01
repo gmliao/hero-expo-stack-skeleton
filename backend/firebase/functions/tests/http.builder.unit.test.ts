@@ -1,7 +1,7 @@
 import express from "express";
 import request from "supertest";
-import { createRouteBuilder } from "../src/http/builder";
-import { defineEndpoint } from "../src/http/endpoint";
+import { createRouteBuilder } from "../src/core/http/builder";
+import { defineEndpoint } from "../src/core/http/endpoint";
 import { createMockDeps } from "./mocks/deps.mock";
 
 describe("createRouteBuilder (unit)", () => {

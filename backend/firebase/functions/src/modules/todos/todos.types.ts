@@ -1,4 +1,4 @@
-import type { Todo } from "../types/api";
+import type { Todo } from "../../types/api";
 
 export type CreateTodoInput = {
   title: string;

@@ -1,6 +1,7 @@
 import { getApps, initializeApp } from 'firebase-admin/app'
 import { getAuth } from 'firebase-admin/auth'
 import axios from 'axios'
+import type { ApiResponseDto, Todo } from '../../../../shared/types/api'
 
 process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099'
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'
@@ -24,14 +25,14 @@ if (!getApps().length) {
 
 describe('Auth Middleware', () => {
   it('returns 401 with no Authorization header', async () => {
-    const res = await axios.get(`${BASE_URL}/health`, {
+    const res = await axios.get(`${BASE_URL}/todos`, {
       validateStatus: () => true,
     })
     expect(res.status).toBe(401)
   })
 
   it('returns 401 with invalid token', async () => {
-    const res = await axios.get(`${BASE_URL}/health`, {
+    const res = await axios.get(`${BASE_URL}/todos`, {
       headers: { Authorization: 'Bearer invalid-token' },
       validateStatus: () => true,
     })
@@ -43,12 +44,13 @@ describe('Auth Middleware', () => {
     await getAuth().createUser({ uid, email: `${uid}@example.com` })
     const token = await getIdTokenForUid(uid)
 
-    const res = await axios.get(`${BASE_URL}/health`, {
+    const res = await axios.get<ApiResponseDto<Todo[]>>(`${BASE_URL}/todos`, {
       headers: { Authorization: `Bearer ${token}` },
       validateStatus: () => true,
     })
 
     await getAuth().deleteUser(uid)
     expect(res.status).toBe(200)
+    expect(res.data.success).toBe(true)
   })
 })

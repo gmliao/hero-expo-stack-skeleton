@@ -1,6 +1,6 @@
 import type { ZodType, z } from "zod";
-import type { IAuthVerifier } from "../services/auth.types";
-import type { ITodosService } from "../services/todos.types";
+import type { IAuthVerifier } from "../../infrastructure/auth/auth.types";
+import type { ITodosService } from "../../modules/todos/todos.types";
 
 export type HttpMethod = "get" | "post" | "put" | "patch" | "delete";
 

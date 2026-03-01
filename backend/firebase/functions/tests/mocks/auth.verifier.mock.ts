@@ -1,4 +1,4 @@
-import type { IAuthVerifier, TokenPayload } from '../../src/services/auth.types'
+import type { IAuthVerifier, TokenPayload } from '../../src/infrastructure/auth/auth.types'
 
 export function createMockAuthVerifier(behaviors: {
   verifyIdToken?: (token: string) => Promise<TokenPayload> | TokenPayload

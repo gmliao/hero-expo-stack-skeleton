@@ -1,4 +1,4 @@
-import type { FailureDto } from "../types/api";
+import type { FailureDto } from "../../types/api";
 
 export type ErrorCode =
   | "VALIDATION_ERROR"
