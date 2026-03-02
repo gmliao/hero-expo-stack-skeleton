@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import type { Todo } from '@shared/types/api'
 import { useDeleteTodoMutation } from '@/data/hooks/useDeleteTodoMutation'
+import { useTagsQuery } from '@/data/hooks/useTagsQuery'
 import { useTodosQuery } from '@/data/hooks/useTodosQuery'
 import { useToggleTodoMutation } from '@/data/hooks/useToggleTodoMutation'
 import { CreateTodoModal } from '@/features/todos/CreateTodoModal'
@@ -25,6 +26,7 @@ export default function TodosScreen() {
   const setFilter = useUIStore(s => s.setFilter)
   const setSelectedTagId = useUIStore(s => s.setSelectedTagId)
   const { data: todos, isPending, isError } = useTodosQuery(uid, filter, selectedTagId)
+  const { data: tags = [] } = useTagsQuery(uid)
   const toggleMutation = useToggleTodoMutation()
   const deleteMutation = useDeleteTodoMutation()
   const openModal = useUIStore(s => s.openCreateModal)
@@ -106,6 +108,7 @@ export default function TodosScreen() {
             />
             <TodosList
               todos={todos}
+              tags={tags}
               onToggle={handleToggle}
               onEdit={handleEdit}
               onDelete={handleDelete}

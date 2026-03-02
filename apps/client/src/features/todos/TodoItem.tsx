@@ -1,9 +1,9 @@
 import { Pencil, Trash2 } from 'lucide-react-native'
-import { Pressable, View } from 'react-native'
+import { Pressable, ScrollView, View } from 'react-native'
 import { useTranslation } from 'react-i18next'
 
-import type { Todo } from '@shared/types/api'
-import { AppStack, AppText } from '@/ui/components'
+import type { Tag, Todo } from '@shared/types/api'
+import { AppStack, AppTagBadge, AppText } from '@/ui/components'
 import { tokens } from '@/ui/tokens'
 import { cn } from '@/ui/utils/cn'
 
@@ -15,12 +15,13 @@ function formatDueDate(value: string): string {
 
 interface Props {
   todo: Todo
+  tags?: Tag[]
   onToggle: (id: string) => void
   onEdit: (todo: Todo) => void
   onDelete: (todo: Todo) => void
 }
 
-export function TodoItem({ todo, onToggle, onEdit, onDelete }: Props) {
+export function TodoItem({ todo, tags, onToggle, onEdit, onDelete }: Props) {
   const { t } = useTranslation()
   const dueLabel = todo.dueDate
     ? t('todos.dueDate', { date: formatDueDate(todo.dueDate) })
@@ -74,6 +75,27 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete }: Props) {
           <AppText size="sm" tone="muted" className={cn(todo.completed && 'opacity-70')}>
             {dueLabel}
           </AppText>
+        ) : null}
+
+        {todo.tagIds?.length && tags?.length ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 6 }}
+            className="-mx-0.5"
+          >
+            {todo.tagIds.map(tagId => {
+              const tag = tags.find(t => t.id === tagId)
+              if (!tag) return null
+              return (
+                <AppTagBadge
+                  key={tagId}
+                  name={tag.name}
+                  testID={`todo-tag-${todo.id}-${tagId}`}
+                />
+              )
+            })}
+          </ScrollView>
         ) : null}
       </AppStack>
 
