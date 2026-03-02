@@ -332,6 +332,29 @@ describe('todo mutations', () => {
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.todos.lists() })
   })
 
+  it('createTodoMutation passes full request including tagIds to api.createTodo', async () => {
+    ;(useQueryClient as jest.Mock).mockReturnValue({ invalidateQueries: jest.fn() })
+
+    useCreateTodoMutation()
+
+    const [options] = (useMutation as jest.Mock).mock.calls[0]
+    const request = { title: 'x', tagIds: ['id1'] }
+    await options.mutationFn(request)
+
+    expect(api.createTodo).toHaveBeenCalledWith(request)
+  })
+
+  it('updateTodoMutation passes full body including tagIds to api.updateTodo', async () => {
+    ;(useQueryClient as jest.Mock).mockReturnValue({ invalidateQueries: jest.fn() })
+
+    useUpdateTodoMutation()
+
+    const [options] = (useMutation as jest.Mock).mock.calls[0]
+    await options.mutationFn({ id: 'todo-1', title: 'Updated', tagIds: [] })
+
+    expect(api.updateTodo).toHaveBeenCalledWith('todo-1', { title: 'Updated', tagIds: [] })
+  })
+
   it('invalidates todos.lists() on toggle success', async () => {
     const invalidateQueries = jest.fn()
     ;(useQueryClient as jest.Mock).mockReturnValue({ invalidateQueries })
