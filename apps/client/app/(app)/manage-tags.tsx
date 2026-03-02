@@ -108,7 +108,7 @@ export default function ManageTagsScreen() {
                           testID="manage-tags-edit-input"
                           value={editingName}
                           onChangeText={setEditingName}
-                          placeholder={t('manageTags.title')}
+                          placeholder={t('manageTags.namePlaceholder')}
                           size="md"
                           className="flex-1 min-w-0"
                           accessibilityLabel={t('manageTags.rename')}

@@ -33,6 +33,7 @@ export const zhTW = {
   },
   manageTags: {
     title: '管理標籤',
+    namePlaceholder: '標籤名稱',
     rename: '重新命名',
     delete: '刪除',
     deleteConfirmTitle: '刪除此標籤？',
@@ -60,6 +61,13 @@ export const zhTW = {
     },
     tagsLabel: '標籤',
     tagFilterAll: '全部',
+    tags: {
+      label: '標籤',
+      filterAll: '全部',
+      addTag: '+ 新增標籤',
+      manageTags: '管理標籤',
+      empty: '尚無標籤，請在待辦中新增。',
+    },
     modal: {
       title: '新增待辦',
       editTitle: '編輯待辦',
