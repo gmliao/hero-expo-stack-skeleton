@@ -22,6 +22,15 @@ describe('todos.schema (unit)', () => {
         }),
       ).toThrow('title is required')
     })
+
+    it('accepts optional tagIds array of non-empty strings', () => {
+      expect(
+        createTodoSchema.parse({
+          title: 'T',
+          tagIds: ['id1', 'id2'],
+        }),
+      ).toMatchObject({ title: 'T', tagIds: ['id1', 'id2'] })
+    })
   })
 
   describe('updateTodoSchema', () => {
@@ -43,6 +52,14 @@ describe('todos.schema (unit)', () => {
           title: '   ',
         }),
       ).toThrow('title cannot be empty')
+    })
+
+    it('accepts optional tagIds array', () => {
+      expect(
+        updateTodoSchema.parse({
+          tagIds: ['a', 'b'],
+        }),
+      ).toMatchObject({ tagIds: ['a', 'b'] })
     })
   })
 })

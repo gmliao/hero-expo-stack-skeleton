@@ -8,6 +8,7 @@ export interface CreateTodoInput {
   title: string
   description?: string
   dueDate?: string
+  tagIds?: string[]
 }
 
 export interface ITodosRepository {

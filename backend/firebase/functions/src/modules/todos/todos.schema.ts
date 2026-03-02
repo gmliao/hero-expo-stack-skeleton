@@ -8,6 +8,7 @@ export const createTodoSchema = z.object({
   dueDate: z
     .union([z.string(), z.undefined(), z.null()])
     .transform(v => (v != null && String(v).trim() ? String(v).trim() : undefined)),
+  tagIds: z.array(z.string().min(1)).optional(),
 })
 
 export const updateTodoSchema = z.object({
@@ -19,6 +20,7 @@ export const updateTodoSchema = z.object({
   description: z.string().optional(),
   completed: z.boolean().optional(),
   dueDate: z.union([z.string(), z.null(), z.undefined()]).optional(),
+  tagIds: z.array(z.string().min(1)).optional(),
 })
 
 export type CreateTodoInput = z.infer<typeof createTodoSchema>

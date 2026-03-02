@@ -1,3 +1,4 @@
+import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import type { ITagsRepository, Tag } from './tags.types'
 import { AppError } from '../../core/http/errors'
 
@@ -28,5 +29,13 @@ export class TagsService {
     const existing = await this.repo.getById(uid, tagId)
     if (!existing) throw new AppError('NOT_FOUND', 'Tag not found')
     await this.repo.delete(uid, tagId)
+    const db = getFirestore()
+    const snap = await db.collection('todos').where('tagIds', 'array-contains', tagId).get()
+    const now = Timestamp.now()
+    await Promise.all(
+      snap.docs.map((d) =>
+        d.ref.update({ tagIds: FieldValue.arrayRemove(tagId), updatedAt: now }),
+      ),
+    )
   }
 }

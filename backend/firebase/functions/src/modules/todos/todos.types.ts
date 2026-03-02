@@ -4,6 +4,7 @@ export type CreateTodoInput = {
   title: string;
   description?: string;
   dueDate?: string;
+  tagIds?: string[];
 };
 
 export type UpdateTodoInput = {
@@ -11,6 +12,7 @@ export type UpdateTodoInput = {
   description?: string;
   completed?: boolean;
   dueDate?: string | null;
+  tagIds?: string[];
 };
 
 export interface ITodosService {

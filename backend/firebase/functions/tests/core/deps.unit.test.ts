@@ -28,7 +28,7 @@ describe('createDeps (unit)', () => {
     const deps = createDeps()
 
     expect(TodosFirestoreRepository).toHaveBeenCalledTimes(1)
-    expect(TodosService).toHaveBeenCalledWith(mockRepoInstance)
+    expect(TodosService).toHaveBeenCalledWith(mockRepoInstance, deps.services.tags)
     expect(FirebaseAuthVerifier).toHaveBeenCalledTimes(1)
     expect(deps.services.todos).toBe(mockServiceInstance)
     expect(deps.auth).toBe(mockAuthInstance)

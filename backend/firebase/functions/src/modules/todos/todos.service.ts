@@ -5,17 +5,33 @@ import type {
 } from "./todos.types";
 import type { Todo } from "../../types/api";
 import type { ITodosRepository } from "../../infrastructure/firestore/repositories/repository.types";
+import type { ITagsService } from "../tags/tags.types";
 import { AppError } from "../../core/http/errors";
 
 export class TodosService {
-  constructor(private readonly repo: ITodosRepository) {}
+  constructor(
+    private readonly repo: ITodosRepository,
+    private readonly tagsService: ITagsService,
+  ) {}
 
   async listTodos(uid: string): Promise<Todo[]> {
     return this.repo.findAllByUid(uid);
   }
 
+  private async validateTagIdsBelongToUser(uid: string, tagIds: string[]): Promise<void> {
+    if (tagIds.length === 0) return;
+    const ownedTags = await this.tagsService.list(uid);
+    const ownedSet = new Set(ownedTags.map((t) => t.id));
+    const invalid = tagIds.filter((id) => !ownedSet.has(id));
+    if (invalid.length > 0) {
+      throw new AppError("FORBIDDEN", "One or more tagIds do not belong to the user");
+    }
+  }
+
   async createTodo(uid: string, input: CreateTodoInput): Promise<Todo> {
-    return this.repo.create(uid, input);
+    const tagIds = input.tagIds ?? [];
+    await this.validateTagIdsBelongToUser(uid, tagIds);
+    return this.repo.create(uid, { ...input, tagIds });
   }
 
   private async requireOwned(uid: string, id: string): Promise<Todo> {
@@ -31,6 +47,9 @@ export class TodosService {
     data: UpdateTodoInput,
   ): Promise<Todo> {
     await this.requireOwned(uid, id);
+    if (data.tagIds !== undefined) {
+      await this.validateTagIdsBelongToUser(uid, data.tagIds);
+    }
     const updated = await this.repo.update(id, data);
     if (!updated) throw new AppError("NOT_FOUND", "Todo not found");
     return updated;
