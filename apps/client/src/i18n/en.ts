@@ -31,6 +31,15 @@ export const en = {
     logout: 'Log out',
     logoutFailed: 'Log out failed. Please try again.',
   },
+  manageTags: {
+    title: 'Manage tags',
+    rename: 'Rename',
+    delete: 'Delete',
+    deleteConfirmTitle: 'Delete tag?',
+    deleteConfirmMessage: 'This tag will be removed. This action cannot be undone.',
+    deleteConfirmCancel: 'Cancel',
+    deleteConfirmDelete: 'Delete',
+  },
   todos: {
     title: 'My Todos',
     create: '+ New',

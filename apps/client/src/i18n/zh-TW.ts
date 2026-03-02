@@ -31,6 +31,15 @@ export const zhTW = {
     logout: '登出',
     logoutFailed: '登出失敗，請再試一次。',
   },
+  manageTags: {
+    title: '管理標籤',
+    rename: '重新命名',
+    delete: '刪除',
+    deleteConfirmTitle: '刪除此標籤？',
+    deleteConfirmMessage: '此標籤將被移除，且無法復原。',
+    deleteConfirmCancel: '取消',
+    deleteConfirmDelete: '刪除',
+  },
   todos: {
     title: '我的待辦',
     create: '+ 新增',
