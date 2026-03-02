@@ -24,6 +24,12 @@ export function createMockDeps(overrides: Partial<Deps> = {}): Deps {
         toggleTodo: jest.fn().mockResolvedValue({}),
         deleteTodo: jest.fn().mockResolvedValue(undefined),
       },
+      tags: {
+        list: jest.fn().mockResolvedValue([]),
+        create: jest.fn().mockResolvedValue({}),
+        update: jest.fn().mockResolvedValue({}),
+        delete: jest.fn().mockResolvedValue(undefined),
+      },
     },
     auth: {
       verifyIdToken: jest.fn().mockResolvedValue({

@@ -16,11 +16,23 @@ function mockCtx(uid = "test-uid"): RequestContext {
   };
 }
 
+function mockTagsService() {
+  return {
+    list: jest.fn().mockResolvedValue([]),
+    create: jest.fn().mockResolvedValue({}),
+    update: jest.fn().mockResolvedValue({}),
+    delete: jest.fn().mockResolvedValue(undefined),
+  };
+}
+
 function mockDeps(
   overrides: Partial<ReturnType<typeof createMockTodosService>> = {},
 ): Deps {
   return {
-    services: { todos: createMockTodosService(overrides) },
+    services: {
+      todos: createMockTodosService(overrides),
+      tags: mockTagsService(),
+    },
     auth: { verifyIdToken: async () => ({ uid: "test-uid" }) },
     logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
   };

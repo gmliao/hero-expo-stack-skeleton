@@ -3,6 +3,8 @@ import type { Logger } from "./http/types";
 import { FirebaseAuthVerifier } from "../infrastructure/auth/auth.firebase.service";
 import { TodosFirestoreRepository } from "../modules/todos/todos.firestore.repository";
 import { TodosService } from "../modules/todos/todos.service";
+import { TagsFirestoreRepository } from "../modules/tags/tags.firestore.repository";
+import { TagsService } from "../modules/tags/tags.service";
 
 class ConsoleLogger implements Logger {
   info(msg: string, extra?: unknown) {
@@ -18,9 +20,11 @@ class ConsoleLogger implements Logger {
 
 export function createDeps(): Deps {
   const todosRepo = new TodosFirestoreRepository();
+  const tagsRepo = new TagsFirestoreRepository();
   return {
     services: {
       todos: new TodosService(todosRepo),
+      tags: new TagsService(tagsRepo),
     },
     auth: new FirebaseAuthVerifier(),
     logger: new ConsoleLogger(),
