@@ -17,6 +17,7 @@
 | Todos | u57V2 | (app)/index.tsx |
 | Create Todo Modal | Aa59O | CreateTodoModal (sheet) |
 | **Options** | **O4CjV** | **(app)/options.tsx** |
+| Manage Tags Modal | CSLAp | **(app)/manage-tags.tsx**：Manage Tags route，內容以 **modal/sheet** 呈現（同 Create Todo Modal）。 |
 
 ---
 
@@ -39,6 +40,11 @@
 | component/ScreenTitle | T5cMs | AppText | AppText.tsx (size=xl, weight=bold) |
 | component/SectionLabel | Z7k3d | AppText | AppText.tsx (size=sm, tone=muted) |
 | component/SheetHandle | McPgO | AppSheetHandle | AppSheetHandle.tsx |
+| component/TagBadge | X5rfy | AppTagBadge | **已實作**：顯示用小 pill，24px 高（h-6）、primarySoft 底、muted 文字；用於 todo item 上顯示 tag 名稱（非互動）。 |
+| component/TagBadgeSelected | ead5P | AppTagBadge（selected） | **暫不實作**：互動式選中狀態目前由 `AppFilterChip` 承擔，此 Pen 元件保留作設計參考。 |
+| **component/HorizontalScrollRow** | **A0Bim** | **橫向捲動列**（Code 包 ScrollView horizontal） | 內為 contentSlot (FTqx8)；有 tag 的列（篩選、picker、Manage Tags 列表行內 tag）可辨識用此或同款佈局。 |
+| component/TagChip | UFaeP | （備用） | pill、32px、outline；目前 tag 篩選改用 TagBadge / TagBadgeSelected |
+| component/TagChipActive | Fm4sf | （備用） | pill、32px、primary 填滿 |
 
 ---
 
@@ -59,6 +65,9 @@
 | AppText | AppText.tsx | ScreenTitle, SectionLabel | T5cMs, Z7k3d |
 | AppTextArea | AppTextArea.tsx | component/TextArea | JEOdo |
 | TodoItem | features/todos/TodoItem.tsx | component/TodoItem | bEjH4 |
+| AppTagBadge | AppTagBadge.tsx | component/TagBadge | X5rfy |
+| AppTagChip | 待實作 | TagChip, TagChipActive | UFaeP, Fm4sf |
+| HorizontalScrollRow（橫向捲動列） | 待實作 | component/HorizontalScrollRow | A0Bim |
 
 ---
 

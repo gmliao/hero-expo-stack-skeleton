@@ -1,5 +1,6 @@
 # Documentation Index
 
+- [Feature Development Workflow](../.agent/workflows/feature-development.md) — 功能開發五階段（概念釐清 → UI/UX 設計 → 規格 → 實際規格 → subagent 執行）
 - [Design System](design-system/) — Pen ↔ Code mapping、color-scheme、Pencil 整合
 - [Design System Workflow](design-system/workflow.md) — Pen-first、雙向同步、shared component 流程
 - [Architecture](architecture/) — Client / Server 設計架構
