@@ -8,5 +8,6 @@ export { AppScreenContainer, SCREEN_CONTENT_MAX_WIDTH } from './AppScreenContain
 export { AppSheetHandle } from './AppSheetHandle'
 export { AppStack } from './AppStack'
 export { AppStatusBar } from './AppStatusBar'
+export { AppTagBadge } from './AppTagBadge'
 export { AppText } from './AppText'
 export { AppTextArea } from './AppTextArea'
