@@ -9,6 +9,7 @@ describe('useUIStore', () => {
     const state = useUIStore.getState()
     expect(state.filter).toBe('all')
     expect(state.selectedTodoId).toBeNull()
+    expect(state.selectedTagId).toBeNull()
     expect(state.isCreateModalOpen).toBe(false)
     expect(state.banner).toBeNull()
   })
@@ -40,5 +41,13 @@ describe('useUIStore', () => {
 
     useUIStore.getState().setSelectedTodoId(null)
     expect(useUIStore.getState().selectedTodoId).toBeNull()
+  })
+
+  it('setSelectedTagId', () => {
+    useUIStore.getState().setSelectedTagId('tag-1')
+    expect(useUIStore.getState().selectedTagId).toBe('tag-1')
+
+    useUIStore.getState().setSelectedTagId(null)
+    expect(useUIStore.getState().selectedTagId).toBeNull()
   })
 })

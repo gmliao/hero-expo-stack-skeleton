@@ -19,11 +19,21 @@ export function filterAndSortTodos(todos: Todo[], filter: Filter): Todo[] {
   })
 }
 
-export const useTodosQuery = (uid: string, filter: Filter = 'all') => {
+export const useTodosQuery = (
+  uid: string,
+  filter: Filter = 'all',
+  selectedTagId?: string | null,
+) => {
   return useQuery({
-    queryKey: queryKeys.todos.list(uid, filter),
+    queryKey: queryKeys.todos.list(uid, filter, selectedTagId),
     queryFn: () => api.getTodos(uid),
-    select: (data) => filterAndSortTodos(data, filter),
+    select: (data) => {
+      let result = filterAndSortTodos(data, filter)
+      if (selectedTagId != null) {
+        result = result.filter(t => (t.tagIds ?? []).includes(selectedTagId))
+      }
+      return result
+    },
     enabled: Boolean(uid),
   })
 }
