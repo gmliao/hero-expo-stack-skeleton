@@ -33,6 +33,7 @@ export const en = {
   },
   manageTags: {
     title: 'Manage tags',
+    namePlaceholder: 'Tag name',
     rename: 'Rename',
     delete: 'Delete',
     deleteConfirmTitle: 'Delete tag?',
@@ -60,6 +61,13 @@ export const en = {
     },
     tagsLabel: 'Tags',
     tagFilterAll: 'All',
+    tags: {
+      label: 'Tags',
+      filterAll: 'All',
+      addTag: '+ Add tag',
+      manageTags: 'Manage tags',
+      empty: 'No tags yet. Add one from a todo.',
+    },
     modal: {
       title: 'New Todo',
       editTitle: 'Edit Todo',
