@@ -173,6 +173,25 @@ describe('TodosFirestoreRepository (unit)', () => {
     })
   })
 
+  it('create stores tagIds when provided', async () => {
+    const repo = new TodosFirestoreRepository()
+    const todo = await repo.create('user-1', {
+      title: 'Tagged',
+      tagIds: ['tag-1', 'tag-2'],
+    })
+    expect(todo.tagIds).toEqual(['tag-1', 'tag-2'])
+    expect(store.get('generated-1')).toMatchObject({
+      tagIds: ['tag-1', 'tag-2'],
+    })
+  })
+
+  it('create omits tagIds when not provided (empty array in doc)', async () => {
+    const repo = new TodosFirestoreRepository()
+    await repo.create('user-1', { title: 'No tags' })
+    expect(store.get('generated-1')).toBeDefined()
+    expect(store.get('generated-1')!.tagIds).toEqual([])
+  })
+
   it('findById returns null when the todo is missing', async () => {
     const repo = new TodosFirestoreRepository()
     await expect(repo.findById('missing')).resolves.toBeNull()
@@ -193,6 +212,21 @@ describe('TodosFirestoreRepository (unit)', () => {
       id: 'todo-1',
       title: 'Found',
     })
+  })
+
+  it('findById returns tagIds from doc (default empty array)', async () => {
+    store.set('todo-1', {
+      uid: 'user-1',
+      title: 'With tags',
+      description: '',
+      completed: false,
+      tagIds: ['t1', 't2'],
+      createdAt: makeTimestamp('2026-03-01T08:00:00.000Z'),
+      updatedAt: makeTimestamp('2026-03-01T08:00:00.000Z'),
+    })
+    const repo = new TodosFirestoreRepository()
+    const todo = await repo.findById('todo-1')
+    expect(todo!.tagIds).toEqual(['t1', 't2'])
   })
 
   it('update trims title and clears dueDate with FieldValue.delete', async () => {
@@ -229,6 +263,23 @@ describe('TodosFirestoreRepository (unit)', () => {
       completed: true,
     })
     expect(store.get('todo-1')).not.toHaveProperty('dueDate')
+  })
+
+  it('update can set tagIds', async () => {
+    store.set('todo-1', {
+      uid: 'user-1',
+      title: 'Original',
+      description: '',
+      completed: false,
+      tagIds: ['old'],
+      createdAt: makeTimestamp('2026-03-01T08:00:00.000Z'),
+      updatedAt: makeTimestamp('2026-03-01T08:00:00.000Z'),
+    })
+    const repo = new TodosFirestoreRepository()
+    const todo = await repo.update('todo-1', { tagIds: ['new-1', 'new-2'] })
+    expect(todo).toMatchObject({ tagIds: ['new-1', 'new-2'] })
+    expect(store.get('todo-1')).toBeDefined()
+    expect(store.get('todo-1')!.tagIds).toEqual(['new-1', 'new-2'])
   })
 
   it('delete returns false when the todo is missing', async () => {

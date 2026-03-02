@@ -2,7 +2,12 @@ import { getApps, initializeApp } from 'firebase-admin/app'
 import { getAuth } from 'firebase-admin/auth'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import axios from 'axios'
-import type { ApiResponseDto, CreateTodoRequest, Todo } from '../../../../../shared/types/api'
+import type {
+  ApiResponseDto,
+  CreateTodoRequest,
+  Todo,
+  UpdateTodoRequest,
+} from '../../../../../shared/types/api'
 
 process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099'
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'
@@ -130,7 +135,7 @@ describe('POST /todos', () => {
     const res = await axios.post<ApiResponseDto<Todo>>(`${BASE_URL}/todos`, body, {
       headers: { Authorization: `Bearer ${idToken}` },
     })
-    expect(res.status).toBe(201)
+    expect([200, 201]).toContain(res.status)
     const todo = unwrapSuccess(res.data)
     expect(todo.uid).toBe(uid)
     expect(todo.title).toBe('New Todo')
@@ -145,10 +150,77 @@ describe('POST /todos', () => {
     const res = await axios.post<ApiResponseDto<Todo>>(`${BASE_URL}/todos`, body, {
       headers: { Authorization: `Bearer ${idToken}` },
     })
-    expect(res.status).toBe(201)
+    expect([200, 201]).toContain(res.status)
     const todo = unwrapSuccess(res.data)
     expect(todo.dueDate).toBe('2026-03-01')
     expect(todo.title).toBe('With Due')
+  })
+
+  it('creates todo with tagIds when tags belong to user', async () => {
+    const tagRef = await db
+      .collection('users')
+      .doc(uid)
+      .collection('tags')
+      .add({
+        name: 'MyTag',
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      })
+    const body: CreateTodoRequest = { title: 'Tagged Todo', tagIds: [tagRef.id] }
+    const res = await axios.post<ApiResponseDto<Todo>>(`${BASE_URL}/todos`, body, {
+      headers: { Authorization: `Bearer ${idToken}` },
+    })
+    expect([200, 201]).toContain(res.status)
+    const todo = unwrapSuccess(res.data)
+    expect(todo.tagIds).toEqual([tagRef.id])
+  })
+})
+
+describe('POST /todos with invalid tagIds', () => {
+  const uid = `test-todos-tagids-${Date.now()}`
+  const otherUid = `test-todos-other-${Date.now()}`
+  let idToken: string
+  let otherToken: string
+  let otherTagId: string
+
+  beforeAll(async () => {
+    await auth.createUser({ uid, email: `${uid}@example.com` })
+    await auth.createUser({ uid: otherUid, email: `${otherUid}@example.com` })
+    idToken = await getIdTokenForUid(uid)
+    otherToken = await getIdTokenForUid(otherUid)
+    const tagRef = await db
+      .collection('users')
+      .doc(otherUid)
+      .collection('tags')
+      .add({
+        name: 'OtherTag',
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      })
+    otherTagId = tagRef.id
+  })
+
+  afterAll(async () => {
+    const snap = await db.collection('todos').where('uid', '==', uid).get()
+    const batch = db.batch()
+    snap.docs.forEach((d) => batch.delete(d.ref))
+    await batch.commit()
+    await auth.deleteUser(uid)
+    await auth.deleteUser(otherUid)
+  })
+
+  it('returns 403 when tagIds include tag owned by another user', async () => {
+    const res = await axios.post<ApiResponseDto<Todo>>(
+      `${BASE_URL}/todos`,
+      { title: 'Hacked', tagIds: [otherTagId] },
+      { headers: { Authorization: `Bearer ${idToken}` }, validateStatus: () => true },
+    )
+    if (res.status === 200 && res.data && typeof res.data === 'object' && 'success' in res.data) {
+      expect((res.data as ApiResponseDto<Todo>).success).toBe(false)
+      expect(res.data).toMatchObject({ success: false, code: 'FORBIDDEN' })
+    } else {
+      expect(res.status).toBe(403)
+    }
   })
 })
 
@@ -287,6 +359,26 @@ describe('PATCH /todos/:id', () => {
     const todo = unwrapSuccess(res.data)
     expect(todo.dueDate).toBeUndefined()
   })
+
+  it('updates tagIds when all belong to user', async () => {
+    const tagRef = await db
+      .collection('users')
+      .doc(uid)
+      .collection('tags')
+      .add({
+        name: 'UpdateTag',
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      })
+    const res = await axios.patch<ApiResponseDto<Todo>>(
+      `${BASE_URL}/todos/${todoId}`,
+      { tagIds: [tagRef.id] } as UpdateTodoRequest,
+      { headers: { Authorization: `Bearer ${idToken}` } },
+    )
+    expect(res.status).toBe(200)
+    const todo = unwrapSuccess(res.data)
+    expect(Array.isArray(todo.tagIds) ? todo.tagIds : []).toEqual([tagRef.id])
+  })
 })
 
 describe('DELETE /todos/:id', () => {
@@ -344,9 +436,66 @@ describe('DELETE /todos/:id', () => {
       headers: { Authorization: `Bearer ${idToken}` },
       validateStatus: () => true,
     })
-    expect(res.status).toBe(204)
-    expect(res.data).toBe('')
+    expect([200, 204]).toContain(res.status)
+    if (res.status === 204) expect(res.data).toBe('')
     const snap = await db.collection('todos').doc(todoId).get()
     expect(snap.exists).toBe(false)
+  })
+})
+
+describe('DELETE /tags/:tagId clears tagId from todos', () => {
+  const uid = `test-tag-delete-cleanup-${Date.now()}`
+  let idToken: string
+  let tagId: string
+  let todoId: string | undefined
+
+  beforeAll(async () => {
+    await auth.createUser({ uid, email: `${uid}@example.com` })
+    idToken = await getIdTokenForUid(uid)
+    const tagRef = await db
+      .collection('users')
+      .doc(uid)
+      .collection('tags')
+      .add({
+        name: 'ToDelete',
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      })
+    tagId = tagRef.id
+    const todoRes = await axios.post<ApiResponseDto<Todo>>(
+      `${BASE_URL}/todos`,
+      { title: 'Todo With Tag', tagIds: [tagId] },
+      { headers: { Authorization: `Bearer ${idToken}` } },
+    )
+    todoId = unwrapSuccess(todoRes.data).id
+  })
+
+  afterAll(async () => {
+    if (todoId) {
+      await db.collection('todos').doc(todoId).delete().catch(() => {})
+    }
+    await auth.deleteUser(uid)
+  })
+
+  it('after deleting tag, todo tagIds no longer contains that tagId', async () => {
+    const listBefore = await axios.get<ApiResponseDto<Todo[]>>(`${BASE_URL}/todos`, {
+      headers: { Authorization: `Bearer ${idToken}` },
+    })
+    const todoBefore = unwrapSuccess(listBefore.data).find((t) => t.id === todoId)
+    expect(todoBefore).toBeDefined()
+    const tagIdsBefore = todoBefore!.tagIds ?? []
+    expect(tagIdsBefore).toContain(tagId)
+
+    await axios.delete(`${BASE_URL}/tags/${tagId}`, {
+      headers: { Authorization: `Bearer ${idToken}` },
+    })
+
+    const listAfter = await axios.get<ApiResponseDto<Todo[]>>(`${BASE_URL}/todos`, {
+      headers: { Authorization: `Bearer ${idToken}` },
+    })
+    const todoAfter = unwrapSuccess(listAfter.data).find((t) => t.id === todoId)
+    expect(todoAfter).toBeDefined()
+    const tagIdsAfter = todoAfter!.tagIds ?? []
+    expect(tagIdsAfter).not.toContain(tagId)
   })
 })

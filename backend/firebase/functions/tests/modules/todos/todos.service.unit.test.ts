@@ -2,6 +2,7 @@ import { TodosService } from '../../../src/modules/todos/todos.service'
 import { AppError } from '../../../src/core/http/errors'
 import { createMockTodosRepository } from '../../mocks/todos.repository.mock'
 import type { Todo } from '../../../src/types/api'
+import type { Tag } from '../../../src/types/api'
 
 const baseTodo = (overrides: Partial<Todo> = {}): Todo => ({
   id: 't1',
@@ -13,11 +14,20 @@ const baseTodo = (overrides: Partial<Todo> = {}): Todo => ({
   ...overrides,
 })
 
+function mockTagsService(tags: Tag[] = []) {
+  return {
+    list: jest.fn().mockResolvedValue(tags),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  }
+}
+
 describe('TodosService (unit)', () => {
   describe('listTodos', () => {
     it('returns todos for the user', async () => {
       const repo = createMockTodosRepository({ todos: [baseTodo()] })
-      const svc = new TodosService(repo)
+      const svc = new TodosService(repo, mockTagsService())
       const result = await svc.listTodos('user-1')
       expect(result).toHaveLength(1)
       expect(result[0].uid).toBe('user-1')
@@ -27,17 +37,36 @@ describe('TodosService (unit)', () => {
   describe('createTodo', () => {
     it('creates and returns todo owned by uid', async () => {
       const repo = createMockTodosRepository()
-      const svc = new TodosService(repo)
+      const svc = new TodosService(repo, mockTagsService())
       const result = await svc.createTodo('user-1', { title: 'New' })
       expect(result.uid).toBe('user-1')
       expect(result.title).toBe('New')
+    })
+
+    it('creates todo with tagIds when all tagIds belong to user', async () => {
+      const repo = createMockTodosRepository()
+      const tags: Tag[] = [
+        { id: 'tag-1', uid: 'user-1', name: 'A', createdAt: '', updatedAt: '' },
+      ]
+      const svc = new TodosService(repo, mockTagsService(tags))
+      const result = await svc.createTodo('user-1', { title: 'T', tagIds: ['tag-1'] })
+      expect(result.uid).toBe('user-1')
+      expect(result.tagIds).toEqual(['tag-1'])
+    })
+
+    it('throws FORBIDDEN when tagIds contain id not owned by user', async () => {
+      const repo = createMockTodosRepository()
+      const svc = new TodosService(repo, mockTagsService([]))
+      await expect(
+        svc.createTodo('user-1', { title: 'T', tagIds: ['other-user-tag'] }),
+      ).rejects.toMatchObject({ code: 'FORBIDDEN' })
     })
   })
 
   describe('updateTodo', () => {
     it('throws NOT_FOUND when todo does not exist', async () => {
       const repo = createMockTodosRepository()
-      const svc = new TodosService(repo)
+      const svc = new TodosService(repo, mockTagsService())
       await expect(svc.updateTodo('user-1', 'nope', { title: 'x' })).rejects.toMatchObject({
         code: 'NOT_FOUND',
       })
@@ -45,7 +74,7 @@ describe('TodosService (unit)', () => {
 
     it('throws FORBIDDEN when uid does not own todo', async () => {
       const repo = createMockTodosRepository({ todos: [baseTodo({ uid: 'other' })] })
-      const svc = new TodosService(repo)
+      const svc = new TodosService(repo, mockTagsService())
       await expect(svc.updateTodo('user-1', 't1', { title: 'x' })).rejects.toMatchObject({
         code: 'FORBIDDEN',
       })
@@ -53,16 +82,34 @@ describe('TodosService (unit)', () => {
 
     it('updates and returns todo when uid matches', async () => {
       const repo = createMockTodosRepository({ todos: [baseTodo()] })
-      const svc = new TodosService(repo)
+      const svc = new TodosService(repo, mockTagsService())
       const result = await svc.updateTodo('user-1', 't1', { title: 'Updated' })
       expect(result.title).toBe('Updated')
+    })
+
+    it('updates tagIds when all belong to user', async () => {
+      const repo = createMockTodosRepository({ todos: [baseTodo()] })
+      const tags: Tag[] = [
+        { id: 'tag-1', uid: 'user-1', name: 'A', createdAt: '', updatedAt: '' },
+      ]
+      const svc = new TodosService(repo, mockTagsService(tags))
+      const result = await svc.updateTodo('user-1', 't1', { tagIds: ['tag-1'] })
+      expect(result.tagIds).toEqual(['tag-1'])
+    })
+
+    it('throws FORBIDDEN when update tagIds contain id not owned by user', async () => {
+      const repo = createMockTodosRepository({ todos: [baseTodo()] })
+      const svc = new TodosService(repo, mockTagsService([]))
+      await expect(
+        svc.updateTodo('user-1', 't1', { tagIds: ['other-tag'] }),
+      ).rejects.toMatchObject({ code: 'FORBIDDEN' })
     })
   })
 
   describe('toggleTodo', () => {
     it('throws NOT_FOUND when todo does not exist', async () => {
       const repo = createMockTodosRepository()
-      const svc = new TodosService(repo)
+      const svc = new TodosService(repo, mockTagsService())
       await expect(svc.toggleTodo('user-1', 'nope')).rejects.toMatchObject({
         code: 'NOT_FOUND',
       })
@@ -70,7 +117,7 @@ describe('TodosService (unit)', () => {
 
     it('throws FORBIDDEN when uid does not own todo', async () => {
       const repo = createMockTodosRepository({ todos: [baseTodo({ uid: 'other' })] })
-      const svc = new TodosService(repo)
+      const svc = new TodosService(repo, mockTagsService())
       await expect(svc.toggleTodo('user-1', 't1')).rejects.toMatchObject({
         code: 'FORBIDDEN',
       })
@@ -78,7 +125,7 @@ describe('TodosService (unit)', () => {
 
     it('toggles completed and returns todo', async () => {
       const repo = createMockTodosRepository({ todos: [baseTodo({ completed: false })] })
-      const svc = new TodosService(repo)
+      const svc = new TodosService(repo, mockTagsService())
       const result = await svc.toggleTodo('user-1', 't1')
       expect(result.completed).toBe(true)
     })
@@ -87,7 +134,7 @@ describe('TodosService (unit)', () => {
   describe('deleteTodo', () => {
     it('throws NOT_FOUND when todo does not exist', async () => {
       const repo = createMockTodosRepository()
-      const svc = new TodosService(repo)
+      const svc = new TodosService(repo, mockTagsService())
       await expect(svc.deleteTodo('user-1', 'nope')).rejects.toMatchObject({
         code: 'NOT_FOUND',
       })
@@ -95,7 +142,7 @@ describe('TodosService (unit)', () => {
 
     it('throws FORBIDDEN when uid does not own todo', async () => {
       const repo = createMockTodosRepository({ todos: [baseTodo({ uid: 'other' })] })
-      const svc = new TodosService(repo)
+      const svc = new TodosService(repo, mockTagsService())
       await expect(svc.deleteTodo('user-1', 't1')).rejects.toMatchObject({
         code: 'FORBIDDEN',
       })
@@ -103,7 +150,7 @@ describe('TodosService (unit)', () => {
 
     it('deletes successfully when uid matches', async () => {
       const repo = createMockTodosRepository({ todos: [baseTodo()] })
-      const svc = new TodosService(repo)
+      const svc = new TodosService(repo, mockTagsService())
       await expect(svc.deleteTodo('user-1', 't1')).resolves.toBeUndefined()
     })
   })

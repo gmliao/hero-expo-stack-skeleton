@@ -12,6 +12,7 @@ function docToTodo(docId: string, data: DocumentData): Todo {
     description: data.description,
     completed: data.completed,
     dueDate: data.dueDate ?? undefined,
+    tagIds: data.tagIds ?? [],
     createdAt: (data.createdAt as Timestamp).toDate().toISOString(),
     updatedAt: (data.updatedAt as Timestamp).toDate().toISOString(),
   }
@@ -34,6 +35,7 @@ export class TodosFirestoreRepository implements ITodosRepository {
       title: data.title.trim(),
       description: data.description ?? '',
       completed: false,
+      tagIds: data.tagIds ?? [],
       createdAt: now,
       updatedAt: now,
     }
@@ -58,7 +60,7 @@ export class TodosFirestoreRepository implements ITodosRepository {
     if (!doc.exists) return null
 
     const updates: Record<string, unknown> = { updatedAt: Timestamp.now() }
-    const allowed: (keyof UpdateTodoRequest)[] = ['title', 'description', 'completed', 'dueDate']
+    const allowed: (keyof UpdateTodoRequest)[] = ['title', 'description', 'completed', 'dueDate', 'tagIds']
     for (const key of allowed) {
       if (key in body && body[key] !== undefined) {
         if (key === 'title' && typeof body.title === 'string') {
@@ -70,6 +72,8 @@ export class TodosFirestoreRepository implements ITodosRepository {
         } else if (key === 'dueDate') {
           const val = body.dueDate != null ? String(body.dueDate).trim() : ''
           updates.dueDate = val !== '' ? val : FieldValue.delete()
+        } else if (key === 'tagIds' && Array.isArray(body.tagIds)) {
+          updates.tagIds = body.tagIds
         }
       }
     }

@@ -21,10 +21,11 @@ class ConsoleLogger implements Logger {
 export function createDeps(): Deps {
   const todosRepo = new TodosFirestoreRepository();
   const tagsRepo = new TagsFirestoreRepository();
+  const tagsService = new TagsService(tagsRepo);
   return {
     services: {
-      todos: new TodosService(todosRepo),
-      tags: new TagsService(tagsRepo),
+      todos: new TodosService(todosRepo, tagsService),
+      tags: tagsService,
     },
     auth: new FirebaseAuthVerifier(),
     logger: new ConsoleLogger(),

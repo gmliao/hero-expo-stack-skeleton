@@ -26,6 +26,7 @@ export function createMockTodosRepository(initial: {
         createdAt: now,
         updatedAt: now,
         dueDate: data.dueDate ? String(data.dueDate).trim() || undefined : undefined,
+        tagIds: data.tagIds ?? [],
       }
       todos.push(todo)
       return todo
@@ -44,6 +45,7 @@ export function createMockTodosRepository(initial: {
       if (body.description !== undefined) updates.description = body.description ?? ''
       if (body.completed !== undefined) updates.completed = body.completed
       if (body.dueDate !== undefined) updates.dueDate = body.dueDate?.trim() || undefined
+      if (body.tagIds !== undefined) updates.tagIds = body.tagIds
       todos[idx] = { ...existing, ...updates }
       return todos[idx]
     },

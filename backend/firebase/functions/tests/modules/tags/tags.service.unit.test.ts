@@ -1,3 +1,20 @@
+let mockTodoDocs: { ref: { update: jest.Mock } }[] = []
+jest.mock('firebase-admin/firestore', () => ({
+  getFirestore: jest.fn(() => ({
+    collection: jest.fn(() => ({
+      where: jest.fn(() => ({
+        get: jest.fn().mockImplementation(() =>
+          Promise.resolve({ docs: mockTodoDocs }),
+        ),
+      })),
+    })),
+  })),
+  FieldValue: {
+    arrayRemove: jest.fn((id: string) => ({ __arrayRemove: id })),
+  },
+  Timestamp: { now: jest.fn(() => ({})) },
+}))
+
 import { TagsService } from '../../../src/modules/tags/tags.service'
 import { AppError } from '../../../src/core/http/errors'
 import { createMockTagsRepository } from '../../mocks/tags.repository.mock'
@@ -13,6 +30,10 @@ const baseTag = (overrides: Partial<Tag> = {}): Tag => ({
 })
 
 describe('TagsService (unit)', () => {
+  afterEach(() => {
+    mockTodoDocs = []
+  })
+
   describe('list', () => {
     it('returns tags for the user', async () => {
       const repo = createMockTagsRepository({ tags: [baseTag()] })
@@ -97,6 +118,22 @@ describe('TagsService (unit)', () => {
       const repo = createMockTagsRepository({ tags: [baseTag()] })
       const svc = new TagsService(repo)
       await expect(svc.delete('tag-1', 'user-1')).resolves.toBeUndefined()
+    })
+
+    it('after deleting tag, removes tagId from all todos that reference it', async () => {
+      const mockUpdate = jest.fn().mockResolvedValue(undefined)
+      mockTodoDocs = [{ ref: { update: mockUpdate } }]
+      const repo = createMockTagsRepository({ tags: [baseTag()] })
+      const svc = new TagsService(repo)
+      await svc.delete('tag-1', 'user-1')
+      expect(mockUpdate).toHaveBeenCalledTimes(1)
+      expect(mockUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tagIds: expect.anything(),
+          updatedAt: expect.anything(),
+        }),
+      )
+      mockTodoDocs = []
     })
   })
 })
