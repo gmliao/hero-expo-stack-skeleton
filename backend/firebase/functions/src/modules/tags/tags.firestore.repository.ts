@@ -1,13 +1,5 @@
 import { DocumentData, getFirestore, Timestamp } from 'firebase-admin/firestore'
-
-/** Tag shape returned by the repository (Timestamps serialized to ISO strings). */
-export interface Tag {
-  id: string
-  name: string
-  uid: string
-  createdAt: string
-  updatedAt: string
-}
+import type { Tag } from './tags.types'
 
 const db = () => getFirestore()
 
