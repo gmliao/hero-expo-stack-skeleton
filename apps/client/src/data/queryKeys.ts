@@ -10,4 +10,8 @@ export const queryKeys = {
     all: () => ['profile'] as const,
     current: (uid: string) => ['profile', 'current', uid] as const,
   },
+  tags: {
+    all: () => ['tags'] as const,
+    list: (uid: string) => ['tags', 'list', { uid }] as const,
+  },
 } as const
