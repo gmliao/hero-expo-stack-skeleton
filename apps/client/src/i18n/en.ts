@@ -58,6 +58,8 @@ export const en = {
       descriptionPlaceholder: 'Optional notes…',
       dueDate: 'Due date',
       dueDatePlaceholder: 'YYYY-MM-DD',
+      addTag: '+ Add tag',
+      addTagButton: 'Add',
       save: 'Save',
       cancel: 'Cancel',
       titleRequired: 'Title is required',

@@ -7,9 +7,13 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { useUIStore } from '@/stores/useUIStore'
 import { useCreateTodoMutation } from '@/data/hooks/useCreateTodoMutation'
 import { useUpdateTodoMutation } from '@/data/hooks/useUpdateTodoMutation'
+import { useTagsQuery } from '@/data/hooks/useTagsQuery'
+import { useCreateTagMutation } from '@/data/hooks/useCreateTagMutation'
 
 jest.mock('@/data/hooks/useCreateTodoMutation')
 jest.mock('@/data/hooks/useUpdateTodoMutation')
+jest.mock('@/data/hooks/useTagsQuery')
+jest.mock('@/data/hooks/useCreateTagMutation')
 
 function wrapper({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient()
@@ -22,6 +26,7 @@ function wrapper({ children }: { children: React.ReactNode }) {
 
 const mockCreateMutateAsync = jest.fn()
 const mockUpdateMutateAsync = jest.fn()
+const mockCreateTagMutate = jest.fn()
 
 jest.spyOn(Alert, 'alert').mockImplementation(() => {})
 
@@ -34,6 +39,13 @@ describe('CreateTodoModal', () => {
     })
     ;(useUpdateTodoMutation as jest.Mock).mockReturnValue({
       mutateAsync: mockUpdateMutateAsync,
+      isPending: false,
+    })
+    ;(useTagsQuery as jest.Mock).mockReturnValue({
+      data: [],
+    })
+    ;(useCreateTagMutation as jest.Mock).mockReturnValue({
+      mutate: mockCreateTagMutate,
       isPending: false,
     })
     useAuthStore.setState({ uid: 'test-uid' })
@@ -72,6 +84,7 @@ describe('CreateTodoModal', () => {
         title: 'New todo',
         description: undefined,
         dueDate: undefined,
+        tagIds: [],
       })
     })
     expect(closeModal).toHaveBeenCalled()
@@ -113,13 +126,14 @@ describe('CreateTodoModal', () => {
 
     await waitFor(() => {
       expect(mockUpdateMutateAsync).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: 'todo-1',
-        title: 'Updated',
-        description: 'desc',
-        dueDate: '2026-03-15',
-      }),
-    )
+        expect.objectContaining({
+          id: 'todo-1',
+          title: 'Updated',
+          description: 'desc',
+          dueDate: '2026-03-15',
+          tagIds: [],
+        }),
+      )
     })
     expect(closeModal).toHaveBeenCalled()
   })
@@ -136,6 +150,7 @@ describe('CreateTodoModal', () => {
         title: 'New todo',
         description: undefined,
         dueDate: undefined,
+        tagIds: [],
       })
     })
     expect(Alert.alert).not.toHaveBeenCalled()
@@ -158,5 +173,24 @@ describe('CreateTodoModal', () => {
     fireEvent.press(screen.getByTestId('create-todo-cancel'))
 
     expect(closeModal).toHaveBeenCalled()
+  })
+
+  it('shows Tags section with "+ Add tag" link', () => {
+    render(<CreateTodoModal />, { wrapper })
+    expect(screen.getByTestId('create-todo-add-tag')).toBeOnTheScreen()
+  })
+
+  it('shows tag chips when tags exist from useTagsQuery', () => {
+    ;(useTagsQuery as jest.Mock).mockReturnValue({
+      data: [
+        { id: 'tag-a', name: 'Work', uid: 'test-uid', createdAt: '', updatedAt: '' },
+        { id: 'tag-b', name: 'Personal', uid: 'test-uid', createdAt: '', updatedAt: '' },
+      ],
+    })
+    render(<CreateTodoModal />, { wrapper })
+    expect(screen.getByTestId('create-todo-tag-tag-a')).toBeOnTheScreen()
+    expect(screen.getByText('Work')).toBeOnTheScreen()
+    expect(screen.getByTestId('create-todo-tag-tag-b')).toBeOnTheScreen()
+    expect(screen.getByText('Personal')).toBeOnTheScreen()
   })
 })
