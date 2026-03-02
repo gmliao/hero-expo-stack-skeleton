@@ -1,12 +1,13 @@
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
-import type { Todo } from '@shared/types/api'
+import type { Tag, Todo } from '@shared/types/api'
 import { AppButton, AppStack, AppText } from '@/ui/components'
 import { TodoItem } from './TodoItem'
 
 type TodosListProps = {
   todos: Todo[] | undefined
+  tags?: Tag[]
   onToggle: (id: string) => void
   onEdit: (todo: Todo) => void
   onDelete: (todo: Todo) => void
@@ -28,6 +29,7 @@ const styles = StyleSheet.create({
 
 export function TodosList({
   todos,
+  tags = [],
   onToggle,
   onEdit,
   onDelete,
@@ -43,6 +45,7 @@ export function TodosList({
         <TodoItem
           key={todo.id}
           todo={todo}
+          tags={tags}
           onToggle={onToggle}
           onEdit={onEdit}
           onDelete={onDelete}

@@ -70,4 +70,27 @@ describe('TodoItem', () => {
     fireEvent.press(screen.getByTestId('todo-delete-todo-1'))
     expect(onDelete).toHaveBeenCalledWith(mockTodo)
   })
+
+  it('renders tag badges when todo has tagIds and tags are provided', () => {
+    const todoWithTags = {
+      ...mockTodo,
+      id: 'todo-with-tags',
+      tagIds: ['tag-1', 'tag-2'],
+    }
+    const tags = [
+      { id: 'tag-1', name: 'Work', uid: 'user-1', createdAt: '', updatedAt: '' },
+      { id: 'tag-2', name: 'Urgent', uid: 'user-1', createdAt: '', updatedAt: '' },
+    ]
+    render(
+      <TodoItem
+        todo={todoWithTags}
+        tags={tags}
+        onToggle={jest.fn()}
+        onEdit={jest.fn()}
+        onDelete={jest.fn()}
+      />,
+    )
+    expect(screen.getByText('Work')).toBeOnTheScreen()
+    expect(screen.getByText('Urgent')).toBeOnTheScreen()
+  })
 })
