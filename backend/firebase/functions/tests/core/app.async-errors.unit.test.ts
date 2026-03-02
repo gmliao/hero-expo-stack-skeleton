@@ -4,8 +4,10 @@ import { createMockDeps } from '../mocks/deps.mock'
 
 describe('app async errors (unit)', () => {
   it('returns 500 and FailureDto when async route throws', async () => {
+    const base = createMockDeps()
     const deps = createMockDeps({
       services: {
+        ...base.services,
         todos: {
           listTodos: async () => { throw new Error('db') },
           createTodo: async () => { throw new Error('db') },

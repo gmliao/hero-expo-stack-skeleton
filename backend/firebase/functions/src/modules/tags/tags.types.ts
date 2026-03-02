@@ -1,5 +1,12 @@
 import type { Tag } from '../../types/api'
 
+export interface ITagsService {
+  list(uid: string): Promise<Tag[]>
+  create(uid: string, name: string): Promise<Tag>
+  update(tagId: string, uid: string, name: string): Promise<Tag>
+  delete(tagId: string, uid: string): Promise<void>
+}
+
 export interface ITagsRepository {
   list(uid: string): Promise<Tag[]>
   create(uid: string, name: string): Promise<Tag>
