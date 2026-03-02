@@ -41,6 +41,16 @@ export default function OptionsScreen() {
             <AppText testID="options-title" size="xl" weight="bold">
               {t('options.title')}
             </AppText>
+            <Pressable
+              onPress={() => router.push('/(app)/manage-tags')}
+              testID="options-manage-tags"
+              accessibilityRole="button"
+              accessibilityLabel={t('options.manageTags')}
+            >
+              <AppText size="md" tone="muted">
+                {t('options.manageTags')}
+              </AppText>
+            </Pressable>
             <AppButton
               testID="options-logout"
               variant="primary"

@@ -27,6 +27,7 @@ export const zhTW = {
   },
   options: {
     title: '選項',
+    manageTags: '管理標籤',
     logout: '登出',
     logoutFailed: '登出失敗，請再試一次。',
   },

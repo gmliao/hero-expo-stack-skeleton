@@ -27,6 +27,7 @@ export const en = {
   },
   options: {
     title: 'Options',
+    manageTags: 'Manage tags',
     logout: 'Log out',
     logoutFailed: 'Log out failed. Please try again.',
   },
