@@ -1,4 +1,13 @@
-import type { CreateTodoRequest, FailureDto, Todo, UpdateTodoRequest } from '@shared/types/api'
+import type {
+  CreateTagRequest,
+  CreateTodoRequest,
+  FailureDto,
+  ListTagsResponse,
+  Tag,
+  Todo,
+  UpdateTagRequest,
+  UpdateTodoRequest,
+} from '@shared/types/api'
 
 import { firebaseAuth } from '@/lib/firebase'
 import { env } from '@/lib/env'
@@ -172,6 +181,21 @@ export const api = {
     }),
   deleteTodo: (id: string) =>
     request<void>(`/todos/${id}`, {
+      method: 'DELETE',
+    }),
+  getTags: () => request<ListTagsResponse>('/tags'),
+  createTag: (body: CreateTagRequest) =>
+    request<Tag>('/tags', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  updateTag: (tagId: string, body: UpdateTagRequest) =>
+    request<Tag>(`/tags/${tagId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+  deleteTag: (tagId: string) =>
+    request<void>(`/tags/${tagId}`, {
       method: 'DELETE',
     }),
 }

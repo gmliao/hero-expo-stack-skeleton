@@ -45,4 +45,18 @@ describe('queryKeys factory', () => {
     expect(serialized).not.toContain('null')
     expect(serialized).not.toContain('undefined')
   })
+
+  it('tags.all() is stable across calls', () => {
+    expect(queryKeys.tags.all()).toEqual(queryKeys.tags.all())
+    expect(JSON.stringify(queryKeys.tags.all())).toBe(JSON.stringify(queryKeys.tags.all()))
+  })
+
+  it('tags.list(uid) is deterministic', () => {
+    const uid = 'uid-tags-1'
+    const first = queryKeys.tags.list(uid)
+    const second = queryKeys.tags.list(uid)
+
+    expect(JSON.stringify(first)).toBe(JSON.stringify(second))
+    expect(first).toEqual(['tags', 'list', { uid }])
+  })
 })
