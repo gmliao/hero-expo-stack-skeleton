@@ -8,14 +8,22 @@ describe('OptionsScreen', () => {
   beforeEach(() => {
     useAuthStore.setState({ uid: 'user-1' })
     jest.mocked(router.replace).mockClear()
+    jest.mocked(router.push).mockClear()
     jest.mocked(firebaseAuth.signOut).mockResolvedValue(undefined)
   })
 
-  it('renders title and logout button', () => {
+  it('renders title, manage tags link, and logout button', () => {
     render(<OptionsScreen />)
     expect(screen.getByTestId('options-title')).toBeOnTheScreen()
+    expect(screen.getByTestId('options-manage-tags')).toBeOnTheScreen()
     expect(screen.getByTestId('options-logout')).toBeOnTheScreen()
     expect(screen.getByTestId('options-back')).toBeOnTheScreen()
+  })
+
+  it('on Manage tags press calls router.push to manage-tags', () => {
+    render(<OptionsScreen />)
+    fireEvent.press(screen.getByTestId('options-manage-tags'))
+    expect(router.push).toHaveBeenCalledWith('/(app)/manage-tags')
   })
 
   it('on logout success calls signOut, setUid(null), router.replace to login', async () => {
