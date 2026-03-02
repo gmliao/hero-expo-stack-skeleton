@@ -9,6 +9,7 @@ import { useTodosQuery } from '@/data/hooks/useTodosQuery'
 import { useToggleTodoMutation } from '@/data/hooks/useToggleTodoMutation'
 import { CreateTodoModal } from '@/features/todos/CreateTodoModal'
 import { FilterTabs } from '@/features/todos/FilterTabs'
+import { TagFilters } from '@/features/todos/TagFilters'
 import { TodosList } from '@/features/todos/TodosList'
 import { TodosScreenHeader } from '@/features/todos/TodosScreenHeader'
 import { useAuthStore } from '@/stores/useAuthStore'
@@ -22,6 +23,7 @@ export default function TodosScreen() {
   const filter = useUIStore(s => s.filter)
   const selectedTagId = useUIStore(s => s.selectedTagId)
   const setFilter = useUIStore(s => s.setFilter)
+  const setSelectedTagId = useUIStore(s => s.setSelectedTagId)
   const { data: todos, isPending, isError } = useTodosQuery(uid, filter, selectedTagId)
   const toggleMutation = useToggleTodoMutation()
   const deleteMutation = useDeleteTodoMutation()
@@ -97,6 +99,11 @@ export default function TodosScreen() {
           <AppScreenContainer className="flex-1">
             <TodosScreenHeader onCreatePress={handleCreatePress} />
             <FilterTabs value={filter} onChange={setFilter} />
+            <TagFilters
+              uid={uid}
+              selectedTagId={selectedTagId}
+              setSelectedTagId={setSelectedTagId}
+            />
             <TodosList
               todos={todos}
               onToggle={handleToggle}

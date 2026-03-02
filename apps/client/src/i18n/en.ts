@@ -48,6 +48,8 @@ export const en = {
       active: 'Active',
       completed: 'Completed',
     },
+    tagsLabel: 'Tags',
+    tagFilterAll: 'All',
     modal: {
       title: 'New Todo',
       editTitle: 'Edit Todo',

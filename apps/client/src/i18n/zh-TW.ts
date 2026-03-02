@@ -48,6 +48,8 @@ export const zhTW = {
       active: '未完成',
       completed: '已完成',
     },
+    tagsLabel: '標籤',
+    tagFilterAll: '全部',
     modal: {
       title: '新增待辦',
       editTitle: '編輯待辦',
