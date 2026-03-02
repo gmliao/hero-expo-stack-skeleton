@@ -22,9 +22,10 @@ function findTodoFromCache(
   uid: string,
   todoId: string,
   filter: string,
+  selectedTagId?: string | null,
 ): Todo | undefined {
   const fromList = (f: string) =>
-    queryClient.getQueryData<Todo[]>(queryKeys.todos.list(uid, f))
+    queryClient.getQueryData<Todo[]>(queryKeys.todos.list(uid, f, selectedTagId ?? undefined))
   const list = fromList(filter) ?? fromList('all')
   return list?.find(t => t.id === todoId)
 }
@@ -36,6 +37,7 @@ export function CreateTodoModal() {
   const isOpen = useUIStore(s => s.isCreateModalOpen)
   const closeModal = useUIStore(s => s.closeCreateModal)
   const filter = useUIStore(s => s.filter)
+  const selectedTagId = useUIStore(s => s.selectedTagId)
   const selectedTodoId = useUIStore(s => s.selectedTodoId)
   const setSelectedTodoId = useUIStore(s => s.setSelectedTodoId)
 
@@ -53,7 +55,7 @@ export function CreateTodoModal() {
   useEffect(() => {
     if (!isOpen) return
     if (selectedTodoId) {
-      const todo = findTodoFromCache(queryClient, uid, selectedTodoId, filter)
+      const todo = findTodoFromCache(queryClient, uid, selectedTodoId, filter, selectedTagId)
       if (todo) {
         setTitle(todo.title)
         setDescription(todo.description ?? '')
@@ -69,7 +71,7 @@ export function CreateTodoModal() {
       setDueDate('')
     }
     setTitleError(null)
-  }, [isOpen, selectedTodoId, uid, filter, queryClient])
+  }, [isOpen, selectedTodoId, uid, filter, selectedTagId, queryClient])
 
   function handleClose() {
     setTitle('')

@@ -32,6 +32,29 @@ describe('queryKeys factory', () => {
     }
   })
 
+  it('todos.list(uid, filter, selectedTagId) includes selectedTagId in key when provided', () => {
+    expect(queryKeys.todos.list('uid-1', 'all', 'tag-1')).toEqual([
+      'todos',
+      'list',
+      { uid: 'uid-1', filter: 'all', selectedTagId: 'tag-1' },
+    ])
+    expect(queryKeys.todos.list('uid-1', 'active', null)).toEqual([
+      'todos',
+      'list',
+      { uid: 'uid-1', filter: 'active', selectedTagId: null },
+    ])
+  })
+
+  it('todos.list(uid, filter) two-arg form does not include selectedTagId', () => {
+    expect(queryKeys.todos.list('uid-1', 'all')).toEqual(['todos', 'list', { uid: 'uid-1', filter: 'all' }])
+  })
+
+  it('todos.list(uid, filter, selectedTagId) is deterministic', () => {
+    const first = queryKeys.todos.list('uid-1', 'all', 'tag-a')
+    const second = queryKeys.todos.list('uid-1', 'all', 'tag-a')
+    expect(JSON.stringify(first)).toBe(JSON.stringify(second))
+  })
+
   it('todos.lists() is a prefix of todos.list()', () => {
     const lists = queryKeys.todos.lists()
     const list = queryKeys.todos.list('uid-1', 'all')
@@ -39,7 +62,7 @@ describe('queryKeys factory', () => {
     expect(list.slice(0, lists.length)).toEqual(lists)
   })
 
-  it('no key contains undefined or null', () => {
+  it('two-arg list key does not contain undefined or null', () => {
     const serialized = JSON.stringify(queryKeys.todos.list('uid-1', 'all'))
 
     expect(serialized).not.toContain('null')

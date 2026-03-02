@@ -20,8 +20,9 @@ export default function TodosScreen() {
   const { t } = useTranslation()
   const uid = useAuthStore(s => s.uid) ?? ''
   const filter = useUIStore(s => s.filter)
+  const selectedTagId = useUIStore(s => s.selectedTagId)
   const setFilter = useUIStore(s => s.setFilter)
-  const { data: todos, isPending, isError } = useTodosQuery(uid, filter)
+  const { data: todos, isPending, isError } = useTodosQuery(uid, filter, selectedTagId)
   const toggleMutation = useToggleTodoMutation()
   const deleteMutation = useDeleteTodoMutation()
   const openModal = useUIStore(s => s.openCreateModal)

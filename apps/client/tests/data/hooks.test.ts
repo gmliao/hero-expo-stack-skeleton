@@ -75,6 +75,17 @@ describe('useTodosQuery wiring', () => {
     const [options] = (useQuery as jest.Mock).mock.calls[0]
     expect(options.enabled).toBe(false)
   })
+
+  it('uses query key with selectedTagId when selectedTagId is passed', () => {
+    useTodosQuery('user-1', 'all', 'tag-1')
+    const [options] = (useQuery as jest.Mock).mock.calls[0]
+    expect(options.queryKey).toEqual(queryKeys.todos.list('user-1', 'all', 'tag-1'))
+
+    ;(useQuery as jest.Mock).mockClear()
+    useTodosQuery('user-1', 'active', null)
+    const [optionsNull] = (useQuery as jest.Mock).mock.calls[0]
+    expect(optionsNull.queryKey).toEqual(queryKeys.todos.list('user-1', 'active', null))
+  })
 })
 
 describe('useTodosQuery behavior contract', () => {
@@ -262,6 +273,39 @@ describe('useTodosQuery filter and sort', () => {
     expect(selectedData).toHaveLength(2)
     expect(selectedData!.every(t => t.completed)).toBe(true)
     expect(selectedData!.map(t => t.id)).toEqual(['2', '3']) // dueDate 01-01, 01-03
+    unsubscribe()
+    client.clear()
+  })
+
+  it('when selectedTagId is set, returned data only includes todos with that tagId in tagIds', async () => {
+    const client = createTestQueryClient()
+    const tagId = 'tag-1'
+    const mockTodos = [
+      { ...baseTodo, id: '1', title: 'A', completed: false, dueDate: '2025-01-01', tagIds: ['tag-1', 'tag-2'] },
+      { ...baseTodo, id: '2', title: 'B', completed: false, dueDate: '2025-01-02', tagIds: ['tag-2'] },
+      { ...baseTodo, id: '3', title: 'C', completed: false, dueDate: '2025-01-03', tagIds: ['tag-1'] },
+      { ...baseTodo, id: '4', title: 'D', completed: false, dueDate: '2025-01-04' }, // no tagIds
+    ]
+    ;(api.getTodos as jest.Mock).mockResolvedValue(mockTodos)
+
+    const observer = new QueryObserver(client, {
+      queryKey: queryKeys.todos.list('user-1', 'all', tagId),
+      queryFn: () => api.getTodos('user-1'),
+      select: (data: Todo[]) => {
+        const filtered = filterAndSortTodos(data, 'all')
+        return filtered.filter(t => (t.tagIds ?? []).includes(tagId))
+      },
+      retry: false,
+    })
+    let selectedData: Todo[] | undefined
+    const unsubscribe = observer.subscribe((result) => {
+      if (result.isSuccess && result.data !== undefined) selectedData = result.data
+    })
+    await observer.refetch()
+
+    expect(selectedData).toHaveLength(2)
+    expect(selectedData!.map(t => t.id)).toEqual(['1', '3'])
+    expect(selectedData!.every(t => (t.tagIds ?? []).includes(tagId))).toBe(true)
     unsubscribe()
     client.clear()
   })
