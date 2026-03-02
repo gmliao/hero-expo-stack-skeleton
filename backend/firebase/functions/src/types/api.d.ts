@@ -10,12 +10,14 @@ export interface Todo {
   createdAt: string // ISO string (Firestore Timestamp serialized)
   updatedAt: string
   dueDate?: string // ISO or date-only (YYYY-MM-DD)
+  tagIds?: string[]
 }
 
 export interface CreateTodoRequest {
   title: string
   description?: string
   dueDate?: string
+  tagIds?: string[]
 }
 
 export interface UpdateTodoRequest {
@@ -24,6 +26,25 @@ export interface UpdateTodoRequest {
   description?: string
   /** null = clear due date; omit = leave unchanged */
   dueDate?: string | null
+  tagIds?: string[]
+}
+
+export interface Tag {
+  id: string
+  name: string
+  uid: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type ListTagsResponse = Tag[]
+
+export interface CreateTagRequest {
+  name: string
+}
+
+export interface UpdateTagRequest {
+  name: string
 }
 
 export interface ApiError {
