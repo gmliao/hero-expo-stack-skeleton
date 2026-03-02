@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Modal, Pressable, View } from 'react-native'
+import { Modal, Pressable, ScrollView, View } from 'react-native'
 import { useQueryClient } from '@tanstack/react-query'
 
 import type { Todo } from '@shared/types/api'
+import { useCreateTagMutation } from '@/data/hooks/useCreateTagMutation'
 import { useCreateTodoMutation } from '@/data/hooks/useCreateTodoMutation'
+import { useTagsQuery } from '@/data/hooks/useTagsQuery'
 import { useUpdateTodoMutation } from '@/data/hooks/useUpdateTodoMutation'
 import { queryKeys } from '@/data/queryKeys'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useUIStore } from '@/stores/useUIStore'
-import { AppButton, AppInput, AppStack, AppText, AppTextArea } from '@/ui/components'
+import { AppButton, AppInput, AppLinkAction, AppStack, AppText, AppTextArea } from '@/ui/components'
+import { cn } from '@/ui/utils/cn'
 
 /** Normalize dueDate to YYYY-MM-DD for date input */
 function toDateOnly(value: string | undefined): string {
@@ -43,11 +46,16 @@ export function CreateTodoModal() {
 
   const createMutation = useCreateTodoMutation()
   const updateMutation = useUpdateTodoMutation()
+  const { data: tags = [] } = useTagsQuery(uid)
+  const createTagMutation = useCreateTagMutation()
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [titleError, setTitleError] = useState<string | null>(null)
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
+  const [addTagInlineVisible, setAddTagInlineVisible] = useState(false)
+  const [newTagName, setNewTagName] = useState('')
 
   const isEdit = selectedTodoId !== null
   const isPending = createMutation.isPending || updateMutation.isPending
@@ -60,15 +68,22 @@ export function CreateTodoModal() {
         setTitle(todo.title)
         setDescription(todo.description ?? '')
         setDueDate(toDateOnly(todo.dueDate))
+        setSelectedTagIds(todo.tagIds ?? [])
       } else {
         setTitle('')
         setDescription('')
         setDueDate('')
+        setSelectedTagIds([])
       }
+      setAddTagInlineVisible(false)
+      setNewTagName('')
     } else {
       setTitle('')
       setDescription('')
       setDueDate('')
+      setSelectedTagIds([])
+      setAddTagInlineVisible(false)
+      setNewTagName('')
     }
     setTitleError(null)
   }, [isOpen, selectedTodoId, uid, filter, selectedTagId, queryClient])
@@ -78,6 +93,9 @@ export function CreateTodoModal() {
     setDescription('')
     setDueDate('')
     setTitleError(null)
+    setSelectedTagIds([])
+    setAddTagInlineVisible(false)
+    setNewTagName('')
     setSelectedTodoId(null)
     closeModal()
   }
@@ -97,12 +115,14 @@ export function CreateTodoModal() {
           title: title.trim(),
           description: description.trim() || undefined,
           dueDate: dueDate.trim() ? dueDate.trim() : null, // null = clear
+          tagIds: selectedTagIds,
         })
       } else {
         await createMutation.mutateAsync({
           title: title.trim(),
           description: description.trim() || undefined,
           dueDate: dueDate.trim() || undefined, // create doesn't support null
+          tagIds: selectedTagIds,
         })
       }
       setTitle('')
@@ -125,9 +145,14 @@ export function CreateTodoModal() {
       <View className="flex-1 justify-end bg-black/45">
         <Pressable className="flex-1" onPress={handleClose} />
 
-        <View className="rounded-t-3xl border border-border bg-surface px-5 py-6">
-          <AppStack gap={5}>
-            <AppText
+        <View className="max-h-[85%] rounded-t-3xl border border-border bg-surface px-5 py-6">
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 8 }}
+          >
+            <AppStack gap={5}>
+              <AppText
               testID="create-todo-modal-title"
               size="xl"
               weight="bold"
@@ -195,7 +220,96 @@ export function CreateTodoModal() {
               />
             </AppStack>
 
-
+            <AppStack gap={2}>
+              <View className="flex-row items-center justify-between">
+                <AppText
+                  size="sm"
+                  tone="muted"
+                  accessibilityLabel={t('todos.tagsLabel')}
+                >
+                  {t('todos.tagsLabel')}
+                </AppText>
+                <AppLinkAction
+                  testID="create-todo-add-tag"
+                  onPress={() => setAddTagInlineVisible(true)}
+                  accessibilityLabel={t('todos.modal.addTag')}
+                >
+                  {t('todos.modal.addTag')}
+                </AppLinkAction>
+              </View>
+              {addTagInlineVisible ? (
+                <View className="flex-row items-center gap-2">
+                  <AppInput
+                    testID="create-todo-new-tag-input"
+                    placeholder={t('todos.tagsLabel')}
+                    value={newTagName}
+                    onChangeText={setNewTagName}
+                    size="md"
+                    className="flex-1"
+                    accessibilityLabel={t('todos.modal.addTag')}
+                  />
+                  <AppButton
+                    testID="create-todo-new-tag-add"
+                    variant="secondary"
+                    onPress={() => {
+                      const name = newTagName.trim()
+                      if (!name) return
+                      createTagMutation.mutate(
+                        { name },
+                        {
+                          onSuccess: (data) => {
+                            setSelectedTagIds(prev => [...prev, data.id])
+                            setNewTagName('')
+                            setAddTagInlineVisible(false)
+                          },
+                        },
+                      )
+                    }}
+                    disabled={createTagMutation.isPending || !newTagName.trim()}
+                    accessibilityLabel={t('todos.modal.addTagButton')}
+                  >
+                    {t('todos.modal.addTagButton')}
+                  </AppButton>
+                </View>
+              ) : null}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 8 }}
+                className="flex-row items-center"
+              >
+                {tags.map(tag => {
+                  const selected = selectedTagIds.includes(tag.id)
+                  return (
+                    <Pressable
+                      key={tag.id}
+                      testID={`create-todo-tag-${tag.id}`}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected }}
+                      accessibilityLabel={tag.name}
+                      onPress={() => {
+                        setSelectedTagIds(prev =>
+                          selected ? prev.filter(id => id !== tag.id) : [...prev, tag.id],
+                        )
+                      }}
+                      className={cn(
+                        'h-8 flex-row items-center justify-center rounded-full border px-3',
+                        selected ? 'border-primary bg-primary' : 'border-border bg-transparent',
+                      )}
+                    >
+                      <AppText
+                        size="sm"
+                        weight="medium"
+                        tone={selected ? 'inverse' : 'muted'}
+                        numberOfLines={1}
+                      >
+                        {tag.name}
+                      </AppText>
+                    </Pressable>
+                  )
+                })}
+              </ScrollView>
+            </AppStack>
 
             <AppStack direction="horizontal" gap={3} className="justify-end">
               <AppButton
@@ -219,6 +333,7 @@ export function CreateTodoModal() {
               </AppButton>
             </AppStack>
           </AppStack>
+          </ScrollView>
         </View>
       </View>
     </Modal>

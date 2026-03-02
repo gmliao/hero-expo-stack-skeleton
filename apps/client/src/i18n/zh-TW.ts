@@ -58,6 +58,8 @@ export const zhTW = {
       descriptionPlaceholder: '選填備註…',
       dueDate: '到期日',
       dueDatePlaceholder: 'YYYY-MM-DD',
+      addTag: '+ 新增標籤',
+      addTagButton: '新增',
       save: '儲存',
       cancel: '取消',
       titleRequired: '請輸入標題',
