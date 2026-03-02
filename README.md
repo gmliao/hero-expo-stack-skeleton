@@ -198,6 +198,13 @@ hero-stack-skeleton/
 │   └── firebase/
 │       ├── functions/
 │       │   ├── src/
+│       │   │   ├── core/        # 微架構核心：app 組裝、HTTP、routes、deps
+│       │   │   ├── infrastructure/  # 外部依賴（Auth、Firestore repository 抽象）
+│       │   │   ├── modules/     # 依 domain 分模組（controller → service → repository）
+│       │   │   │   ├── todos/
+│       │   │   │   └── <domain>/
+│       │   │   ├── middleware/
+│       │   │   └── index.ts
 │       │   ├── tests/           # unit + integration（integration 需 emulator）
 │       │   └── package.json
 │       ├── firestore.rules
@@ -373,12 +380,24 @@ App → Firebase Functions (HTTP) → Firestore
 - **UI State** → Zustand（filter / modal / selected / banner）
 - **禁止**將可重抓的 server data 放進 Zustand
 
+### Backend 微架構核心
+
+後端 `backend/firebase/functions/src` 固定三區、三層：
+
+| 區塊 | 職責 |
+|------|------|
+| **core/** | 微架構核心：app 組裝、HTTP（endpoint/context/wrap）、routes、deps 注入 |
+| **infrastructure/** | 外部依賴實作（Auth、Firestore repository 抽象），無 domain 邏輯 |
+| **modules/&lt;domain&gt;/** | 依 domain 分模組，每模組：controller → service → repository，不得 Endpoint 直連 Repository |
+
+分層規則：Controller 只做 HTTP 與 schema 驗證；Service 負責業務與 ownership；Repository 只做 Firestore CRUD。
+
 ### 架構詳細說明
 
 | 層級 | 文件 |
 |------|------|
 | Client | [docs/architecture/client.md](docs/architecture/client.md)（目錄、API、State、QueryKey、UI 邊界） |
-| Server | [docs/architecture/server.md](docs/architecture/server.md)（Repository、DTO、Zod、middleware） |
+| Server | [docs/architecture/server.md](docs/architecture/server.md)（core/infra/modules、Controller/Service/Repository、DTO、Zod、middleware） |
 
 ### Test Matrix
 

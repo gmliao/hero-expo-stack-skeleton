@@ -12,11 +12,11 @@
 
 ## Fixed Order
 
-UI feature workflow 不可跳步：
+UI feature workflow 不可跳步。**Agent 與人都須依此順序執行**（AGENTS.md 的 Design System First Workflow 與本表一致）：
 
-1. 先確認 Pen UI
-2. 再寫 implementation plan
-3. 再在 code 實作
+1. **先確認 Pen UI** — 在 `.pen` 定稿 layout、semantic variables、reusable components。
+2. **再寫 implementation plan** — 產出實作計畫（Pen–code 對應、檔案、rollout 順序）。
+3. **再在 code 實作** — 依計畫修改 `apps/client`，並保持 Pen–code 雙向同步。
 
 禁止：
 
@@ -44,6 +44,27 @@ UI feature workflow 不可跳步：
 2. 若沒有，先明確指出 gap
 3. 在 shared DS area 新增 reusable component
 4. 再由 screen 透過 `ref` 消費
+
+## Screen content padding（畫面水平留白）
+
+- **規範：** 畫面層級（screen frame）套用 **統一的左右 padding**（建議 16–20 px），子區塊**不再**重複加水平 padding，避免標題／篩選貼邊或留白不一致。
+- **Pencil：** 在該畫面的 root frame 設 `padding: [0, 20, 0, 20]`（或 16）；區塊（header、filters、list 等）僅設上下 padding 或 gap。
+- **對應：** Code 的 screen container（如 `AppScreenContainer` 或 route 最外層）應使用同一數值（見 `design-tokens` / Tailwind）。
+
+## Component internal padding（可重用元件內邊距）
+
+- **需要規範：** 卡片／列表項／輸入框這類「有邊框、包內容」的可重用元件，內部應有**一致內邊距**，避免內容貼邊或各元件視覺不統一。
+- **建議數值：**
+  - **容器型元件**（Card、TodoItem、Input、Modal 內容區、Sheet 內容）：**16px** 四面（Pen: `padding: 16` 或 `[16,16,16,16]`；Code 對應 p-4 / design-tokens spacing）。
+  - **緊湊型元件**（TagBadge、FilterChip、按鈕內文）：依元件規格，例如 6–10px 或 [6,10] 等，以不貼邊、可點擊為準。
+- **Pen：** 在 DS 區的 component 定義上直接設好 padding；screen 使用 ref 時不需再覆寫內邊距。
+- **例外：** 純裝飾或 inline 元件（SectionLabel、LinkAction、StatusBar）可不設或設 0，由外層控制留白。
+
+## Tag 列／橫向捲動
+
+- **Pen DS 元件：** **component/HorizontalScrollRow (A0Bim)** — 橫向捲動列，內有 contentSlot；方便辨識「此區在 Code 包 ScrollView horizontal」。有 tag 的列（篩選、picker、Manage Tags 行內 tag）可選用此 component 或同款佈局。
+- **Frame 命名：** `tagFiltersScrollRow`、`tagsPickerScrollRow` 等表示該區內容需橫向捲動。
+- **Code：** 以 **ScrollView horizontal** 包住上述 frame 內容，或使用對應 HorizontalScrollRow 元件。
 
 ## Variable-Driven Styling
 

@@ -11,7 +11,10 @@ Read this before editing code or docs in this repository.
 ## Development Workflow
 
 - **Default: develop directly in this repo.** Do not use git worktrees unless the user explicitly requests them.
+- **Each feature must start on a dedicated git branch before phase 1 begins.** This includes brainstorming docs, Pen changes, implementation plans, code changes, and tests.
+- Branch-per-feature is required. Worktree-per-feature is not required; by default, create the branch in the current repo unless the user explicitly requests worktree isolation.
 - If the user asks for worktree isolation, then use `using-git-worktrees` skill and create an isolated worktree.
+- **Feature development phases (fixed order):** 1) 概念範疇釐清 (brainstorming) → 2) UI/UX 設計 (Design System workflow) → 3) 轉寫規格 (writing-plans) → 4) 實際可執行規格 → 5) subagent-driven 執行 (executing-plans). 總覽：`.agent/workflows/feature-development.md`.
 - **Use Superpowers guidance when developing:** Follow the relevant skills (e.g. brainstorming, writing-plans, test-driven-development, verification-before-completion). For implementation plans with multiple independent tasks, use **subagent-driven development**: one subagent per task, two-stage review after each (spec compliance then code quality), then final review and finishing-a-development-branch. Do not skip plan writing, tests, or reviews; if a step cannot be done, report why.
 
 ## Package Manager
@@ -62,14 +65,19 @@ Read this before editing code or docs in this repository.
 
 ## Design System First Workflow (Required)
 
-- Fixed order:
-  1. Confirm Pen UI first
-  2. Write implementation plan
-  3. Implement in code
-- UI work is DS-first, not screen-first.
-- Reusable UI must stay bidirectional between Pen and code.
-- Use variables / reusable components for anything that should update globally.
-- Full workflow: `docs/design-system/workflow.md`
+UI 相關工作（改 screen、design tokens、shared component）必須依下列順序執行，不可跳步。
+
+**Workflow 順序（依序完成）：**
+
+| 步驟 | 動作 | 完成條件 |
+|------|------|----------|
+| 1 | **Confirm Pen UI** | 在 `.pen` 定稿 layout、semantic variables、reusable components；必要時用 Pencil MCP 查詢/更新。 |
+| 2 | **Write implementation plan** | 產出實作計畫（含 Pen–code 對應、要改的檔案、rollout 順序）；使用 `writing-plans` skill。 |
+| 3 | **Implement in code** | 依計畫在 code 實作；使用 `executing-plans` skill，必要時 subagent 分工。 |
+
+- **禁止**：先改 code 再回填 Pen、跳過 planning 直接改 screen。
+- UI 以 DS-first，不以 screen-first；可重用 UI 須與 Pen 雙向同步；全域樣式用 variables / reusable components。
+- 完整規則與細則：`docs/design-system/workflow.md`
 
 ## Firebase CLI + LLM Operations
 
