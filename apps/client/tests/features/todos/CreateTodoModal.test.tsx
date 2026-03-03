@@ -103,6 +103,12 @@ describe('CreateTodoModal', () => {
       updatedAt: '',
       tagIds: ['tag-a'],
     }
+    ;(useTagsQuery as jest.Mock).mockReturnValue({
+      data: [
+        { id: 'tag-a', name: 'Work', uid: 'test-uid', createdAt: '', updatedAt: '' },
+        { id: 'tag-b', name: 'Personal', uid: 'test-uid', createdAt: '', updatedAt: '' },
+      ],
+    })
     queryClient.setQueryData(queryKeys.todos.list('test-uid', 'all', null), [todo])
     useUIStore.setState({ selectedTodoId: 'todo-1', filter: 'all' })
 
@@ -115,6 +121,8 @@ describe('CreateTodoModal', () => {
     expect(screen.getByTestId('create-todo-input')).toHaveProp('value', 'Edit me')
     expect(screen.getByTestId('create-todo-description').props.value).toBe('Notes')
     expect(screen.getByTestId('create-todo-due-date')).toHaveProp('value', '2026-03-20')
+    expect(screen.getByTestId('create-todo-tag-tag-a')).toHaveProp('accessibilityState', { selected: true })
+    expect(screen.getByTestId('create-todo-tag-tag-b')).toHaveProp('accessibilityState', { selected: false })
   })
 
   it('calls update mutation when editing existing todo', async () => {
@@ -129,8 +137,12 @@ describe('CreateTodoModal', () => {
         dueDate: '2026-03-15T00:00:00.000Z',
         createdAt: '',
         updatedAt: '',
+        tagIds: ['tag-a'],
       },
     ])
+    ;(useTagsQuery as jest.Mock).mockReturnValue({
+      data: [{ id: 'tag-a', name: 'Work', uid: 'test-uid', createdAt: '', updatedAt: '' }],
+    })
     mockUpdateMutateAsync.mockResolvedValue(undefined)
     const setSelectedTodoId = jest.fn()
     const closeModal = jest.fn()
@@ -158,7 +170,7 @@ describe('CreateTodoModal', () => {
           title: 'Updated',
           description: 'desc',
           dueDate: '2026-03-15',
-          tagIds: [],
+          tagIds: ['tag-a'],
         }),
       )
     })
