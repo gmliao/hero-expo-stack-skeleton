@@ -9,9 +9,18 @@ import { useCreateTodoMutation } from '@/data/hooks/useCreateTodoMutation'
 import { useTagsQuery } from '@/data/hooks/useTagsQuery'
 import { useUpdateTodoMutation } from '@/data/hooks/useUpdateTodoMutation'
 import { queryKeys } from '@/data/queryKeys'
+import { useBreakpoint } from '@/lib/useBreakpoint'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useUIStore } from '@/stores/useUIStore'
-import { AppButton, AppInput, AppLinkAction, AppStack, AppText, AppTextArea } from '@/ui/components'
+import {
+  AppButton,
+  AppInput,
+  AppLinkAction,
+  AppStack,
+  AppText,
+  AppTextArea,
+  SCREEN_CONTENT_MAX_WIDTH,
+} from '@/ui/components'
 import { cn } from '@/ui/utils/cn'
 
 /** Normalize dueDate to YYYY-MM-DD for date input */
@@ -27,9 +36,13 @@ function findTodoFromCache(
   filter: string,
   selectedTagId?: string | null,
 ): Todo | undefined {
-  const fromList = (f: string) =>
-    queryClient.getQueryData<Todo[]>(queryKeys.todos.list(uid, f, selectedTagId ?? undefined))
-  const list = fromList(filter) ?? fromList('all')
+  const fromList = (f: string, tagId?: string | null) =>
+    queryClient.getQueryData<Todo[]>(queryKeys.todos.list(uid, f, tagId))
+  const list =
+    fromList(filter, selectedTagId) ??
+    fromList(filter, undefined) ??
+    fromList('all', selectedTagId) ??
+    fromList('all', undefined)
   return list?.find(t => t.id === todoId)
 }
 
@@ -59,6 +72,7 @@ export function CreateTodoModal() {
 
   const isEdit = selectedTodoId !== null
   const isPending = createMutation.isPending || updateMutation.isPending
+  const isDesktop = useBreakpoint() === 'desktop'
 
   useEffect(() => {
     if (!isOpen) return
@@ -145,7 +159,10 @@ export function CreateTodoModal() {
       <View className="flex-1 justify-end bg-black/45">
         <Pressable className="flex-1" onPress={handleClose} />
 
-        <View className="max-h-[85%] rounded-t-3xl border border-border bg-surface px-5 py-6">
+        <View
+          className="w-full max-h-[85%] rounded-t-3xl border border-border bg-surface px-5 py-6"
+          style={isDesktop ? { maxWidth: SCREEN_CONTENT_MAX_WIDTH, alignSelf: 'center' } : undefined}
+        >
           <ScrollView
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}

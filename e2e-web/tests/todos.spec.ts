@@ -105,6 +105,24 @@ test.describe('Todos flow', () => {
     await expect(page.getByText(completedTitle ?? '')).toBeVisible()
   })
 
+  test('edit modal pre-fills existing todo title, description and due date', async ({ page }) => {
+    await page.getByTestId('create-todo-button').click()
+    await page.getByTestId('create-todo-input').fill('E2E Prefill Todo')
+    await page.getByTestId('create-todo-description').fill('Pre fill notes')
+    await page.getByTestId('create-todo-due-date').fill('2026-06-15')
+    await page.getByTestId('create-todo-save').click()
+    await expect(page.getByText('E2E Prefill Todo')).toBeVisible()
+
+    const item = page.getByTestId(/^todo-item-/).filter({ hasText: 'E2E Prefill Todo' })
+    await item.getByTestId(/^todo-edit-/).click()
+    await expect(page.getByTestId('create-todo-modal-title')).toBeVisible()
+    await expect(page.getByTestId('create-todo-input')).toHaveValue('E2E Prefill Todo')
+    await expect(page.getByTestId('create-todo-description')).toHaveValue('Pre fill notes')
+    await expect(page.getByTestId('create-todo-due-date')).toHaveValue('2026-06-15')
+    await page.getByTestId('create-todo-cancel').click()
+    await expect(page.getByTestId('create-todo-modal-title')).not.toBeVisible()
+  })
+
   test('can edit a todo', async ({ page }) => {
     const firstEditBtn = page.getByTestId(/^todo-edit-/).first()
     await expect(firstEditBtn).toBeVisible()
