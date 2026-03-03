@@ -16,6 +16,7 @@
 | `api client` | token 注入、401/403 mapping、timeout/retry |
 | `useTodosQuery` | success / error / loading 狀態 |
 | `useCreateTodoMutation` | 成功後 invalidate 正確 key |
+| **Edit 表單預填** | 若有「編輯」modal/表單（如 CreateTodoModal edit 模式），單元測試需涵蓋：從 cache 讀取既有資料並帶入欄位；包含 cache key 變體（如 `selectedTagId: null` vs `undefined`），並斷言 title、description、due date 等初始值正確。 |
 | `zustand stores` | UI store reducer-like 行為（純函式測） |
 
 ### Backend Tests（Jest）
@@ -76,6 +77,7 @@ bunx playwright install --with-deps chromium
 | 類別 | 情境 |
 |------|------|
 | Todos flow | login → create → toggle → edit → delete、filter tabs |
+| **Edit 預填** | 凡有「編輯」表單（如 edit todo），E2E 需涵蓋：建立一筆已知資料 → 點編輯 → **斷言各欄位已帶入正確值**（title、description、due date、tags 等），避免 cache key 或 null/undefined 導致表單空白之 regression。 |
 | Accessibility | 鍵盤操作、錯誤顯示、role/name 可發現 |
 
 ### Mobile E2E（Detox）

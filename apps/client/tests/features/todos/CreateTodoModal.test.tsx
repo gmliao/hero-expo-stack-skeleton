@@ -90,6 +90,33 @@ describe('CreateTodoModal', () => {
     expect(closeModal).toHaveBeenCalled()
   })
 
+  it('pre-fills form when editing (cache key with selectedTagId null)', () => {
+    const queryClient = new QueryClient()
+    const todo = {
+      id: 'todo-1',
+      uid: 'test-uid',
+      title: 'Edit me',
+      description: 'Notes',
+      completed: false,
+      dueDate: '2026-03-20',
+      createdAt: '',
+      updatedAt: '',
+      tagIds: ['tag-a'],
+    }
+    queryClient.setQueryData(queryKeys.todos.list('test-uid', 'all', null), [todo])
+    useUIStore.setState({ selectedTodoId: 'todo-1', filter: 'all' })
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <CreateTodoModal />
+      </QueryClientProvider>,
+    )
+
+    expect(screen.getByTestId('create-todo-input')).toHaveProp('value', 'Edit me')
+    expect(screen.getByTestId('create-todo-description').props.value).toBe('Notes')
+    expect(screen.getByTestId('create-todo-due-date')).toHaveProp('value', '2026-03-20')
+  })
+
   it('calls update mutation when editing existing todo', async () => {
     const queryClient = new QueryClient()
     queryClient.setQueryData(queryKeys.todos.list('test-uid', 'all'), [

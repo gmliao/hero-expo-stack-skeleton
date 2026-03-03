@@ -23,6 +23,21 @@ UI feature workflow 不可跳步。**Agent 與人都須依此順序執行**（AG
 - 先在 code 亂做，之後再回填 Pen
 - 跳過 planning 直接改 screen
 
+## Entity / Resource CRUD Checklist（必填）
+
+**適用時機：** 只要 feature 會新增「可持久化的實體/資源」（例如 tag、清單、專案等），在 **scope 與 UI 設計階段** 都必須先填此表，避免漏掉某個操作或入口。
+
+| 操作 | 是否支援 | 發生位置（哪個畫面/Modal） | 備註 |
+|------|----------|----------------------------|------|
+| **Create** | ☐ 是 / ☐ 否 |  | 例：Modal 內「+ Add tag」、設定頁「新增」 |
+| **Read / List** | ☐ 是 / ☐ 否 |  | 例：列表、篩選 chip、picker |
+| **Update** | ☐ 是 / ☐ 否 |  | 例：Manage Tags 的 Rename、編輯表單 |
+| **Delete** | ☐ 是 / ☐ 否 |  | 例：Manage Tags 的 Delete + 確認；若無刪除需說明原因 |
+
+- **填寫責任：** 概念/scope 文件（如 `scope.md`）與 UI 設計文件（如 `ui-design.md`）都要對齊此表；實作計畫與驗收測試依此檢查。
+- **若某操作刻意不做：** 在備註註明原因（例如「僅軟刪除、不提供使用者刪除」）。
+- **關聯操作：** 若刪除會影響其他資源（例如刪除 tag 要從所有 todo 的 tagIds 移除），在 scope 的 API/流程裡一併寫清。
+
 ## Pen-First Rules
 
 - 先在 `.pen` 定稿 layout、semantic color variables、reusable components
