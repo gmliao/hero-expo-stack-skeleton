@@ -103,4 +103,34 @@ test.describe('Todo tags flow', () => {
     await page.getByTestId('manage-tags-edit-save').click()
     await expect(page.getByTestId(`manage-tags-badge-${tagId}`)).toHaveText(newTagName)
   })
+
+  test('edit modal pre-fills selected tags for an existing todo', async ({ page }) => {
+    const tagName = 'E2E Prefill Tag ' + Date.now()
+    const todoTitle = 'E2E Todo Prefill Tag ' + Date.now()
+
+    await page.getByTestId('create-todo-button').click()
+    await page.getByTestId('create-todo-add-tag').click()
+    await page.getByTestId('create-todo-new-tag-input').fill(tagName)
+    await page.getByTestId('create-todo-new-tag-add').click()
+    await expect(page.getByTestId('create-todo-new-tag-input')).not.toBeVisible({ timeout: 10_000 })
+
+    const tagChip = page.getByTestId(/^create-todo-tag-/).filter({ hasText: tagName })
+    await expect(tagChip).toBeVisible()
+    const tagTestId = await tagChip.getAttribute('data-testid')
+    const tagId = tagTestId?.replace('create-todo-tag-', '') ?? ''
+    expect(tagId).toBeTruthy()
+
+    await page.getByTestId('create-todo-input').fill(todoTitle)
+    await page.getByTestId('create-todo-save').click()
+    await expect(page.getByTestId('create-todo-modal-title')).not.toBeVisible({ timeout: 15_000 })
+
+    const item = page.getByTestId(/^todo-item-/).filter({ hasText: todoTitle })
+    await item.getByTestId(/^todo-edit-/).click()
+    await expect(page.getByTestId('create-todo-modal-title')).toBeVisible()
+
+    const selectedTagChip = page.getByTestId(`create-todo-tag-${tagId}`)
+    await expect(selectedTagChip).toBeVisible()
+    await expect(selectedTagChip).toHaveClass(/border-primary/)
+    await expect(selectedTagChip).toHaveClass(/bg-primary/)
+  })
 })

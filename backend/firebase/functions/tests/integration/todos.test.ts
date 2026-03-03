@@ -445,12 +445,14 @@ describe('DELETE /todos/:id', () => {
 
 describe('DELETE /tags/:tagId clears tagId from todos', () => {
   const uid = `test-tag-delete-cleanup-${Date.now()}`
+  const otherUid = `test-tag-delete-cleanup-other-${Date.now()}`
   let idToken: string
   let tagId: string
   let todoId: string | undefined
 
   beforeAll(async () => {
     await auth.createUser({ uid, email: `${uid}@example.com` })
+    await auth.createUser({ uid: otherUid, email: `${otherUid}@example.com` })
     idToken = await getIdTokenForUid(uid)
     const tagRef = await db
       .collection('users')
@@ -475,6 +477,7 @@ describe('DELETE /tags/:tagId clears tagId from todos', () => {
       await db.collection('todos').doc(todoId).delete().catch(() => {})
     }
     await auth.deleteUser(uid)
+    await auth.deleteUser(otherUid)
   })
 
   it('after deleting tag, todo tagIds no longer contains that tagId', async () => {
@@ -497,5 +500,38 @@ describe('DELETE /tags/:tagId clears tagId from todos', () => {
     expect(todoAfter).toBeDefined()
     const tagIdsAfter = todoAfter!.tagIds ?? []
     expect(tagIdsAfter).not.toContain(tagId)
+  })
+
+  it('does not remove matching tagId from another user todo', async () => {
+    const isolatedTagRef = await db
+      .collection('users')
+      .doc(uid)
+      .collection('tags')
+      .add({
+        name: 'ScopedDelete',
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      })
+    const isolatedOtherTodoId = `other-isolated-${Date.now()}`
+    await db.collection('todos').doc(isolatedOtherTodoId).set({
+      uid: otherUid,
+      title: 'Other User Todo With Same TagId Isolated',
+      description: '',
+      completed: false,
+      tagIds: [isolatedTagRef.id],
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    })
+
+    await axios.delete(`${BASE_URL}/tags/${isolatedTagRef.id}`, {
+      headers: { Authorization: `Bearer ${idToken}` },
+      validateStatus: () => true,
+    })
+
+    const otherTodoSnap = await db.collection('todos').doc(isolatedOtherTodoId).get()
+    expect(otherTodoSnap.exists).toBe(true)
+    expect(otherTodoSnap.data()?.tagIds ?? []).toContain(isolatedTagRef.id)
+
+    await db.collection('todos').doc(isolatedOtherTodoId).delete().catch(() => {})
   })
 })

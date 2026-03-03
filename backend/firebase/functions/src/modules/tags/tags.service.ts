@@ -28,14 +28,23 @@ export class TagsService {
   async delete(tagId: string, uid: string): Promise<void> {
     const existing = await this.repo.getById(uid, tagId)
     if (!existing) throw new AppError('NOT_FOUND', 'Tag not found')
-    await this.repo.delete(uid, tagId)
     const db = getFirestore()
-    const snap = await db.collection('todos').where('tagIds', 'array-contains', tagId).get()
+    const tagDocRef = db.collection('users').doc(uid).collection('tags').doc(tagId)
+    const snap = await db.collection('todos').where('uid', '==', uid).get()
     const now = Timestamp.now()
-    await Promise.all(
-      snap.docs.map((d) =>
-        d.ref.update({ tagIds: FieldValue.arrayRemove(tagId), updatedAt: now }),
-      ),
-    )
+    const batch = db.batch()
+
+    batch.delete(tagDocRef)
+
+    for (const doc of snap.docs) {
+      const tagIds = doc.data().tagIds
+      if (!Array.isArray(tagIds) || !tagIds.includes(tagId)) continue
+      batch.update(doc.ref, {
+        tagIds: FieldValue.arrayRemove(tagId),
+        updatedAt: now,
+      })
+    }
+
+    await batch.commit()
   }
 }

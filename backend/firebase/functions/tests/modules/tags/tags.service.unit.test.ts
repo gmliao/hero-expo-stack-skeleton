@@ -1,12 +1,39 @@
-let mockTodoDocs: { ref: { update: jest.Mock } }[] = []
+let mockTodoDocs: Array<{
+  data: jest.Mock
+  ref: { id: string }
+}> = []
+const mockCommit = jest.fn()
+const mockBatchDelete = jest.fn()
+const mockBatchUpdate = jest.fn()
+const mockTodosWhere = jest.fn(() => ({
+  get: jest.fn().mockImplementation(() =>
+    Promise.resolve({ docs: mockTodoDocs }),
+  ),
+}))
+const mockTodosCollection = jest.fn(() => ({
+  where: mockTodosWhere,
+}))
+const mockTagDoc = { id: 'tag-1', path: 'users/user-1/tags/tag-1' }
+const mockTagsNestedCollection = jest.fn(() => ({
+  doc: jest.fn(() => mockTagDoc),
+}))
+const mockUsersDoc = jest.fn(() => ({
+  collection: mockTagsNestedCollection,
+}))
+const mockUsersCollection = jest.fn(() => ({
+  doc: mockUsersDoc,
+}))
 jest.mock('firebase-admin/firestore', () => ({
   getFirestore: jest.fn(() => ({
-    collection: jest.fn(() => ({
-      where: jest.fn(() => ({
-        get: jest.fn().mockImplementation(() =>
-          Promise.resolve({ docs: mockTodoDocs }),
-        ),
-      })),
+    collection: jest.fn((name: string) => {
+      if (name === 'todos') return mockTodosCollection()
+      if (name === 'users') return mockUsersCollection()
+      throw new Error(`Unexpected collection ${name}`)
+    }),
+    batch: jest.fn(() => ({
+      delete: mockBatchDelete,
+      update: mockBatchUpdate,
+      commit: mockCommit,
     })),
   })),
   FieldValue: {
@@ -32,6 +59,14 @@ const baseTag = (overrides: Partial<Tag> = {}): Tag => ({
 describe('TagsService (unit)', () => {
   afterEach(() => {
     mockTodoDocs = []
+    mockCommit.mockReset().mockResolvedValue(undefined)
+    mockBatchDelete.mockReset()
+    mockBatchUpdate.mockReset()
+    mockTodosWhere.mockClear()
+    mockTodosCollection.mockClear()
+    mockUsersDoc.mockClear()
+    mockUsersCollection.mockClear()
+    mockTagsNestedCollection.mockClear()
   })
 
   describe('list', () => {
@@ -118,22 +153,46 @@ describe('TagsService (unit)', () => {
       const repo = createMockTagsRepository({ tags: [baseTag()] })
       const svc = new TagsService(repo)
       await expect(svc.delete('tag-1', 'user-1')).resolves.toBeUndefined()
+      expect(mockBatchDelete).toHaveBeenCalledWith(mockTagDoc)
+      expect(mockCommit).toHaveBeenCalledTimes(1)
     })
 
     it('after deleting tag, removes tagId from all todos that reference it', async () => {
-      const mockUpdate = jest.fn().mockResolvedValue(undefined)
-      mockTodoDocs = [{ ref: { update: mockUpdate } }]
+      const matchingDoc = { id: 'todo-1' }
+      const otherDoc = { id: 'todo-2' }
+      mockTodoDocs = [
+        {
+          data: jest.fn(() => ({ tagIds: ['tag-1', 'tag-2'] })),
+          ref: matchingDoc,
+        },
+        {
+          data: jest.fn(() => ({ tagIds: ['tag-2'] })),
+          ref: otherDoc,
+        },
+      ]
       const repo = createMockTagsRepository({ tags: [baseTag()] })
       const svc = new TagsService(repo)
       await svc.delete('tag-1', 'user-1')
-      expect(mockUpdate).toHaveBeenCalledTimes(1)
-      expect(mockUpdate).toHaveBeenCalledWith(
+      expect(mockBatchUpdate).toHaveBeenCalledTimes(1)
+      expect(mockBatchUpdate).toHaveBeenCalledWith(
+        matchingDoc,
         expect.objectContaining({
           tagIds: expect.anything(),
           updatedAt: expect.anything(),
         }),
       )
+      expect(mockBatchUpdate).not.toHaveBeenCalledWith(
+        otherDoc,
+        expect.anything(),
+      )
       mockTodoDocs = []
+    })
+
+    it('scopes todo cleanup query to the deleting uid', async () => {
+      const repo = createMockTagsRepository({ tags: [baseTag()] })
+      const svc = new TagsService(repo)
+      await svc.delete('tag-1', 'user-1')
+      expect(mockTodosWhere).toHaveBeenCalledWith('uid', '==', 'user-1')
     })
   })
 })

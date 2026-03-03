@@ -62,10 +62,16 @@ test.describe('Todos flow', () => {
   test('can toggle a todo', async ({ page }) => {
     const firstToggle = page.getByTestId(/^todo-toggle-/).first()
     const checked = await isTodoChecked(firstToggle)
+    const toggleDone = page.waitForResponse(
+      resp => resp.request().method() === 'PATCH' && /\/api\/todos\/[^/]+\/toggle$/.test(resp.url()),
+      { timeout: 15_000 },
+    )
     await firstToggle.click()
+    await toggleDone
     await expect
       .poll(async () => isTodoChecked(firstToggle), {
         message: 'todo checkbox should update checked state after click',
+        timeout: 15_000,
       })
       .toBe(!checked)
   })

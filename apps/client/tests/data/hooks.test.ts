@@ -86,6 +86,35 @@ describe('useTodosQuery wiring', () => {
     const [optionsNull] = (useQuery as jest.Mock).mock.calls[0]
     expect(optionsNull.queryKey).toEqual(queryKeys.todos.list('user-1', 'active', null))
   })
+
+  it('select returns filterAndSortTodos output when selectedTagId is null', () => {
+    useTodosQuery('user-1', 'active', null)
+
+    const [options] = (useQuery as jest.Mock).mock.calls[0]
+    const selected = options.select([
+      { ...baseTodo, id: '1', title: 'A', completed: false, dueDate: '2025-01-02' },
+      { ...baseTodo, id: '2', title: 'B', completed: true, dueDate: '2025-01-01' },
+    ])
+
+    expect(selected).toEqual([
+      { ...baseTodo, id: '1', title: 'A', completed: false, dueDate: '2025-01-02' },
+    ])
+  })
+
+  it('select applies tag filter after status filtering when selectedTagId is provided', () => {
+    useTodosQuery('user-1', 'active', 'tag-1')
+
+    const [options] = (useQuery as jest.Mock).mock.calls[0]
+    const selected = options.select([
+      { ...baseTodo, id: '1', title: 'A', completed: false, dueDate: '2025-01-02', tagIds: ['tag-1'] },
+      { ...baseTodo, id: '2', title: 'B', completed: true, dueDate: '2025-01-01', tagIds: ['tag-1'] },
+      { ...baseTodo, id: '3', title: 'C', completed: false, dueDate: '2025-01-03', tagIds: ['tag-2'] },
+    ])
+
+    expect(selected).toEqual([
+      { ...baseTodo, id: '1', title: 'A', completed: false, dueDate: '2025-01-02', tagIds: ['tag-1'] },
+    ])
+  })
 })
 
 describe('useTodosQuery behavior contract', () => {
