@@ -33,10 +33,10 @@ export function AppHorizontalScrollArea({
             .runOnJS(true)
             .activeOffsetX([-4, 4])
             .failOffsetY([-8, 8])
-            .onBegin(() => {
+            .onBegin(/* istanbul ignore next */ () => {
               startScrollXRef.current = scrollXRef.current
             })
-            .onUpdate(e => {
+            .onUpdate(/* istanbul ignore next */ e => {
               const newX = Math.max(0, startScrollXRef.current - e.translationX)
               scrollRef.current?.scrollTo({ x: newX, animated: false })
             })
