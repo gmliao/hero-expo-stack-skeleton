@@ -7,7 +7,7 @@ module.exports = {
     '\\.css$': '<rootDir>/tests/__mocks__/fileMock.js',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(jest-)?react-native|@react-native|expo|@expo|@unimodules|nativewind|@gluestack-ui|@gluestack-style)',
+    'node_modules/(?!(jest-)?react-native|@react-native|expo|@expo|@unimodules|nativewind|@gluestack-ui|@gluestack-style|react-native-gesture-handler)',
   ],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
