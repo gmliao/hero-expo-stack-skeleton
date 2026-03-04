@@ -1,0 +1,12 @@
+{
+  "emulators": {
+    "auth": { "host": "127.0.0.1", "port": 9399 },
+    "firestore": { "host": "127.0.0.1", "port": 8280 },
+    "functions": { "host": "127.0.0.1", "port": 5021 },
+    "ui": { "enabled": true, "host": "127.0.0.1", "port": 4020 },
+    "hub": { "host": "127.0.0.1", "port": 4420 },
+    "logging": { "host": "127.0.0.1", "port": 4520 }
+  },
+  "firestore": { "rules": "firestore.rules", "indexes": "firestore.indexes.json" },
+  "functions": [{ "source": "functions", "codebase": "default", "ignore": ["node_modules", ".git"] }]
+}
