@@ -14,6 +14,7 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { useUIStore } from '@/stores/useUIStore'
 import {
   AppButton,
+  AppHorizontalScrollArea,
   AppLinkAction,
   AppStack,
   AppInput,
@@ -285,12 +286,7 @@ export function CreateTodoModal() {
                   </AppButton>
                 </AppStack>
               ) : (
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{ gap: 8 }}
-                  className="flex-row items-center"
-                >
+                <AppHorizontalScrollArea gap={8} className="flex-row items-center">
                   {availableTags.map(tag => {
                     const selected = selectedTagIds.includes(tag.id)
                     return (
@@ -310,7 +306,7 @@ export function CreateTodoModal() {
                       />
                     )
                   })}
-                </ScrollView>
+                </AppHorizontalScrollArea>
               )}
             </AppStack>
 
