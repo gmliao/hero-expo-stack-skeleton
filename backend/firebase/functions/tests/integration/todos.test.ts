@@ -8,15 +8,10 @@ import type {
   Todo,
   UpdateTodoRequest,
 } from '../../../../../shared/types/api'
-
-process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099'
-process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'
-
-const PROJECT_ID = 'hero-stack-local'
-const BASE_URL = `http://127.0.0.1:5001/${PROJECT_ID}/us-central1/api`
+import { AUTH_HOST, BASE_URL, PROJECT_ID } from './testEnv'
 
 if (!getApps().length) {
-  initializeApp({ projectId: 'hero-stack-local' })
+  initializeApp({ projectId: PROJECT_ID })
 }
 const db = getFirestore()
 const auth = getAuth()
@@ -31,7 +26,7 @@ function unwrapSuccess<T>(body: ApiResponseDto<T>): T {
 async function getIdTokenForUid(uid: string): Promise<string> {
   const customToken = await auth.createCustomToken(uid)
   const response = await axios.post(
-    'http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=demo-key',
+    `http://${AUTH_HOST}/identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=demo-key`,
     { token: customToken, returnSecureToken: true },
   )
   return response.data.idToken as string

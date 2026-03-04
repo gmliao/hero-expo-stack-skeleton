@@ -8,7 +8,7 @@
     {
       "name": "backend",
       "rootPath": "backend/firebase/functions",
-      "jestCommandLine": "bun run test -- --watch"
+      "jestCommandLine": "bun run test:unit -- --watch"
     }
   ],
   "cSpell.words": [
