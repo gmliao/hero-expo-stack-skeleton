@@ -20,6 +20,7 @@ export function AppHorizontalScrollArea({
   const scrollXRef = useRef(0)
   const startScrollXRef = useRef(0)
   const containerWidthRef = useRef(0)
+  const contentWidthRef = useRef(0)
   const [showLeftFade, setShowLeftFade] = useState(false)
   const [showRightFade, setShowRightFade] = useState(false)
 
@@ -43,6 +44,12 @@ export function AppHorizontalScrollArea({
     [isWeb],
   )
 
+  function handleLayout(e: { nativeEvent: { layout: { width: number } } }) {
+    const viewWidth = e.nativeEvent.layout.width
+    containerWidthRef.current = viewWidth
+    setShowRightFade(contentWidthRef.current > viewWidth + 4)
+  }
+
   function handleScroll(e: {
     nativeEvent: {
       contentOffset: { x: number }
@@ -60,6 +67,7 @@ export function AppHorizontalScrollArea({
   }
 
   function handleContentSizeChange(contentWidth: number) {
+    contentWidthRef.current = contentWidth
     setShowRightFade(contentWidth > containerWidthRef.current + 4)
   }
 
@@ -82,7 +90,7 @@ export function AppHorizontalScrollArea({
   }
 
   return (
-    <View className={cn('flex-1', className)} style={{ position: 'relative' }}>
+    <View className={cn('flex-1', className)} style={{ position: 'relative' }} onLayout={handleLayout}>
       <GestureDetector gesture={pan}>{scrollView}</GestureDetector>
       {showLeftFade && (
         <View
