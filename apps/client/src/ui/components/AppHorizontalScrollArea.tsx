@@ -89,6 +89,7 @@ export function AppHorizontalScrollArea({
           pointerEvents="none"
           style={[
             { position: 'absolute', left: 0, top: 0, bottom: 0, width: 24 },
+            // web-only CSS gradient; backgroundImage is not in RN ViewStyle
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             { backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.95), transparent)' } as any,
           ]}
@@ -99,6 +100,7 @@ export function AppHorizontalScrollArea({
           pointerEvents="none"
           style={[
             { position: 'absolute', right: 0, top: 0, bottom: 0, width: 24 },
+            // web-only CSS gradient; backgroundImage is not in RN ViewStyle
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             { backgroundImage: 'linear-gradient(to left, rgba(255,255,255,0.95), transparent)' } as any,
           ]}
