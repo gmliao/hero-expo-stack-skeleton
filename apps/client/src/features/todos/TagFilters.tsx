@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { ScrollView, View } from 'react-native'
+import { View } from 'react-native'
 import { useTagsQuery } from '@/data/hooks/useTagsQuery'
-import { AppTagChip, AppText } from '@/ui/components'
+import { AppHorizontalScrollArea, AppTagChip, AppText } from '@/ui/components'
 
 export interface TagFiltersProps {
   uid: string
@@ -20,12 +20,7 @@ export function TagFilters({ uid, selectedTagId, setSelectedTagId }: TagFiltersP
       <AppText size="sm" tone="muted" className="mr-2">
         {t('todos.tagsLabel')}
       </AppText>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: 8 }}
-        className="flex-1 flex-row items-center"
-      >
+      <AppHorizontalScrollArea gap={8} className="flex-row items-center">
         <AppTagChip
           testID="tag-filter-all"
           name={t('todos.tagFilterAll')}
@@ -48,7 +43,7 @@ export function TagFilters({ uid, selectedTagId, setSelectedTagId }: TagFiltersP
             />
           )
         })}
-      </ScrollView>
+      </AppHorizontalScrollArea>
     </View>
   )
 }
