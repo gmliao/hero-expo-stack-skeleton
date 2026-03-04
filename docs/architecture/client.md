@@ -5,7 +5,8 @@
 > **相關規範**：
 > [Testing](../testing.md),
 > [Playwright Web E2E](../runbooks/playwright-web-e2e.md),
-> [Design System Workflow](../design-system/workflow.md)
+> [Design System Workflow](../design-system/workflow.md),
+> [UI Styling Governance](../design-system/styling-governance.md)
 
 `apps/client` 是 Expo app 的實作邊界。這份文件是 client 端必守規範，不是建議清單。
 
@@ -65,7 +66,7 @@ route / feature 層：
 
 - 只能從 `@/ui/components` 使用 UI
 - 不得直接引入 `@gluestack-ui/*`
-- 不得塞 inline `style={{...}}` 字面量
+- 不得直接塞視覺性 inline `style={{...}}` 字面量
 - UI 變更後執行 `bun run check:client:ui`
 
 ## UI Baseline Rules
@@ -84,8 +85,26 @@ route / feature 層：
 
 ## Styling Rules
 
-- 優先使用 NativeWind `className`
-- 只有在 NativeWind 不適合時才用 `StyleSheet`
+- UI styling 規則以 [UI Styling Governance](../design-system/styling-governance.md) 為準
+- 預設使用 Layer 1 token + Layer 2 utility；NativeWind `className` 是主要表達方式
+- `StyleSheet` 與 inline style 不是一般 styling 工具，只能用於：
+  - React Native / web layout interop
+  - rendering primitive
+  - 明確記錄過的平台 workaround
+- route / feature 不得直接定義 token-owned visual properties，例如：
+  - `color`
+  - `backgroundColor`
+  - `fontSize`
+  - `padding` / `margin`
+  - `borderRadius`
+  - `shadow*`
+- 不得用 arbitrary value 取代 token-owned utilities，例如：
+  - `bg-[#123456]`
+  - `text-[14px]`
+  - `rounded-[13px]`
+- Layer 3 primitive 必須集中在共享 UI surface：
+  - 優先使用 `apps/client/src/ui/primitives/**`
+  - 若目前尚未拆出獨立目錄，至少必須留在共享 UI 層並明確標記為 primitive，不得散落於 route / feature
 - route file 保持薄，不要把大段 layout/樣式直接堆在 route 內
 - screen-specific UI 抽到 `src/features/<feature>/`
 

@@ -5,6 +5,7 @@
 > **相關文件**：
 > [Pen-Code Mapping](./pen-code-component-mapping.md),
 > [Color Scheme](./color-scheme.md),
+> [UI Styling Governance](./styling-governance.md),
 > [Pen Gap Spec](./pen-gap-spec.md),
 > [Pen Add Card/Input/Stack Runbook](../runbooks/pen-add-card-input-stack.md)
 
@@ -86,6 +87,29 @@ UI feature workflow 不可跳步。**Agent 與人都須依此順序執行**（AG
 - 顏色、字體、間距、圓角應優先來自 document variables
 - 避免 screen-level hardcoded one-off values
 - 如果希望全球可調整，必須由 variable 或 reusable component 驅動
+
+## Styling Decision Procedure
+
+所有 UI styling 決策都必須先套用 [UI Styling Governance](./styling-governance.md) 的三層模型，不得直接把 inline style 當成預設做法。
+
+決策順序固定如下：
+
+1. 先判斷是否能用 **Layer 1 token + Layer 2 utility** 表達
+2. 若不能，再判斷是否屬於 **Layer 3 rendering primitive**
+3. 若是 Layer 3，必須建立受控 primitive，而不是在 feature code 就地寫 style 例外
+4. 若不是 Layer 3，應擴充 token system / shared DS，不得用 ad hoc styling 繞過治理
+
+Phase 2 的 UI/UX 設計輸出必須能回答這三個問題：
+
+- 哪些樣式屬於 token vocabulary？
+- 哪些只是 layout composition？
+- 哪些地方真的需要 primitive exception？
+
+若設計需要新增 primitive，phase 2 與 implementation plan 至少要記錄：
+
+- 為何 token + utility 不足
+- primitive 的 API / 套用場景
+- 需要的 component-level verification
 
 ## Pen And Code Must Stay Bidirectional
 
