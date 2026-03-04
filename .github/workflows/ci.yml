@@ -41,7 +41,22 @@ jobs:
         env:
           CI: 1
       - name: Client unit tests (with coverage)
-        run: cd apps/client && bun run test -- --coverage
+        run: |
+          cd apps/client && bun run test -- --coverage 2>&1 | tee /tmp/jest-out.txt
+          exit_code=${PIPESTATUS[0]}
+          if [ $exit_code -ne 0 ]; then
+            echo ""
+            echo "::group::❌ Test / Coverage failures"
+            grep -E "^(FAIL |Jest:|●|✕ )" /tmp/jest-out.txt || true
+            echo "::endgroup::"
+            grep -E "^Jest:" /tmp/jest-out.txt | while IFS= read -r line; do
+              echo "::error::$line"
+            done
+            grep "^FAIL " /tmp/jest-out.txt | while IFS= read -r line; do
+              echo "::error::$line"
+            done
+          fi
+          exit $exit_code
       - name: Web bundle check
         run: bun run check:web
       - name: Upload client coverage
