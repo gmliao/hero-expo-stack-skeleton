@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Platform, View, type StyleProp, type ViewStyle } from 'react-native'
 import { Gesture, GestureDetector, ScrollView } from 'react-native-gesture-handler'
 import { cn } from '@/ui/utils/cn'
@@ -89,31 +89,25 @@ export function AppHorizontalScrollArea({
     return <View className={cn('flex-1', className)}>{scrollView}</View>
   }
 
+  // web-only: mask-image clips scroll content at edges without a colour overlay,
+  // so the fade blends into any background regardless of colour token.
+  const maskImage =
+    showLeftFade && showRightFade
+      ? 'linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent)'
+      : showLeftFade
+        ? 'linear-gradient(to right, transparent, black 24px)'
+        : showRightFade
+          ? 'linear-gradient(to left, transparent, black 24px)'
+          : undefined
+
   return (
-    <View className={cn('flex-1', className)} style={{ position: 'relative' }} onLayout={handleLayout}>
+    <View
+      className={cn('flex-1', className)}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      style={{ position: 'relative', ...(maskImage ? ({ maskImage, WebkitMaskImage: maskImage } as CSSProperties) : {}) } as any}
+      onLayout={handleLayout}
+    >
       <GestureDetector gesture={pan}>{scrollView}</GestureDetector>
-      {showLeftFade && (
-        <View
-          pointerEvents="none"
-          style={[
-            { position: 'absolute', left: 0, top: 0, bottom: 0, width: 24 },
-            // web-only CSS gradient; backgroundImage is not in RN ViewStyle
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            { backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.95), transparent)' } as any,
-          ]}
-        />
-      )}
-      {showRightFade && (
-        <View
-          pointerEvents="none"
-          style={[
-            { position: 'absolute', right: 0, top: 0, bottom: 0, width: 24 },
-            // web-only CSS gradient; backgroundImage is not in RN ViewStyle
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            { backgroundImage: 'linear-gradient(to left, rgba(255,255,255,0.95), transparent)' } as any,
-          ]}
-        />
-      )}
     </View>
   )
 }
