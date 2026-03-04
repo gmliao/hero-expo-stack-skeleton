@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native'
 import { useTranslation } from 'react-i18next'
 
 import type { Tag, Todo } from '@shared/types/api'
-import { AppHorizontalScrollArea, AppStack, AppTagBadge, AppText } from '@/ui/components'
+import { AppCard, AppHorizontalScrollArea, AppStack, AppTagBadge, AppText } from '@/ui/components'
 import { tokens } from '@/ui/tokens'
 import { cn } from '@/ui/utils/cn'
 
@@ -38,9 +38,9 @@ export function TodoItem({
     : null
 
   return (
-    <View
+    <AppCard
       testID={`todo-item-${todo.id}`}
-      className="mb-2 flex-row items-center gap-3 rounded-lg border border-border bg-surface p-4"
+      className="mb-2 flex-row items-center gap-3"
     >
       <Pressable
         testID={`todo-toggle-${todo.id}`}
@@ -129,6 +129,6 @@ export function TodoItem({
           <Trash2 size={20} color={tokens.colors.danger} />
         </Pressable>
       </View>
-    </View>
+    </AppCard>
   )
 }

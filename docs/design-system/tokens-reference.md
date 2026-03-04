@@ -84,5 +84,5 @@ Tailwind：`p-4`、`gap-3` 等對應上表（來自 design-tokens.spacingPx）�
 
 ## 與 Pen 的對應
 
-- **間距／圓角／字級**：以 design-tokens.js 為準，與 Pen document variables 對齊；改動時 Pen 與 Code 同步。
+- **間距／圓角／字級**：以 `design-tokens.js` 為準，並由 `tailwind.config.ts`、`tokens.ts`、`semantic.ts` 共同消費；改動時 Pen 與 Code 同步。
 - **z-index／motion／shadow**：僅在 Code 定義，Pen 可依需要標註在規格或註解中。

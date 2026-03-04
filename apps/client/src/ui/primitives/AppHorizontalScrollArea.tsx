@@ -3,6 +3,23 @@ import { Platform, View, type StyleProp, type ViewStyle } from 'react-native'
 import { Gesture, GestureDetector, ScrollView } from 'react-native-gesture-handler'
 import { cn } from '@/ui/utils/cn'
 
+/**
+ * Horizontal scroll area with edge fade on web and mouse drag support.
+ *
+ * **Layer 3 Primitive (styling-governance.md §Layer 3)**
+ * Uses `maskImage` / `WebkitMaskImage` for scroll edge fade — a runtime rendering
+ * behavior that cannot be expressed via NativeWind / Tailwind tokens. The fade
+ * blends into any background color without hardcoding a color token.
+ *
+ * API:
+ * - `gap` (default 8): gap between children in px, applied via contentContainerStyle
+ * - `className`: forwarded to the outer container View (layout only)
+ * - `contentStyle`: forwarded to ScrollView contentContainerStyle
+ *
+ * Platform compatibility:
+ * - iOS/Android: native horizontal ScrollView, no edge fade
+ * - Web: PanGesture for mouse drag + maskImage edge fade
+ */
 interface AppHorizontalScrollAreaProps {
   children: React.ReactNode
   gap?: number

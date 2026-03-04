@@ -13,6 +13,15 @@ export interface AppTagChipProps extends Omit<PressableProps, 'children'> {
   className?: string
 }
 
+/**
+ * Tag selection chip (32px) with dynamic color from the tag palette.
+ *
+ * **Layer 3 Exception (styling-governance.md §Layer 3)**
+ * `backgroundColor`, `borderColor`, and text `color` are applied via inline `style`
+ * because they are driven by runtime `tagPalette` token values that differ per tag instance.
+ * NativeWind / Tailwind cannot express dynamic per-instance color tokens statically.
+ * This is a rendering-primitive exception, not a token-naming decision.
+ */
 export function AppTagChip({
   name,
   emoji,
@@ -33,6 +42,7 @@ export function AppTagChip({
       accessibilityState={{ selected: active }}
       accessibilityLabel={accessibilityLabel ?? label}
       className={cn(
+        // Layout-only classes; background/border colors are applied via style (Layer 3)
         'h-8 flex-row items-center justify-center rounded-full border px-3',
         className,
       )}

@@ -1,7 +1,9 @@
-/** @type {import('tailwindcss').Config} */
-const designTokens = require('./src/ui/theme/design-tokens.js')
+import type { Config } from 'tailwindcss'
+import * as designTokens from './src/ui/theme/design-tokens.js'
 
-module.exports = {
+const tailwindFontSize = designTokens.fontSize as unknown as Record<string, [string, string]>
+
+const config = {
   darkMode: 'class',
   content: ['./app/**/*.{ts,tsx}', './src/**/*.{ts,tsx}'],
   presets: [require('nativewind/preset')],
@@ -10,8 +12,10 @@ module.exports = {
       colors: designTokens.tailwindColors,
       borderRadius: designTokens.borderRadius,
       spacing: designTokens.spacingPx,
-      fontSize: designTokens.fontSize,
+      fontSize: tailwindFontSize,
     },
   },
   plugins: [],
-}
+} satisfies Config
+
+export default config

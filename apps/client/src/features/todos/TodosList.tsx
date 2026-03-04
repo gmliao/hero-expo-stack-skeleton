@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, View } from 'react-native'
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const designTokens = require('@/ui/theme/design-tokens.js')
 
 import type { Tag, Todo } from '@shared/types/api'
 import { AppButton, AppStack, AppText } from '@/ui/components'
@@ -19,13 +21,14 @@ type TodosListProps = {
 /**
  * ScrollView content container uses StyleSheet because NativeWind's
  * contentContainerClassName has unstable layout support.
+ * Spacing values are sourced from design-tokens to stay within the token system.
  */
 const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 32,
+    paddingHorizontal: designTokens.spacing[5], // 20px
+    paddingTop: designTokens.spacing[5],         // 20px
+    paddingBottom: designTokens.spacing[8],      // 32px
   },
 })
 

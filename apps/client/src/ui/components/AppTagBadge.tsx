@@ -21,8 +21,16 @@ export interface AppTagBadgeProps extends Omit<PressableProps, 'children'> {
 }
 
 /**
- * Display-only tag badge: small pill with primarySoft background, border, muted text.
- * Use for showing tag names (e.g. on todo items). Not interactive.
+ * Small tag pill with dynamic color from the tag palette.
+ *
+ * **Layer 3 Exception (styling-governance.md §Layer 3)**
+ * `backgroundColor`, `borderColor`, and text `color` are applied via inline `style`
+ * because they are driven by runtime `tagPalette` token values that differ per tag.
+ * NativeWind / Tailwind cannot express dynamic per-instance color tokens statically.
+ * This is a rendering-primitive exception, not a token-naming decision.
+ *
+ * The `bg-*` and `border-*` Tailwind classes are intentionally omitted from className
+ * to avoid silent overrides by the inline style.
  */
 export function AppTagBadge({
   name,
@@ -50,7 +58,8 @@ export function AppTagBadge({
       testID={testID}
       accessibilityLabel={a11yLabel}
       className={cn(
-        'h-6 min-h-6 flex-row items-center justify-center self-start rounded-full border border-border bg-primary-soft px-3',
+        // Layout-only classes; background/border colors are applied via style (Layer 3)
+        'h-6 min-h-6 flex-row items-center justify-center self-start rounded-full border px-3',
         className,
       )}
       disabled={!props.onPress}
