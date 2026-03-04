@@ -43,7 +43,7 @@
 | component/SheetHandle | McPgO | AppSheetHandle | AppSheetHandle.tsx |
 | component/TagBadge | X5rfy | AppTagBadge | 小 pill，24px 高，支援 emoji + label + color token；phase 2 起作為 todo item 可互動 badge 與 manage preview 的基底。 |
 | component/TagBadgeSelected | ead5P | AppTagBadge（selected） | phase 2 起作為 todo item active tag badge 的設計參考。 |
-| **component/HorizontalScrollRow** | **A0Bim** | **橫向捲動列**（Code 包 ScrollView horizontal） | 內為 contentSlot (FTqx8)；有 tag 的列（篩選、picker、Manage Tags 列表行內 tag）可辨識用此或同款佈局。 |
+| **component/HorizontalScrollRow** | **A0Bim** | **AppHorizontalScrollArea** | `AppHorizontalScrollArea.tsx`；水平捲動 primitive，web 支援滑鼠拖拽 + 邊緣 fade；gap prop（預設 8）；替換 TagFilters / CreateTodoModal / TagFormModal / TodoItem 的裸 ScrollView horizontal。 |
 | component/TagChip | UFaeP | AppTagChip | pill、32px、emoji + label + color token；用於 tag 篩選與 modal picker。 |
 | component/TagChipActive | Fm4sf | AppTagChip（active） | pill、32px、active 狀態；用於 tag 篩選與 modal picker。 |
 
@@ -68,7 +68,7 @@
 | TodoItem | features/todos/TodoItem.tsx | component/TodoItem | bEjH4 |
 | AppTagBadge | AppTagBadge.tsx | component/TagBadge, TagBadgeSelected | X5rfy, ead5P |
 | AppTagChip | AppTagChip.tsx | TagChip, TagChipActive | UFaeP, Fm4sf |
-| HorizontalScrollRow（橫向捲動列） | 待實作 | component/HorizontalScrollRow | A0Bim |
+| AppHorizontalScrollArea | AppHorizontalScrollArea.tsx | component/HorizontalScrollRow | A0Bim |
 
 ---
 
