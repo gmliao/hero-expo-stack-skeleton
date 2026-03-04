@@ -1,9 +1,9 @@
 import { Pencil, Trash2 } from 'lucide-react-native'
-import { Pressable, ScrollView, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import { useTranslation } from 'react-i18next'
 
 import type { Tag, Todo } from '@shared/types/api'
-import { AppStack, AppTagBadge, AppText } from '@/ui/components'
+import { AppHorizontalScrollArea, AppStack, AppTagBadge, AppText } from '@/ui/components'
 import { tokens } from '@/ui/tokens'
 import { cn } from '@/ui/utils/cn'
 
@@ -88,12 +88,7 @@ export function TodoItem({
         ) : null}
 
         {todo.tagIds?.length && tags?.length ? (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 6 }}
-            className="-mx-0.5"
-          >
+          <AppHorizontalScrollArea gap={6} className="-mx-0.5">
             {todo.tagIds.map(tagId => {
               const tag = tags.find(t => t.id === tagId)
               if (!tag) return null
@@ -109,7 +104,7 @@ export function TodoItem({
                 />
               )
             })}
-          </ScrollView>
+          </AppHorizontalScrollArea>
         ) : null}
       </AppStack>
 
