@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
-import { AppButton, AppInput, AppStack, AppText } from '@/ui/components'
+import { View } from 'react-native'
+import { AppButton, AppInput, AppLinkAction, AppStack, AppText } from '@/ui/components'
 
 const MIN_PASSWORD_LENGTH = 6
 
@@ -117,17 +117,13 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
           {loading ? t('auth.signingUp') : t('auth.signUp')}
         </AppButton>
 
-        <Pressable
-          onPress={() => router.push('/(auth)/login')}
-          className="self-center py-3"
+        <AppLinkAction
           testID="sign-up-link-login"
-          accessibilityRole="link"
+          onPress={() => router.push('/(auth)/login')}
           accessibilityLabel={t('auth.goToSignIn')}
         >
-          <AppText size="sm" tone="muted">
-            {t('auth.goToSignIn')}
-          </AppText>
-        </Pressable>
+          {t('auth.goToSignIn')}
+        </AppLinkAction>
       </AppStack>
     </View>
   )

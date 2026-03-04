@@ -26,7 +26,7 @@ Read this before editing code or docs in this repository.
 
 - **Client**: Expo (React Native), NativeWind (Tailwind CSS), TanStack Query, Zustand, i18next.
 - **Backend**: Firebase (Auth, Functions, Firestore). App talks to Functions over HTTP only; no Firestore SDK in app.
-- **Shared**: `shared/types` for API contracts; design tokens in `apps/client/src/ui/theme/design-tokens.js` (consumed by Tailwind, tokens, semantic).
+- **Shared**: `shared/types` for API contracts; design tokens in `apps/client/src/ui/theme/design-tokens.js` (consumed by Tailwind via `apps/client/tailwind.config.ts`, plus `tokens.ts` and `semantic.ts`).
 - See `CLAUDE.md` for architecture and directory conventions.
 
 ## Non-Negotiable Architecture

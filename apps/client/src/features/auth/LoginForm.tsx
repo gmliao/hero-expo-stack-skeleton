@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
-import { AppButton, AppInput, AppStack, AppText } from '@/ui/components'
+import { View } from 'react-native'
+import { AppButton, AppInput, AppLinkAction, AppStack, AppText } from '@/ui/components'
 
 export type LoginSubmitResult = { error?: string } | void
 
@@ -89,17 +89,13 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           {loading ? t('auth.signingIn') : t('auth.signIn')}
         </AppButton>
 
-        <Pressable
-          onPress={() => router.push('/(auth)/sign-up')}
-          className="self-center py-3"
+        <AppLinkAction
           testID="login-link-sign-up"
-          accessibilityRole="link"
+          onPress={() => router.push('/(auth)/sign-up')}
           accessibilityLabel={t('auth.goToSignUp')}
         >
-          <AppText size="sm" tone="muted">
-            {t('auth.goToSignUp')}
-          </AppText>
-        </Pressable>
+          {t('auth.goToSignUp')}
+        </AppLinkAction>
       </AppStack>
     </View>
   )

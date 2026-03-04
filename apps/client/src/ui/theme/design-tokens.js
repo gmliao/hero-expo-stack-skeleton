@@ -1,6 +1,6 @@
 /**
  * Single source of truth for design tokens (Pen-aligned).
- * Consumed by: tailwind.config.js, tokens.ts, semantic.ts
+ * Consumed by: tailwind.config.ts, tokens.ts, semantic.ts
  * See: docs/design-system/color-scheme.md
  */
 const colors = {

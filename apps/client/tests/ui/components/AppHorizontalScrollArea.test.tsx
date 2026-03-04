@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react-native'
 import { Platform, View } from 'react-native'
 import { Text } from 'react-native'
-import { AppHorizontalScrollArea } from '@/ui/components/AppHorizontalScrollArea'
+import { AppHorizontalScrollArea } from '@/ui/primitives/AppHorizontalScrollArea'
 
 const { ScrollView } = require('react-native-gesture-handler')
 

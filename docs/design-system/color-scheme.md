@@ -5,7 +5,7 @@
 **來源：** 以 Pen（`pencil/app/app-core-screens.pen`）的 document variables 為主，Code 對齊 Pen。
 
 **單一來源（Code）：** `apps/client/src/ui/theme/design-tokens.js`  
-- Tailwind（`tailwind.config.js`）與 app（`tokens.ts`、`semantic.ts`）都從此檔讀取，顏色／圓角／間距／字級只改這一處即可一致。
+- Tailwind（`tailwind.config.ts`）與 app（`tokens.ts`、`semantic.ts`）都從此檔讀取，顏色／圓角／間距／字級只改這一處即可一致。
 
 ---
 

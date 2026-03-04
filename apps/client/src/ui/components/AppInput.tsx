@@ -32,7 +32,7 @@ export function AppInput({
       editable={editable ?? !isDisabled}
       placeholderTextColor={tokens.colors.muted}
       className={cn(
-        'rounded-md border bg-surface text-text',
+        'rounded-md border bg-white text-text',
         resolvedState === 'focused' && 'border-2 border-primary',
         resolvedState === 'invalid' && 'border-2 border-danger',
         resolvedState === 'success' && 'border-2 border-success',

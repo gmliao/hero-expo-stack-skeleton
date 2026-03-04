@@ -171,11 +171,11 @@ export function CreateTodoModal() {
       animationType="slide"
       onRequestClose={handleClose}
     >
-      <View className="flex-1 justify-end bg-black/45">
+      <View className="flex-1 justify-end bg-overlay">
         <Pressable className="flex-1" onPress={handleClose} />
 
         <View
-          className="w-full max-h-[85%] rounded-t-3xl border border-border bg-surface px-5 py-6"
+          className="w-full max-h-[85%] rounded-t-lg border border-border bg-surface px-5 py-6"
           style={isDesktop ? { maxWidth: SCREEN_CONTENT_MAX_WIDTH, alignSelf: 'center' } : undefined}
         >
           <ScrollView

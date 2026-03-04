@@ -72,12 +72,12 @@ export function TagFormModal({
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View className="flex-1 justify-center bg-black/45 px-5">
+      <View className="flex-1 justify-center bg-overlay px-5">
         <Pressable className="absolute inset-0" onPress={onClose} />
 
         <View
           testID="tag-form-card"
-          className="w-full max-w-[420px] self-center rounded-3xl border border-border bg-surface p-5"
+          className="w-full max-w-[420px] self-center rounded-lg border border-border bg-surface p-5"
         >
           <AppStack gap={4}>
             <AppText testID="tag-form-title" size="xl" weight="bold" accessibilityRole="header">
