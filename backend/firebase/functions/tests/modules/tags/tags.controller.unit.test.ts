@@ -59,7 +59,7 @@ describe("TagsController", () => {
       expect(deps.services.tags.list).toHaveBeenCalledWith("test-uid");
     });
 
-    it("tags.create delegates to services.tags.create with uid and body.name", async () => {
+    it("tags.create delegates to services.tags.create with uid and full body", async () => {
       const deps = createMockDeps();
       const def = new TagsController()
         .endpoints()
@@ -67,12 +67,16 @@ describe("TagsController", () => {
       await def.execute({
         deps,
         ctx: mockCtx(),
-        input: { body: { name: "Work" }, query: {}, params: {} },
+        input: { body: { name: "Work", emoji: "🧰", colorToken: "tagTeal" }, query: {}, params: {} },
       } as any);
-      expect(deps.services.tags.create).toHaveBeenCalledWith("test-uid", "Work");
+      expect(deps.services.tags.create).toHaveBeenCalledWith("test-uid", {
+        name: "Work",
+        emoji: "🧰",
+        colorToken: "tagTeal",
+      });
     });
 
-    it("tags.update delegates to services.tags.update with tagId, uid, name", async () => {
+    it("tags.update delegates to services.tags.update with tagId, uid, and full payload", async () => {
       const deps = createMockDeps();
       const def = new TagsController()
         .endpoints()
@@ -81,7 +85,7 @@ describe("TagsController", () => {
         deps,
         ctx: mockCtx(),
         input: {
-          body: { name: "Urgent" },
+          body: { name: "Urgent", emoji: "⚡", colorToken: "tagAmber" },
           query: {},
           params: { tagId: "tag-1" },
         },
@@ -89,7 +93,7 @@ describe("TagsController", () => {
       expect(deps.services.tags.update).toHaveBeenCalledWith(
         "tag-1",
         "test-uid",
-        "Urgent",
+        { name: "Urgent", emoji: "⚡", colorToken: "tagAmber" },
       );
     });
 
@@ -106,7 +110,7 @@ describe("TagsController", () => {
           deps,
           ctx: mockCtx(),
           input: {
-            body: { name: "x" },
+            body: { name: "x", emoji: "🧰", colorToken: "tagTeal" },
             query: {},
             params: { tagId: "nope" },
           },
@@ -159,7 +163,7 @@ describe("TagsController", () => {
       const res = await request(buildApp())
         .post("/tags")
         .set("Authorization", "Bearer tok")
-        .send({ name: "New Tag" });
+        .send({ name: "New Tag", emoji: "🧰", colorToken: "tagTeal" });
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
     });
@@ -168,7 +172,7 @@ describe("TagsController", () => {
       const res = await request(buildApp())
         .patch("/tags/tag-1")
         .set("Authorization", "Bearer tok")
-        .send({ name: "Updated" });
+        .send({ name: "Updated", emoji: "⚡", colorToken: "tagAmber" });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });

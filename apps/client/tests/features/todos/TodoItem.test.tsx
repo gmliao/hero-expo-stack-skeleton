@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react-native'
 import { TodoItem } from '@/features/todos/TodoItem'
+import type { Tag } from '@shared/types/api'
 
 const mockTodo = {
   id: 'todo-1',
@@ -8,7 +9,7 @@ const mockTodo = {
   dueDate: '2025-03-01',
   createdAt: '2025-01-01T00:00:00Z',
   updatedAt: '2025-01-01T00:00:00Z',
-  userId: 'user-1',
+  uid: 'user-1',
 }
 
 describe('TodoItem', () => {
@@ -77,9 +78,25 @@ describe('TodoItem', () => {
       id: 'todo-with-tags',
       tagIds: ['tag-1', 'tag-2'],
     }
-    const tags = [
-      { id: 'tag-1', name: 'Work', uid: 'user-1', createdAt: '', updatedAt: '' },
-      { id: 'tag-2', name: 'Urgent', uid: 'user-1', createdAt: '', updatedAt: '' },
+    const tags: Tag[] = [
+      {
+        id: 'tag-1',
+        name: 'Work',
+        emoji: '🧰',
+        colorToken: 'tagTeal',
+        uid: 'user-1',
+        createdAt: '',
+        updatedAt: '',
+      },
+      {
+        id: 'tag-2',
+        name: 'Urgent',
+        emoji: '⚡',
+        colorToken: 'tagAmber',
+        uid: 'user-1',
+        createdAt: '',
+        updatedAt: '',
+      },
     ]
     render(
       <TodoItem
@@ -90,7 +107,42 @@ describe('TodoItem', () => {
         onDelete={jest.fn()}
       />,
     )
-    expect(screen.getByText('Work')).toBeOnTheScreen()
-    expect(screen.getByText('Urgent')).toBeOnTheScreen()
+    expect(screen.getByText('🧰 Work')).toBeOnTheScreen()
+    expect(screen.getByText('⚡ Urgent')).toBeOnTheScreen()
+  })
+
+  it('calls onTagPress when a tag badge is pressed', () => {
+    const onTagPress = jest.fn()
+    const todoWithTags = {
+      ...mockTodo,
+      id: 'todo-with-tags',
+      tagIds: ['tag-1'],
+    }
+    const tags: Tag[] = [
+      {
+        id: 'tag-1',
+        name: 'Work',
+        emoji: '🧰',
+        colorToken: 'tagTeal',
+        uid: 'user-1',
+        createdAt: '',
+        updatedAt: '',
+      },
+    ]
+
+    render(
+      <TodoItem
+        todo={todoWithTags}
+        tags={tags}
+        selectedTagId={null}
+        onTagPress={onTagPress}
+        onToggle={jest.fn()}
+        onEdit={jest.fn()}
+        onDelete={jest.fn()}
+      />,
+    )
+
+    fireEvent.press(screen.getByTestId('todo-tag-todo-with-tags-tag-1'))
+    expect(onTagPress).toHaveBeenCalledWith('tag-1')
   })
 })

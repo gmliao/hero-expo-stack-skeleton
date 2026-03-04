@@ -22,7 +22,7 @@ export class TagsController extends BaseController {
         successStatus: 201,
         schemas: { body: createTagBodySchema },
         execute: ({ deps, ctx, input }) =>
-          deps.services.tags.create(ctx.uid!, input.body.name),
+          deps.services.tags.create(ctx.uid!, input.body),
       }),
       defineEndpoint({
         id: "tags.update",
@@ -33,7 +33,7 @@ export class TagsController extends BaseController {
           deps.services.tags.update(
             input.params.tagId,
             ctx.uid!,
-            input.body.name,
+            input.body,
           ),
       }),
       defineEndpoint({

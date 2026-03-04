@@ -51,6 +51,8 @@ const baseTag = (overrides: Partial<Tag> = {}): Tag => ({
   id: 'tag-1',
   uid: 'user-1',
   name: 'Work',
+  emoji: '🧰',
+  colorToken: 'tagTeal',
   createdAt: '',
   updatedAt: '',
   ...overrides,
@@ -80,18 +82,26 @@ describe('TagsService (unit)', () => {
   })
 
   describe('create', () => {
-    it('creates and returns tag with trimmed name', async () => {
+    it('creates and returns tag with trimmed name, emoji, and colorToken', async () => {
       const repo = createMockTagsRepository()
       const svc = new TagsService(repo)
-      const result = await svc.create('user-1', '  New Tag  ')
+      const result = await svc.create('user-1', {
+        name: '  New Tag  ',
+        emoji: '🏠',
+        colorToken: 'tagBlue',
+      })
       expect(result.uid).toBe('user-1')
       expect(result.name).toBe('New Tag')
+      expect(result.emoji).toBe('🏠')
+      expect(result.colorToken).toBe('tagBlue')
     })
 
     it('throws VALIDATION_ERROR when name is empty', async () => {
       const repo = createMockTagsRepository()
       const svc = new TagsService(repo)
-      await expect(svc.create('user-1', '')).rejects.toMatchObject({
+      await expect(
+        svc.create('user-1', { name: '', emoji: '🏠', colorToken: 'tagBlue' }),
+      ).rejects.toMatchObject({
         code: 'VALIDATION_ERROR',
       })
     })
@@ -99,7 +109,19 @@ describe('TagsService (unit)', () => {
     it('throws VALIDATION_ERROR when name is only whitespace', async () => {
       const repo = createMockTagsRepository()
       const svc = new TagsService(repo)
-      await expect(svc.create('user-1', '   ')).rejects.toMatchObject({
+      await expect(
+        svc.create('user-1', { name: '   ', emoji: '🏠', colorToken: 'tagBlue' }),
+      ).rejects.toMatchObject({
+        code: 'VALIDATION_ERROR',
+      })
+    })
+
+    it('throws VALIDATION_ERROR when emoji is empty', async () => {
+      const repo = createMockTagsRepository()
+      const svc = new TagsService(repo)
+      await expect(
+        svc.create('user-1', { name: 'Work', emoji: '   ', colorToken: 'tagBlue' }),
+      ).rejects.toMatchObject({
         code: 'VALIDATION_ERROR',
       })
     })
@@ -109,22 +131,42 @@ describe('TagsService (unit)', () => {
     it('throws NOT_FOUND when tag does not exist', async () => {
       const repo = createMockTagsRepository()
       const svc = new TagsService(repo)
-      await expect(svc.update('nope', 'user-1', 'x')).rejects.toMatchObject({
+      await expect(
+        svc.update('nope', 'user-1', { name: 'x', emoji: '⚡', colorToken: 'tagAmber' }),
+      ).rejects.toMatchObject({
         code: 'NOT_FOUND',
       })
     })
 
-    it('updates and returns tag when found', async () => {
+    it('updates and returns full tag payload when found', async () => {
       const repo = createMockTagsRepository({ tags: [baseTag()] })
       const svc = new TagsService(repo)
-      const result = await svc.update('tag-1', 'user-1', '  Updated  ')
+      const result = await svc.update('tag-1', 'user-1', {
+        name: '  Updated  ',
+        emoji: '📚',
+        colorToken: 'tagGreen',
+      })
       expect(result.name).toBe('Updated')
+      expect(result.emoji).toBe('📚')
+      expect(result.colorToken).toBe('tagGreen')
     })
 
     it('throws VALIDATION_ERROR when name is empty after trim', async () => {
       const repo = createMockTagsRepository({ tags: [baseTag()] })
       const svc = new TagsService(repo)
-      await expect(svc.update('tag-1', 'user-1', '   ')).rejects.toMatchObject({
+      await expect(
+        svc.update('tag-1', 'user-1', { name: '   ', emoji: '📚', colorToken: 'tagGreen' }),
+      ).rejects.toMatchObject({
+        code: 'VALIDATION_ERROR',
+      })
+    })
+
+    it('throws VALIDATION_ERROR when emoji is empty after trim', async () => {
+      const repo = createMockTagsRepository({ tags: [baseTag()] })
+      const svc = new TagsService(repo)
+      await expect(
+        svc.update('tag-1', 'user-1', { name: 'Updated', emoji: ' ', colorToken: 'tagGreen' }),
+      ).rejects.toMatchObject({
         code: 'VALIDATION_ERROR',
       })
     })
@@ -133,7 +175,13 @@ describe('TagsService (unit)', () => {
       const repo = createMockTagsRepository({ tags: [baseTag()] })
       const updateSpy = jest.spyOn(repo, 'update').mockResolvedValueOnce(null)
       const svc = new TagsService(repo)
-      await expect(svc.update('tag-1', 'user-1', 'Updated')).rejects.toMatchObject({
+      await expect(
+        svc.update('tag-1', 'user-1', {
+          name: 'Updated',
+          emoji: '📚',
+          colorToken: 'tagGreen',
+        }),
+      ).rejects.toMatchObject({
         code: 'NOT_FOUND',
       })
       updateSpy.mockRestore()

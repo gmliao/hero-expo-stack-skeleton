@@ -31,9 +31,17 @@ describe('useCreateTagMutation', () => {
     expect(useMutation).toHaveBeenCalledTimes(1)
     const [options] = (useMutation as jest.Mock).mock.calls[0]
 
-    ;(api.createTag as jest.Mock).mockResolvedValue({ id: 'tag-1', name: 'Work', uid: 'u1', createdAt: '', updatedAt: '' })
-    await options.mutationFn({ name: 'Work' })
-    expect(api.createTag).toHaveBeenCalledWith({ name: 'Work' })
+    ;(api.createTag as jest.Mock).mockResolvedValue({
+      id: 'tag-1',
+      name: 'Work',
+      emoji: '🧰',
+      colorToken: 'tagTeal',
+      uid: 'u1',
+      createdAt: '',
+      updatedAt: '',
+    })
+    await options.mutationFn({ name: 'Work', emoji: '🧰', colorToken: 'tagTeal' })
+    expect(api.createTag).toHaveBeenCalledWith({ name: 'Work', emoji: '🧰', colorToken: 'tagTeal' })
 
     await options.onSuccess()
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.tags.all() })
@@ -46,6 +54,6 @@ describe('useCreateTagMutation', () => {
 
     ;(api.createTag as jest.Mock).mockRejectedValue(new Error('Create failed'))
 
-    await expect(options.mutationFn({ name: 'X' })).rejects.toThrow('Create failed')
+    await expect(options.mutationFn({ name: 'X', emoji: '⚡', colorToken: 'tagAmber' })).rejects.toThrow('Create failed')
   })
 })

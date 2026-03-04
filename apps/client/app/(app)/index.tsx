@@ -43,6 +43,13 @@ export default function TodosScreen() {
     [toggleMutation],
   )
 
+  const handleTagPress = useCallback(
+    (tagId: string) => {
+      setSelectedTagId(selectedTagId === tagId ? null : tagId)
+    },
+    [selectedTagId, setSelectedTagId],
+  )
+
   const handleEdit = useCallback(
     (todo: Todo) => {
       setSelectedTodoId(todo.id)
@@ -109,6 +116,8 @@ export default function TodosScreen() {
             <TodosList
               todos={todos}
               tags={tags}
+              selectedTagId={selectedTagId}
+              onTagPress={handleTagPress}
               onToggle={handleToggle}
               onEdit={handleEdit}
               onDelete={handleDelete}

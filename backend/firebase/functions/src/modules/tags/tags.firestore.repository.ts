@@ -1,5 +1,5 @@
 import { DocumentData, getFirestore, Timestamp } from 'firebase-admin/firestore'
-import type { Tag } from './tags.types'
+import type { CreateTagRequest, Tag, UpdateTagRequest } from './tags.types'
 
 const db = () => getFirestore()
 
@@ -11,6 +11,8 @@ function docToTag(docId: string, data: DocumentData): Tag {
   return {
     id: docId,
     name: data.name,
+    emoji: data.emoji,
+    colorToken: data.colorToken,
     uid: data.uid,
     createdAt: (data.createdAt as Timestamp).toDate().toISOString(),
     updatedAt: (data.updatedAt as Timestamp).toDate().toISOString(),
@@ -31,11 +33,13 @@ export class TagsFirestoreRepository {
   /**
    * Create a tag in users/{uid}/tags. Document id is auto-generated.
    */
-  async create(uid: string, name: string): Promise<Tag> {
+  async create(uid: string, payload: CreateTagRequest): Promise<Tag> {
     const now = Timestamp.now()
     const docRef = tagsCol(uid).doc()
     const docData = {
-      name: name.trim(),
+      name: payload.name.trim(),
+      emoji: payload.emoji.trim(),
+      colorToken: payload.colorToken,
       uid,
       createdAt: now,
       updatedAt: now,
@@ -57,12 +61,14 @@ export class TagsFirestoreRepository {
   /**
    * Update name and updatedAt at users/{uid}/tags/{tagId}. Returns null if doc does not exist.
    */
-  async update(tagId: string, uid: string, { name }: { name: string }): Promise<Tag | null> {
+  async update(tagId: string, uid: string, payload: UpdateTagRequest): Promise<Tag | null> {
     const docRef = tagsCol(uid).doc(tagId)
     const doc = await docRef.get()
     if (!doc.exists) return null
     await docRef.update({
-      name: name.trim(),
+      name: payload.name.trim(),
+      emoji: payload.emoji.trim(),
+      colorToken: payload.colorToken,
       updatedAt: Timestamp.now(),
     })
     const updated = await docRef.get()

@@ -34,12 +34,21 @@ describe('useUpdateTagMutation', () => {
     ;(api.updateTag as jest.Mock).mockResolvedValue({
       id: 'tag-1',
       name: 'Updated',
+      emoji: '⚡',
+      colorToken: 'tagAmber',
       uid: 'u1',
       createdAt: '',
       updatedAt: '',
     })
-    await options.mutationFn({ tagId: 'tag-1', body: { name: 'Updated' } })
-    expect(api.updateTag).toHaveBeenCalledWith('tag-1', { name: 'Updated' })
+    await options.mutationFn({
+      tagId: 'tag-1',
+      body: { name: 'Updated', emoji: '⚡', colorToken: 'tagAmber' },
+    })
+    expect(api.updateTag).toHaveBeenCalledWith('tag-1', {
+      name: 'Updated',
+      emoji: '⚡',
+      colorToken: 'tagAmber',
+    })
 
     await options.onSuccess()
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.tags.all() })
@@ -52,6 +61,11 @@ describe('useUpdateTagMutation', () => {
 
     ;(api.updateTag as jest.Mock).mockRejectedValue(new Error('Update failed'))
 
-    await expect(options.mutationFn({ tagId: 'tag-1', body: { name: 'X' } })).rejects.toThrow('Update failed')
+    await expect(
+      options.mutationFn({
+        tagId: 'tag-1',
+        body: { name: 'X', emoji: '🧰', colorToken: 'tagTeal' },
+      }),
+    ).rejects.toThrow('Update failed')
   })
 })

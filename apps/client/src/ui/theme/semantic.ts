@@ -4,7 +4,7 @@ import { primitiveTokens } from '@/ui/theme/tokens'
 const designTokens = require('./design-tokens.js')
 
 /** Light theme from single source (design-tokens.js, Pen-aligned) */
-const light = designTokens.colors as const
+const light = designTokens.colors
 
 const dark = {
   bg: primitiveTokens.colors.navy950,

@@ -18,6 +18,14 @@ const colors = {
   focus: '#D4A017',
 }
 
+const tagPalette = {
+  tagTeal: { bg: '#CCFBF1', text: '#115E59', border: '#5EEAD4' },
+  tagBlue: { bg: '#DBEAFE', text: '#1D4ED8', border: '#93C5FD' },
+  tagGreen: { bg: '#DCFCE7', text: '#166534', border: '#86EFAC' },
+  tagAmber: { bg: '#FEF3C7', text: '#92400E', border: '#FCD34D' },
+  tagRose: { bg: '#FFE4E6', text: '#BE123C', border: '#FDA4AF' },
+}
+
 const radii = {
   sm: 8,
   md: 12,
@@ -53,6 +61,7 @@ const spacingPx = Object.fromEntries(Object.entries(spacing).map(([k, v]) => [k,
 
 module.exports = {
   colors,
+  tagPalette,
   tailwindColors,
   radii,
   spacing,

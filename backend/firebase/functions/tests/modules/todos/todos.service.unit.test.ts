@@ -46,7 +46,15 @@ describe('TodosService (unit)', () => {
     it('creates todo with tagIds when all tagIds belong to user', async () => {
       const repo = createMockTodosRepository()
       const tags: Tag[] = [
-        { id: 'tag-1', uid: 'user-1', name: 'A', createdAt: '', updatedAt: '' },
+        {
+          id: 'tag-1',
+          uid: 'user-1',
+          name: 'A',
+          emoji: '🧰',
+          colorToken: 'tagTeal',
+          createdAt: '',
+          updatedAt: '',
+        },
       ]
       const svc = new TodosService(repo, mockTagsService(tags))
       const result = await svc.createTodo('user-1', { title: 'T', tagIds: ['tag-1'] })
@@ -90,7 +98,15 @@ describe('TodosService (unit)', () => {
     it('updates tagIds when all belong to user', async () => {
       const repo = createMockTodosRepository({ todos: [baseTodo()] })
       const tags: Tag[] = [
-        { id: 'tag-1', uid: 'user-1', name: 'A', createdAt: '', updatedAt: '' },
+        {
+          id: 'tag-1',
+          uid: 'user-1',
+          name: 'A',
+          emoji: '🧰',
+          colorToken: 'tagTeal',
+          createdAt: '',
+          updatedAt: '',
+        },
       ]
       const svc = new TodosService(repo, mockTagsService(tags))
       const result = await svc.updateTodo('user-1', 't1', { tagIds: ['tag-1'] })

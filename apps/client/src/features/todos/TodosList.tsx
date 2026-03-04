@@ -8,6 +8,8 @@ import { TodoItem } from './TodoItem'
 type TodosListProps = {
   todos: Todo[] | undefined
   tags?: Tag[]
+  selectedTagId?: string | null
+  onTagPress?: (tagId: string) => void
   onToggle: (id: string) => void
   onEdit: (todo: Todo) => void
   onDelete: (todo: Todo) => void
@@ -30,6 +32,8 @@ const styles = StyleSheet.create({
 export function TodosList({
   todos,
   tags = [],
+  selectedTagId = null,
+  onTagPress,
   onToggle,
   onEdit,
   onDelete,
@@ -46,6 +50,8 @@ export function TodosList({
           key={todo.id}
           todo={todo}
           tags={tags}
+          selectedTagId={selectedTagId}
+          onTagPress={onTagPress}
           onToggle={onToggle}
           onEdit={onEdit}
           onDelete={onDelete}

@@ -425,38 +425,44 @@
           "alignItems": "center",
           "children": [
             {
-              "id": "wO1xO",
+              "id": "NmElK",
               "type": "ref",
-              "ref": "9eh24",
+              "ref": "Fm4sf",
               "width": "fit_content",
-              "name": "allLink",
+              "name": "allChipB",
               "descendants": {
-                "GkLJ2": {
+                "Wu633": {
                   "content": "All"
                 }
               }
             },
             {
-              "id": "cRYfM",
+              "id": "bP754",
               "type": "ref",
-              "ref": "ead5P",
+              "ref": "UFaeP",
               "width": "fit_content",
-              "name": "badgeWork",
+              "name": "workChipC",
               "descendants": {
-                "hxzW3": {
-                  "content": "Work"
+                "QPVnA": {
+                  "content": "🧰 Work"
                 }
               }
             },
             {
-              "id": "dkQLx",
+              "id": "bE2AC",
               "type": "ref",
-              "ref": "X5rfy",
+              "ref": "UFaeP",
               "width": "fit_content",
-              "name": "badgeUrgent",
+              "name": "urgentChipC",
+              "stroke": {
+                "align": "inside",
+                "fill": "$tagAmberBorder",
+                "thickness": 1
+              },
               "descendants": {
-                "R147l": {
-                  "content": "Urgent"
+                "QPVnA": {
+                  "content": "⚡ Urgent",
+                  "fill": "$tagAmberText"
                 }
               }
             }
@@ -689,7 +695,7 @@
                   "alignItems": "start",
                   "descendants": {
                     "GkLJ2": {
-                      "content": "+ Add tag"
+                      "content": "New tag"
                     }
                   }
                 }
@@ -699,6 +705,7 @@
               "type": "frame",
               "id": "sVg67",
               "name": "addTagInline",
+              "enabled": false,
               "width": "fill_container",
               "gap": 8,
               "alignItems": "center",
@@ -709,6 +716,9 @@
                   "ref": "ogBSt",
                   "width": "fill_container",
                   "name": "addTagInput",
+                  "height": "fit_content",
+                  "x": 0,
+                  "y": 0,
                   "descendants": {
                     "J9VC4": {
                       "enabled": false
@@ -724,6 +734,8 @@
                   "ref": "3IKQy",
                   "width": 80,
                   "name": "addTagBtn",
+                  "x": 255,
+                  "y": 2,
                   "descendants": {
                     "oaYG8": {
                       "content": "Add"
@@ -741,26 +753,32 @@
               "alignItems": "center",
               "children": [
                 {
-                  "id": "92daa",
+                  "id": "2ddm5",
                   "type": "ref",
-                  "ref": "ead5P",
+                  "ref": "Fm4sf",
                   "width": "fit_content",
-                  "name": "badgeWorkMg",
+                  "name": "workChipD",
                   "descendants": {
-                    "hxzW3": {
-                      "content": "Work"
+                    "Wu633": {
+                      "content": "🧰 Work"
                     }
                   }
                 },
                 {
-                  "id": "BW7kY",
+                  "id": "pjmnl",
                   "type": "ref",
-                  "ref": "X5rfy",
+                  "ref": "UFaeP",
                   "width": "fit_content",
-                  "name": "badgeUrgentMg",
+                  "name": "urgentChipD",
+                  "stroke": {
+                    "align": "inside",
+                    "fill": "$tagAmberBorder",
+                    "thickness": 1
+                  },
                   "descendants": {
-                    "R147l": {
-                      "content": "Urgent"
+                    "QPVnA": {
+                      "content": "⚡ Urgent",
+                      "fill": "$tagAmberText"
                     }
                   }
                 }
@@ -2495,7 +2513,7 @@
                       "name": "badge1",
                       "descendants": {
                         "R147l": {
-                          "content": "Work"
+                          "content": "🧰 Work"
                         }
                       }
                     },
@@ -2504,9 +2522,16 @@
                       "type": "ref",
                       "ref": "X5rfy",
                       "name": "badge2",
+                      "fill": "$tagAmberBg",
+                      "stroke": {
+                        "align": "inside",
+                        "fill": "$tagAmberBorder",
+                        "thickness": 1
+                      },
                       "descendants": {
                         "R147l": {
-                          "content": "Urgent"
+                          "content": "⚡ Urgent",
+                          "fill": "$tagAmberText"
                         }
                       }
                     }
@@ -2679,12 +2704,12 @@
           "name": "component/TagBadge",
           "reusable": true,
           "height": 24,
-          "fill": "#CCFBF1",
+          "fill": "$tagTealBg",
           "cornerRadius": 12,
           "stroke": {
             "align": "inside",
             "thickness": 1,
-            "fill": "$border"
+            "fill": "$tagTealBorder"
           },
           "layout": "vertical",
           "padding": [
@@ -2698,8 +2723,8 @@
               "type": "text",
               "id": "R147l",
               "name": "tagBadgeLbl",
-              "fill": "$textMuted",
-              "content": "Tag",
+              "fill": "$tagTealText",
+              "content": "🏷 Tag",
               "fontFamily": "Inter",
               "fontSize": 12,
               "fontWeight": "500"
@@ -2713,12 +2738,12 @@
           "reusable": true,
           "width": "fill_container",
           "height": 32,
-          "fill": "transparent",
+          "fill": "$surface",
           "cornerRadius": 20,
           "stroke": {
             "align": "inside",
             "thickness": 1,
-            "fill": "$border"
+            "fill": "$tagTealBorder"
           },
           "layout": "vertical",
           "padding": [
@@ -2732,11 +2757,11 @@
               "type": "text",
               "id": "QPVnA",
               "name": "tagChipLbl",
-              "fill": "$textMuted",
-              "content": "Tag",
+              "fill": "$tagTealText",
+              "content": "🏷 Tag",
               "fontFamily": "Inter",
               "fontSize": 14,
-              "fontWeight": "normal"
+              "fontWeight": "500"
             }
           ]
         },
@@ -2747,7 +2772,7 @@
           "reusable": true,
           "width": "fill_container",
           "height": 32,
-          "fill": "$primary",
+          "fill": "$tagTealText",
           "cornerRadius": 20,
           "layout": "vertical",
           "padding": [
@@ -2762,7 +2787,7 @@
               "id": "Wu633",
               "name": "tagChipActiveLbl",
               "fill": "$white",
-              "content": "All",
+              "content": "🏷 Tag",
               "fontFamily": "Inter",
               "fontSize": 14,
               "fontWeight": "600"
@@ -2775,7 +2800,7 @@
           "name": "component/TagBadgeSelected",
           "reusable": true,
           "height": 24,
-          "fill": "$primary",
+          "fill": "$tagTealText",
           "cornerRadius": 12,
           "layout": "vertical",
           "padding": [
@@ -2790,7 +2815,7 @@
               "id": "hxzW3",
               "name": "tagBadgeSelLbl",
               "fill": "$white",
-              "content": "Tag",
+              "content": "🏷 Tag",
               "fontFamily": "Inter",
               "fontSize": 12,
               "fontWeight": "600"
@@ -2972,6 +2997,18 @@
               }
             },
             {
+              "id": "tBKNF",
+              "type": "ref",
+              "ref": "9eh24",
+              "width": "fit_content",
+              "name": "newTagLinkB",
+              "descendants": {
+                "GkLJ2": {
+                  "content": "New tag"
+                }
+              }
+            },
+            {
               "type": "frame",
               "id": "zseJY",
               "name": "tagList",
@@ -2994,7 +3031,7 @@
                       "width": "fit_content",
                       "descendants": {
                         "R147l": {
-                          "content": "Work"
+                          "content": "🧰 Work"
                         }
                       }
                     },
@@ -3006,7 +3043,7 @@
                       "name": "ren1",
                       "descendants": {
                         "wvEEg": {
-                          "content": "Rename"
+                          "content": "Edit"
                         }
                       }
                     },
@@ -3037,9 +3074,16 @@
                       "type": "ref",
                       "ref": "X5rfy",
                       "width": "fit_content",
+                      "fill": "$tagAmberBg",
+                      "stroke": {
+                        "align": "inside",
+                        "fill": "$tagAmberBorder",
+                        "thickness": 1
+                      },
                       "descendants": {
                         "R147l": {
-                          "content": "Urgent"
+                          "content": "⚡ Urgent",
+                          "fill": "$tagAmberText"
                         }
                       }
                     },
@@ -3051,7 +3095,7 @@
                       "name": "ren2",
                       "descendants": {
                         "wvEEg": {
-                          "content": "Rename"
+                          "content": "Edit"
                         }
                       }
                     },
@@ -3086,6 +3130,252 @@
       "fontFamily": "Inter",
       "fontSize": 12,
       "fontWeight": "600"
+    },
+    {
+      "type": "frame",
+      "id": "5C8Lv",
+      "x": 420,
+      "y": 1875,
+      "name": "Create Tag Modal",
+      "width": 375,
+      "height": 452,
+      "fill": "$background",
+      "cornerRadius": 24,
+      "stroke": {
+        "thickness": 1,
+        "fill": "$border"
+      },
+      "layout": "vertical",
+      "children": [
+        {
+          "id": "SZ8KD",
+          "type": "ref",
+          "ref": "McPgO",
+          "width": "fill_container",
+          "name": "createTagHandleA"
+        },
+        {
+          "type": "frame",
+          "id": "jW7vZ",
+          "name": "contentWrap",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 20,
+          "padding": [
+            24,
+            20,
+            32,
+            20
+          ],
+          "children": [
+            {
+              "id": "t1B7V",
+              "type": "ref",
+              "ref": "T5cMs",
+              "name": "createTagTitleA",
+              "descendants": {
+                "78Uwh": {
+                  "content": "Create tag"
+                }
+              }
+            },
+            {
+              "id": "6DZJM",
+              "type": "ref",
+              "ref": "Z7k3d",
+              "name": "nameLabelA",
+              "descendants": {
+                "WmBYa": {
+                  "content": "Name"
+                }
+              }
+            },
+            {
+              "id": "0CkhH",
+              "type": "ref",
+              "ref": "ogBSt",
+              "width": "fill_container",
+              "name": "nameFieldA",
+              "descendants": {
+                "J9VC4": {
+                  "enabled": false
+                },
+                "eo5t8": {
+                  "content": "Personal"
+                }
+              }
+            },
+            {
+              "id": "KwMRl",
+              "type": "ref",
+              "ref": "Z7k3d",
+              "name": "emojiLabelA",
+              "descendants": {
+                "WmBYa": {
+                  "content": "Emoji"
+                }
+              }
+            },
+            {
+              "type": "frame",
+              "id": "wwgew",
+              "name": "emojiPickerRow",
+              "width": "fill_container",
+              "gap": 8,
+              "children": [
+                {
+                  "id": "K8orM",
+                  "type": "ref",
+                  "ref": "Fm4sf",
+                  "width": "fit_content",
+                  "name": "emojiChoiceA",
+                  "descendants": {
+                    "Wu633": {
+                      "content": "🧰 Work"
+                    }
+                  }
+                },
+                {
+                  "id": "WCh3P",
+                  "type": "ref",
+                  "ref": "UFaeP",
+                  "width": "fit_content",
+                  "name": "emojiChoiceB",
+                  "descendants": {
+                    "QPVnA": {
+                      "content": "🏠 Home"
+                    }
+                  }
+                },
+                {
+                  "id": "VRblx",
+                  "type": "ref",
+                  "ref": "UFaeP",
+                  "width": "fit_content",
+                  "name": "emojiChoiceC",
+                  "descendants": {
+                    "QPVnA": {
+                      "content": "📚 Study"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "omA9M",
+              "type": "ref",
+              "ref": "Z7k3d",
+              "name": "colorLabelA",
+              "descendants": {
+                "WmBYa": {
+                  "content": "Color"
+                }
+              }
+            },
+            {
+              "type": "frame",
+              "id": "w4lD8",
+              "name": "colorTokenRow",
+              "width": "fill_container",
+              "gap": 8,
+              "children": [
+                {
+                  "id": "cMgmD",
+                  "type": "ref",
+                  "ref": "X5rfy",
+                  "width": "fit_content",
+                  "fill": "$tagTealBg",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$tagTealBorder"
+                  },
+                  "name": "colorChoiceA",
+                  "descendants": {
+                    "R147l": {
+                      "content": "Teal",
+                      "fill": "$tagTealText"
+                    }
+                  }
+                },
+                {
+                  "id": "rkZy6",
+                  "type": "ref",
+                  "ref": "X5rfy",
+                  "width": "fit_content",
+                  "fill": "$tagBlueBg",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$tagBlueBorder"
+                  },
+                  "name": "colorChoiceB",
+                  "descendants": {
+                    "R147l": {
+                      "content": "Blue",
+                      "fill": "$tagBlueText"
+                    }
+                  }
+                },
+                {
+                  "id": "CxyN3",
+                  "type": "ref",
+                  "ref": "X5rfy",
+                  "width": "fit_content",
+                  "fill": "$tagRoseBg",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$tagRoseBorder"
+                  },
+                  "name": "colorChoiceC",
+                  "descendants": {
+                    "R147l": {
+                      "content": "Rose",
+                      "fill": "$tagRoseText"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "KDiqK",
+              "name": "actionsRow",
+              "width": "fill_container",
+              "height": 48,
+              "gap": 12,
+              "justifyContent": "end",
+              "children": [
+                {
+                  "id": "Qo0Bk",
+                  "type": "ref",
+                  "ref": "C1f9F",
+                  "width": 90,
+                  "name": "createTagCancelA",
+                  "descendants": {
+                    "wvEEg": {
+                      "content": "Cancel"
+                    }
+                  }
+                },
+                {
+                  "id": "Pw5Qf",
+                  "type": "ref",
+                  "ref": "3IKQy",
+                  "width": 110,
+                  "name": "createTagSaveA",
+                  "descendants": {
+                    "oaYG8": {
+                      "content": "Create tag"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "variables": {
@@ -3282,6 +3572,216 @@
         },
         {
           "value": "#16A34A"
+        }
+      ]
+    },
+    "tagAmberBg": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#FEF3C7"
+        },
+        {
+          "value": "#FEF3C7"
+        },
+        {
+          "value": "#FEF3C7"
+        }
+      ]
+    },
+    "tagAmberBorder": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#FCD34D"
+        },
+        {
+          "value": "#FCD34D"
+        },
+        {
+          "value": "#FCD34D"
+        }
+      ]
+    },
+    "tagAmberText": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#92400E"
+        },
+        {
+          "value": "#92400E"
+        },
+        {
+          "value": "#92400E"
+        }
+      ]
+    },
+    "tagBlueBg": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#DBEAFE"
+        },
+        {
+          "value": "#DBEAFE"
+        },
+        {
+          "value": "#DBEAFE"
+        }
+      ]
+    },
+    "tagBlueBorder": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#93C5FD"
+        },
+        {
+          "value": "#93C5FD"
+        },
+        {
+          "value": "#93C5FD"
+        }
+      ]
+    },
+    "tagBlueText": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#1D4ED8"
+        },
+        {
+          "value": "#1D4ED8"
+        },
+        {
+          "value": "#1D4ED8"
+        }
+      ]
+    },
+    "tagGreenBg": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#DCFCE7"
+        },
+        {
+          "value": "#DCFCE7"
+        },
+        {
+          "value": "#DCFCE7"
+        }
+      ]
+    },
+    "tagGreenBorder": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#86EFAC"
+        },
+        {
+          "value": "#86EFAC"
+        },
+        {
+          "value": "#86EFAC"
+        }
+      ]
+    },
+    "tagGreenText": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#166534"
+        },
+        {
+          "value": "#166534"
+        },
+        {
+          "value": "#166534"
+        }
+      ]
+    },
+    "tagRoseBg": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#FFE4E6"
+        },
+        {
+          "value": "#FFE4E6"
+        },
+        {
+          "value": "#FFE4E6"
+        }
+      ]
+    },
+    "tagRoseBorder": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#FDA4AF"
+        },
+        {
+          "value": "#FDA4AF"
+        },
+        {
+          "value": "#FDA4AF"
+        }
+      ]
+    },
+    "tagRoseText": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#BE123C"
+        },
+        {
+          "value": "#BE123C"
+        },
+        {
+          "value": "#BE123C"
+        }
+      ]
+    },
+    "tagTealBg": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#CCFBF1"
+        },
+        {
+          "value": "#CCFBF1"
+        },
+        {
+          "value": "#CCFBF1"
+        }
+      ]
+    },
+    "tagTealBorder": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#5EEAD4"
+        },
+        {
+          "value": "#5EEAD4"
+        },
+        {
+          "value": "#5EEAD4"
+        }
+      ]
+    },
+    "tagTealText": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#115E59"
+        },
+        {
+          "value": "#115E59"
+        },
+        {
+          "value": "#115E59"
         }
       ]
     }

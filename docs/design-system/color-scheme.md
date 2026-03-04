@@ -28,6 +28,18 @@
 
 **Dark 主題補充：** `primarySoft`、`white`、`overlay` 目前僅在 light 語意表列出；dark 若需使用可由 primitiveTokens 或沿用 light 定義，必要時在 `semantic.ts` 補上。
 
+### Tag Palette Tokens（phase 2）
+
+| Token | Light | 用途 |
+|-------|-------|------|
+| `tagTealBg` / `tagTealText` / `tagTealBorder` | `#CCFBF1` / `#115E59` / `#5EEAD4` | 預設 tag palette |
+| `tagBlueBg` / `tagBlueText` / `tagBlueBorder` | `#DBEAFE` / `#1D4ED8` / `#93C5FD` | 資訊 / 專案 |
+| `tagGreenBg` / `tagGreenText` / `tagGreenBorder` | `#DCFCE7` / `#166534` / `#86EFAC` | 生活 / 完成感 |
+| `tagAmberBg` / `tagAmberText` / `tagAmberBorder` | `#FEF3C7` / `#92400E` / `#FCD34D` | 注意 / 等待 |
+| `tagRoseBg` / `tagRoseText` / `tagRoseBorder` | `#FFE4E6` / `#BE123C` / `#FDA4AF` | 個人 / 高優先 |
+
+這組 token 只供 tag system 使用。使用者不可自由輸入顏色，只能從 allowlist 選。
+
 ---
 
 ## 元件使用的 Token（參考）
@@ -38,10 +50,22 @@
 | AppButton | primary, surface, border, danger, white (inverse) |
 | AppInput / AppTextArea | surface, text, border, primary, danger, success, muted (placeholder) |
 | AppFilterChip | primary, border, muted (inactive), white (active text) |
+| AppTagBadge | `tag*Bg`, `tag*Text`, `tag*Border`, white (active text) |
+| AppTagChip | `tag*Text`, `tag*Border`, surface (inactive bg), white (active text) |
 | AppLinkAction | primary |
 | AppStatusBar | surface |
 | AppSheetHandle | muted |
 | AppText (tone) | text, muted, danger, success, white (inverse) |
+
+### Tag surface usage rules
+
+- Todo list badge row: `AppTagBadge`
+- Create/Edit Todo picker row: `AppTagChip`
+- Tag filter row: `AppTagChip` (`All` uses the generic active state)
+- Manage Tags preview row: `AppTagBadge`
+- Tag form preview: `AppTagBadge`
+
+這些 surface 都必須直接使用 tag palette tokens；不能只在 Manage Tags form 裡選到顏色，其他地方卻退回預設顯示。
 
 ---
 

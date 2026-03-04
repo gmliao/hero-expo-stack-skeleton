@@ -6,10 +6,14 @@ import {
 
 describe('tags.schema (unit)', () => {
   describe('createTagBodySchema', () => {
-    it('accepts valid name', () => {
-      expect(createTagBodySchema.parse({ name: 'work' })).toEqual({ name: 'work' })
-      expect(createTagBodySchema.parse({ name: 'a'.repeat(50) })).toEqual({
+    it('accepts valid name, emoji, and colorToken', () => {
+      expect(
+        createTagBodySchema.parse({ name: 'work', emoji: '🧰', colorToken: 'tagTeal' }),
+      ).toEqual({ name: 'work', emoji: '🧰', colorToken: 'tagTeal' })
+      expect(createTagBodySchema.parse({ name: 'a'.repeat(50), emoji: '📚', colorToken: 'tagBlue' })).toEqual({
         name: 'a'.repeat(50),
+        emoji: '📚',
+        colorToken: 'tagBlue',
       })
     })
 
@@ -22,15 +26,33 @@ describe('tags.schema (unit)', () => {
         'name max 50 characters',
       )
     })
+
+    it('rejects empty emoji', () => {
+      expect(() => createTagBodySchema.parse({ name: 'work', emoji: '', colorToken: 'tagTeal' })).toThrow()
+    })
+
+    it('rejects unsupported color token', () => {
+      expect(() =>
+        createTagBodySchema.parse({ name: 'work', emoji: '🧰', colorToken: 'purple' }),
+      ).toThrow()
+    })
   })
 
   describe('updateTagBodySchema', () => {
-    it('accepts valid name', () => {
-      expect(updateTagBodySchema.parse({ name: 'updated' })).toEqual({ name: 'updated' })
+    it('accepts valid full payload', () => {
+      expect(
+        updateTagBodySchema.parse({ name: 'updated', emoji: '⚡', colorToken: 'tagAmber' }),
+      ).toEqual({ name: 'updated', emoji: '⚡', colorToken: 'tagAmber' })
     })
 
     it('rejects empty name', () => {
       expect(() => updateTagBodySchema.parse({ name: '' })).toThrow('name is required')
+    })
+
+    it('rejects empty emoji', () => {
+      expect(() =>
+        updateTagBodySchema.parse({ name: 'updated', emoji: '', colorToken: 'tagTeal' }),
+      ).toThrow()
     })
   })
 

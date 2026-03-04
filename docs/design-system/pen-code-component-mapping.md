@@ -16,6 +16,7 @@
 | Sign Up | Z8Qyn | (auth)/sign-up.tsx |
 | Todos | u57V2 | (app)/index.tsx |
 | Create Todo Modal | Aa59O | CreateTodoModal (sheet) |
+| Create Tag Modal | 5C8Lv | TagFormModal（todo flow child modal；與 Manage Tags 的 edit/create 共用） |
 | **Options** | **O4CjV** | **(app)/options.tsx** |
 | Manage Tags Modal | CSLAp | **(app)/manage-tags.tsx**：Manage Tags route，內容以 **modal/sheet** 呈現（同 Create Todo Modal）。 |
 
@@ -40,11 +41,11 @@
 | component/ScreenTitle | T5cMs | AppText | AppText.tsx (size=xl, weight=bold) |
 | component/SectionLabel | Z7k3d | AppText | AppText.tsx (size=sm, tone=muted) |
 | component/SheetHandle | McPgO | AppSheetHandle | AppSheetHandle.tsx |
-| component/TagBadge | X5rfy | AppTagBadge | **已實作**：顯示用小 pill，24px 高（h-6）、primarySoft 底、muted 文字；用於 todo item 上顯示 tag 名稱（非互動）。 |
-| component/TagBadgeSelected | ead5P | AppTagBadge（selected） | **暫不實作**：互動式選中狀態目前由 `AppFilterChip` 承擔，此 Pen 元件保留作設計參考。 |
+| component/TagBadge | X5rfy | AppTagBadge | 小 pill，24px 高，支援 emoji + label + color token；phase 2 起作為 todo item 可互動 badge 與 manage preview 的基底。 |
+| component/TagBadgeSelected | ead5P | AppTagBadge（selected） | phase 2 起作為 todo item active tag badge 的設計參考。 |
 | **component/HorizontalScrollRow** | **A0Bim** | **橫向捲動列**（Code 包 ScrollView horizontal） | 內為 contentSlot (FTqx8)；有 tag 的列（篩選、picker、Manage Tags 列表行內 tag）可辨識用此或同款佈局。 |
-| component/TagChip | UFaeP | （備用） | pill、32px、outline；目前 tag 篩選改用 TagBadge / TagBadgeSelected |
-| component/TagChipActive | Fm4sf | （備用） | pill、32px、primary 填滿 |
+| component/TagChip | UFaeP | AppTagChip | pill、32px、emoji + label + color token；用於 tag 篩選與 modal picker。 |
+| component/TagChipActive | Fm4sf | AppTagChip（active） | pill、32px、active 狀態；用於 tag 篩選與 modal picker。 |
 
 ---
 
@@ -65,8 +66,8 @@
 | AppText | AppText.tsx | ScreenTitle, SectionLabel | T5cMs, Z7k3d |
 | AppTextArea | AppTextArea.tsx | component/TextArea | JEOdo |
 | TodoItem | features/todos/TodoItem.tsx | component/TodoItem | bEjH4 |
-| AppTagBadge | AppTagBadge.tsx | component/TagBadge | X5rfy |
-| AppTagChip | 待實作 | TagChip, TagChipActive | UFaeP, Fm4sf |
+| AppTagBadge | AppTagBadge.tsx | component/TagBadge, TagBadgeSelected | X5rfy, ead5P |
+| AppTagChip | AppTagChip.tsx | TagChip, TagChipActive | UFaeP, Fm4sf |
 | HorizontalScrollRow（橫向捲動列） | 待實作 | component/HorizontalScrollRow | A0Bim |
 
 ---
@@ -86,6 +87,23 @@
 | `white` | `tokens.colors.white` | 反白文字/特殊用途 |
 | `overlay` | `tokens.colors.overlay` | 遮罩 |
 | `focus` | `semanticColors.light.focus` / `semanticColors.dark.focus` | 焦點環 |
+| `tagTealBg` / `tagTealText` / `tagTealBorder` | 待實作 tag palette token | tag teal palette |
+| `tagBlueBg` / `tagBlueText` / `tagBlueBorder` | 待實作 tag palette token | tag blue palette |
+| `tagGreenBg` / `tagGreenText` / `tagGreenBorder` | 待實作 tag palette token | tag green palette |
+| `tagAmberBg` / `tagAmberText` / `tagAmberBorder` | 待實作 tag palette token | tag amber palette |
+| `tagRoseBg` / `tagRoseText` / `tagRoseBorder` | 待實作 tag palette token | tag rose palette |
+
+## Surface Display Rules
+
+以下 composed surfaces 必須直接反映 tag metadata，不可退化成只有文字：
+
+| Code Surface | 元件 | 規則 |
+|--------------|------|------|
+| `TodoItem.tagsRow` | `AppTagBadge` | 顯示 `emoji + label + colorToken`，active 時仍保留 tag identity |
+| `TagFilters` | `AppTagChip` | `All` 之外的 tag filter 必須顯示 `emoji + label + colorToken` |
+| `CreateTodoModal` tag picker row | `AppTagChip` | 顯示 `emoji + label + colorToken`；代表 todo 綁定關係，不是 filter |
+| `ManageTags` preview row | `AppTagBadge` | 顯示 `emoji + label + colorToken`，作為 edit 前預覽 |
+| `TagFormModal` preview | `AppTagBadge` | 顯示表單當前選擇的 `emoji + label + colorToken` |
 
 ### Legacy / Alias in Pen
 

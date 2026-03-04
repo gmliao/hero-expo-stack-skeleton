@@ -16,12 +16,22 @@ function formatDueDate(value: string): string {
 interface Props {
   todo: Todo
   tags?: Tag[]
+  selectedTagId?: string | null
+  onTagPress?: (tagId: string) => void
   onToggle: (id: string) => void
   onEdit: (todo: Todo) => void
   onDelete: (todo: Todo) => void
 }
 
-export function TodoItem({ todo, tags, onToggle, onEdit, onDelete }: Props) {
+export function TodoItem({
+  todo,
+  tags,
+  selectedTagId = null,
+  onTagPress,
+  onToggle,
+  onEdit,
+  onDelete,
+}: Props) {
   const { t } = useTranslation()
   const dueLabel = todo.dueDate
     ? t('todos.dueDate', { date: formatDueDate(todo.dueDate) })
@@ -91,6 +101,10 @@ export function TodoItem({ todo, tags, onToggle, onEdit, onDelete }: Props) {
                 <AppTagBadge
                   key={tagId}
                   name={tag.name}
+                  emoji={tag.emoji}
+                  colorToken={tag.colorToken}
+                  active={selectedTagId === tag.id}
+                  onPress={() => onTagPress?.(tag.id)}
                   testID={`todo-tag-${todo.id}-${tagId}`}
                 />
               )

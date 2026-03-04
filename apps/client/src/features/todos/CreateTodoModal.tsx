@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Modal, Pressable, ScrollView, View } from 'react-native'
 import { useQueryClient } from '@tanstack/react-query'
 
-import type { Todo } from '@shared/types/api'
+import type { Tag, Todo } from '@shared/types/api'
 import { useCreateTagMutation } from '@/data/hooks/useCreateTagMutation'
 import { useCreateTodoMutation } from '@/data/hooks/useCreateTodoMutation'
 import { useTagsQuery } from '@/data/hooks/useTagsQuery'
@@ -14,14 +14,15 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { useUIStore } from '@/stores/useUIStore'
 import {
   AppButton,
-  AppInput,
   AppLinkAction,
   AppStack,
+  AppInput,
+  AppTagChip,
   AppText,
   AppTextArea,
   SCREEN_CONTENT_MAX_WIDTH,
 } from '@/ui/components'
-import { cn } from '@/ui/utils/cn'
+import { TagFormModal } from './TagFormModal'
 
 /** Normalize dueDate to YYYY-MM-DD for date input */
 function toDateOnly(value: string | undefined): string {
@@ -67,12 +68,13 @@ export function CreateTodoModal() {
   const [dueDate, setDueDate] = useState('')
   const [titleError, setTitleError] = useState<string | null>(null)
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
-  const [addTagInlineVisible, setAddTagInlineVisible] = useState(false)
-  const [newTagName, setNewTagName] = useState('')
+  const [createdTags, setCreatedTags] = useState<Tag[]>([])
+  const [isTagFormOpen, setIsTagFormOpen] = useState(false)
 
   const isEdit = selectedTodoId !== null
   const isPending = createMutation.isPending || updateMutation.isPending
   const isDesktop = useBreakpoint() === 'desktop'
+  const availableTags = [...tags, ...createdTags.filter(tag => !tags.some(existing => existing.id === tag.id))]
 
   useEffect(() => {
     if (!isOpen) return
@@ -89,15 +91,15 @@ export function CreateTodoModal() {
         setDueDate('')
         setSelectedTagIds([])
       }
-      setAddTagInlineVisible(false)
-      setNewTagName('')
+      setCreatedTags([])
+      setIsTagFormOpen(false)
     } else {
       setTitle('')
       setDescription('')
       setDueDate('')
       setSelectedTagIds([])
-      setAddTagInlineVisible(false)
-      setNewTagName('')
+      setCreatedTags([])
+      setIsTagFormOpen(false)
     }
     setTitleError(null)
   }, [isOpen, selectedTodoId, uid, filter, selectedTagId, queryClient])
@@ -108,8 +110,8 @@ export function CreateTodoModal() {
     setDueDate('')
     setTitleError(null)
     setSelectedTagIds([])
-    setAddTagInlineVisible(false)
-    setNewTagName('')
+    setCreatedTags([])
+    setIsTagFormOpen(false)
     setSelectedTodoId(null)
     closeModal()
   }
@@ -142,10 +144,22 @@ export function CreateTodoModal() {
       setTitle('')
       setDescription('')
       setDueDate('')
+      setCreatedTags([])
       setSelectedTodoId(null)
       closeModal()
     } catch {
       // QueryClient global mutation onError owns user-visible error surfacing.
+    }
+  }
+
+  async function handleCreateTag(values: { name: string; emoji: string; colorToken: Tag['colorToken'] }) {
+    try {
+      const tag = await createTagMutation.mutateAsync(values)
+      setCreatedTags(prev => [...prev, tag])
+      setSelectedTagIds(prev => (prev.includes(tag.id) ? prev : [...prev, tag.id]))
+      setIsTagFormOpen(false)
+    } catch {
+      // Mutation-level error handling owns visible error state.
     }
   }
 
@@ -246,86 +260,58 @@ export function CreateTodoModal() {
                 >
                   {t('todos.tagsLabel')}
                 </AppText>
-                <AppLinkAction
-                  testID="create-todo-add-tag"
-                  onPress={() => setAddTagInlineVisible(true)}
-                  accessibilityLabel={t('todos.modal.addTag')}
-                >
-                  {t('todos.modal.addTag')}
-                </AppLinkAction>
-              </View>
-              {addTagInlineVisible ? (
-                <View className="flex-row items-center gap-2">
-                  <AppInput
-                    testID="create-todo-new-tag-input"
-                    placeholder={t('todos.tagsLabel')}
-                    value={newTagName}
-                    onChangeText={setNewTagName}
-                    size="md"
-                    className="flex-1"
-                    accessibilityLabel={t('todos.modal.addTag')}
-                  />
-                  <AppButton
-                    testID="create-todo-new-tag-add"
-                    variant="secondary"
-                    onPress={() => {
-                      const name = newTagName.trim()
-                      if (!name) return
-                      createTagMutation.mutate(
-                        { name },
-                        {
-                          onSuccess: (data) => {
-                            setSelectedTagIds(prev => [...prev, data.id])
-                            setNewTagName('')
-                            setAddTagInlineVisible(false)
-                          },
-                        },
-                      )
-                    }}
-                    disabled={createTagMutation.isPending || !newTagName.trim()}
-                    accessibilityLabel={t('todos.modal.addTagButton')}
+                {availableTags.length > 0 ? (
+                  <AppLinkAction
+                    testID="create-todo-new-tag"
+                    onPress={() => setIsTagFormOpen(true)}
+                    accessibilityLabel={t('todos.modal.newTag')}
                   >
-                    {t('todos.modal.addTagButton')}
+                    {t('todos.modal.newTag')}
+                  </AppLinkAction>
+                ) : null}
+              </View>
+              {availableTags.length === 0 ? (
+                <AppStack gap={3} className="rounded-2xl border border-dashed border-border bg-bg p-4">
+                  <AppText testID="create-todo-empty-tags" size="sm" tone="muted">
+                    {t('todos.modal.noTags')}
+                  </AppText>
+                  <AppButton
+                    testID="create-todo-create-first-tag"
+                    variant="secondary"
+                    onPress={() => setIsTagFormOpen(true)}
+                    accessibilityLabel={t('todos.modal.createFirstTag')}
+                  >
+                    {t('todos.modal.createFirstTag')}
                   </AppButton>
-                </View>
-              ) : null}
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 8 }}
-                className="flex-row items-center"
-              >
-                {tags.map(tag => {
-                  const selected = selectedTagIds.includes(tag.id)
-                  return (
-                    <Pressable
-                      key={tag.id}
-                      testID={`create-todo-tag-${tag.id}`}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected }}
-                      accessibilityLabel={tag.name}
-                      onPress={() => {
-                        setSelectedTagIds(prev =>
-                          selected ? prev.filter(id => id !== tag.id) : [...prev, tag.id],
-                        )
-                      }}
-                      className={cn(
-                        'h-8 flex-row items-center justify-center rounded-full border px-3',
-                        selected ? 'border-primary bg-primary' : 'border-border bg-transparent',
-                      )}
-                    >
-                      <AppText
-                        size="sm"
-                        weight="medium"
-                        tone={selected ? 'inverse' : 'muted'}
-                        numberOfLines={1}
-                      >
-                        {tag.name}
-                      </AppText>
-                    </Pressable>
-                  )
-                })}
-              </ScrollView>
+                </AppStack>
+              ) : (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ gap: 8 }}
+                  className="flex-row items-center"
+                >
+                  {availableTags.map(tag => {
+                    const selected = selectedTagIds.includes(tag.id)
+                    return (
+                      <AppTagChip
+                        key={tag.id}
+                        testID={`create-todo-tag-${tag.id}`}
+                        name={tag.name}
+                        emoji={tag.emoji}
+                        colorToken={tag.colorToken}
+                        accessibilityLabel={tag.name}
+                        active={selected}
+                        onPress={() => {
+                          setSelectedTagIds(prev =>
+                            selected ? prev.filter(id => id !== tag.id) : [...prev, tag.id],
+                          )
+                        }}
+                      />
+                    )
+                  })}
+                </ScrollView>
+              )}
             </AppStack>
 
             <AppStack direction="horizontal" gap={3} className="justify-end">
@@ -353,6 +339,14 @@ export function CreateTodoModal() {
           </ScrollView>
         </View>
       </View>
+
+      <TagFormModal
+        visible={isTagFormOpen}
+        mode="create"
+        onClose={() => setIsTagFormOpen(false)}
+        onSubmit={handleCreateTag}
+        isPending={createTagMutation.isPending}
+      />
     </Modal>
   )
 }

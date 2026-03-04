@@ -58,6 +58,8 @@ describe('useTagsQuery', () => {
       {
         id: 'tag-1',
         name: 'Work',
+        emoji: '🧰',
+        colorToken: 'tagTeal',
         uid: 'user-1',
         createdAt: '',
         updatedAt: '',

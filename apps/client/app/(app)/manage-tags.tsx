@@ -4,13 +4,15 @@ import { Alert, Pressable, ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 
+import type { Tag } from '@shared/types/api'
+import { useCreateTagMutation } from '@/data/hooks/useCreateTagMutation'
 import { useDeleteTagMutation } from '@/data/hooks/useDeleteTagMutation'
 import { useTagsQuery } from '@/data/hooks/useTagsQuery'
 import { useUpdateTagMutation } from '@/data/hooks/useUpdateTagMutation'
+import { TagFormModal } from '@/features/todos/TagFormModal'
 import { useAuthStore } from '@/stores/useAuthStore'
 import {
   AppButton,
-  AppInput,
   AppScreenContainer,
   AppStack,
   AppTagBadge,
@@ -21,33 +23,43 @@ export default function ManageTagsScreen() {
   const { t } = useTranslation()
   const uid = useAuthStore(s => s.uid) ?? ''
   const { data: tags = [] } = useTagsQuery(uid)
+  const createTagMutation = useCreateTagMutation()
   const updateTagMutation = useUpdateTagMutation()
   const deleteTagMutation = useDeleteTagMutation()
 
-  const [editingTagId, setEditingTagId] = useState<string | null>(null)
-  const [editingName, setEditingName] = useState('')
+  const [activeTag, setActiveTag] = useState<Tag | null>(null)
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
 
-  function startRename(tagId: string, currentName: string) {
-    setEditingTagId(tagId)
-    setEditingName(currentName)
+  function openEdit(tag: Tag) {
+    setActiveTag(tag)
   }
 
-  function cancelRename() {
-    setEditingTagId(null)
-    setEditingName('')
+  function handleCloseForm() {
+    setActiveTag(null)
+    setIsCreateOpen(false)
   }
 
-  function submitRename() {
-    if (!editingTagId || !editingName.trim()) return
-    updateTagMutation.mutate(
-      { tagId: editingTagId, body: { name: editingName.trim() } },
-      {
-        onSuccess: () => {
-          setEditingTagId(null)
-          setEditingName('')
+  function handleSubmit(values: { name: string; emoji: string; colorToken: Tag['colorToken'] }) {
+    if (activeTag) {
+      updateTagMutation.mutate(
+        {
+          tagId: activeTag.id,
+          body: values,
         },
+        {
+          onSuccess: () => {
+            handleCloseForm()
+          },
+        },
+      )
+      return
+    }
+
+    createTagMutation.mutate(values, {
+      onSuccess: () => {
+        handleCloseForm()
       },
-    )
+    })
   }
 
   function handleDeletePress(tagId: string) {
@@ -90,6 +102,17 @@ export default function ManageTagsScreen() {
               {t('manageTags.title')}
             </AppText>
 
+            <View className="flex-row justify-end">
+              <AppButton
+                testID="manage-tags-new-tag"
+                variant="secondary"
+                onPress={() => setIsCreateOpen(true)}
+                accessibilityLabel={t('manageTags.newTag')}
+              >
+                {t('manageTags.newTag')}
+              </AppButton>
+            </View>
+
             <ScrollView
               className="flex-1"
               showsVerticalScrollIndicator={false}
@@ -102,61 +125,30 @@ export default function ManageTagsScreen() {
                     testID={`manage-tags-item-${tag.id}`}
                     className="flex-row flex-wrap items-center gap-2 rounded-lg border border-border bg-bg p-3"
                   >
-                    {editingTagId === tag.id ? (
-                      <>
-                        <AppInput
-                          testID="manage-tags-edit-input"
-                          value={editingName}
-                          onChangeText={setEditingName}
-                          placeholder={t('manageTags.namePlaceholder')}
-                          size="md"
-                          className="flex-1 min-w-0"
-                          accessibilityLabel={t('manageTags.rename')}
-                        />
-                        <AppButton
-                          testID="manage-tags-edit-cancel"
-                          variant="secondary"
-                          onPress={cancelRename}
-                          accessibilityLabel={t('todos.modal.cancel')}
-                        >
-                          {t('todos.modal.cancel')}
-                        </AppButton>
-                        <AppButton
-                          testID="manage-tags-edit-save"
-                          variant="primary"
-                          onPress={submitRename}
-                          disabled={
-                            updateTagMutation.isPending || !editingName.trim()
-                          }
-                          accessibilityLabel={t('todos.modal.save')}
-                        >
-                          {t('todos.modal.save')}
-                        </AppButton>
-                      </>
-                    ) : (
-                      <>
-                        <AppTagBadge
-                          name={tag.name}
-                          testID={`manage-tags-badge-${tag.id}`}
-                        />
-                        <AppButton
-                          testID={`manage-tags-rename-${tag.id}`}
-                          variant="outline"
-                          onPress={() => startRename(tag.id, tag.name)}
-                          accessibilityLabel={`${t('manageTags.rename')} ${tag.name}`}
-                        >
-                          {t('manageTags.rename')}
-                        </AppButton>
-                        <AppButton
-                          testID={`manage-tags-delete-${tag.id}`}
-                          variant="destructive"
-                          onPress={() => handleDeletePress(tag.id)}
-                          accessibilityLabel={`${t('manageTags.delete')} ${tag.name}`}
-                        >
-                          {t('manageTags.delete')}
-                        </AppButton>
-                      </>
-                    )}
+                    <>
+                      <AppTagBadge
+                        name={tag.name}
+                        emoji={tag.emoji}
+                        colorToken={tag.colorToken}
+                        testID={`manage-tags-badge-${tag.id}`}
+                      />
+                      <AppButton
+                        testID={`manage-tags-edit-${tag.id}`}
+                        variant="outline"
+                        onPress={() => openEdit(tag)}
+                        accessibilityLabel={`${t('manageTags.edit')} ${tag.name}`}
+                      >
+                        {t('manageTags.edit')}
+                      </AppButton>
+                      <AppButton
+                        testID={`manage-tags-delete-${tag.id}`}
+                        variant="destructive"
+                        onPress={() => handleDeletePress(tag.id)}
+                        accessibilityLabel={`${t('manageTags.delete')} ${tag.name}`}
+                      >
+                        {t('manageTags.delete')}
+                      </AppButton>
+                    </>
                   </View>
                 ))}
               </AppStack>
@@ -164,6 +156,23 @@ export default function ManageTagsScreen() {
           </AppStack>
         </AppScreenContainer>
       </View>
+
+      <TagFormModal
+        visible={isCreateOpen || activeTag !== null}
+        mode={activeTag ? 'edit' : 'create'}
+        initialValues={
+          activeTag
+            ? {
+                name: activeTag.name,
+                emoji: activeTag.emoji,
+                colorToken: activeTag.colorToken,
+              }
+            : undefined
+        }
+        onClose={handleCloseForm}
+        onSubmit={handleSubmit}
+        isPending={createTagMutation.isPending || updateTagMutation.isPending}
+      />
     </SafeAreaView>
   )
 }

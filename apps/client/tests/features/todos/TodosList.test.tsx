@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react-native'
 import { TodosList } from '@/features/todos/TodosList'
+import type { Tag } from '@shared/types/api'
 
 const mockTodos = [
   {
@@ -9,7 +10,7 @@ const mockTodos = [
     dueDate: '',
     createdAt: '',
     updatedAt: '',
-    userId: 'u1',
+    uid: 'u1',
   },
 ]
 
@@ -70,5 +71,36 @@ describe('TodosList', () => {
     )
     fireEvent.press(screen.getByTestId('todo-toggle-1'))
     expect(onToggle).toHaveBeenCalledWith('1')
+  })
+
+  it('passes todo tag presses to the shared filter handler', () => {
+    const onTagPress = jest.fn()
+    const tags: Tag[] = [
+      {
+        id: 'tag-1',
+        name: 'Work',
+        emoji: '🧰',
+        colorToken: 'tagTeal',
+        uid: 'u1',
+        createdAt: '',
+        updatedAt: '',
+      },
+    ]
+
+    render(
+      <TodosList
+        todos={[{ ...mockTodos[0], tagIds: ['tag-1'] }]}
+        tags={tags}
+        selectedTagId={null}
+        onTagPress={onTagPress}
+        onToggle={jest.fn()}
+        onEdit={jest.fn()}
+        onDelete={jest.fn()}
+        onCreatePress={jest.fn()}
+      />,
+    )
+
+    fireEvent.press(screen.getByTestId('todo-tag-1-tag-1'))
+    expect(onTagPress).toHaveBeenCalledWith('tag-1')
   })
 })

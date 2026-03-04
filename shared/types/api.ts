@@ -30,9 +30,18 @@ export interface UpdateTodoRequest {
   tagIds?: string[];
 }
 
+export type TagColorToken =
+  | 'tagTeal'
+  | 'tagBlue'
+  | 'tagGreen'
+  | 'tagAmber'
+  | 'tagRose';
+
 export interface Tag {
   id: string;
   name: string;
+  emoji: string;
+  colorToken: TagColorToken;
   uid: string;
   createdAt: string;
   updatedAt: string;
@@ -42,10 +51,14 @@ export type ListTagsResponse = Tag[];
 
 export interface CreateTagRequest {
   name: string;
+  emoji: string;
+  colorToken: TagColorToken;
 }
 
 export interface UpdateTagRequest {
   name: string;
+  emoji: string;
+  colorToken: TagColorToken;
 }
 
 export interface ApiError {

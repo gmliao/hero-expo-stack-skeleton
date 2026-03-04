@@ -26,7 +26,7 @@ function wrapper({ children }: { children: React.ReactNode }) {
 
 const mockCreateMutateAsync = jest.fn()
 const mockUpdateMutateAsync = jest.fn()
-const mockCreateTagMutate = jest.fn()
+const mockCreateTagMutateAsync = jest.fn()
 
 jest.spyOn(Alert, 'alert').mockImplementation(() => {})
 
@@ -45,7 +45,7 @@ describe('CreateTodoModal', () => {
       data: [],
     })
     ;(useCreateTagMutation as jest.Mock).mockReturnValue({
-      mutate: mockCreateTagMutate,
+      mutateAsync: mockCreateTagMutateAsync,
       isPending: false,
     })
     useAuthStore.setState({ uid: 'test-uid' })
@@ -105,8 +105,24 @@ describe('CreateTodoModal', () => {
     }
     ;(useTagsQuery as jest.Mock).mockReturnValue({
       data: [
-        { id: 'tag-a', name: 'Work', uid: 'test-uid', createdAt: '', updatedAt: '' },
-        { id: 'tag-b', name: 'Personal', uid: 'test-uid', createdAt: '', updatedAt: '' },
+        {
+          id: 'tag-a',
+          name: 'Work',
+          emoji: '🧰',
+          colorToken: 'tagTeal',
+          uid: 'test-uid',
+          createdAt: '',
+          updatedAt: '',
+        },
+        {
+          id: 'tag-b',
+          name: 'Personal',
+          emoji: '🏠',
+          colorToken: 'tagBlue',
+          uid: 'test-uid',
+          createdAt: '',
+          updatedAt: '',
+        },
       ],
     })
     queryClient.setQueryData(queryKeys.todos.list('test-uid', 'all', null), [todo])
@@ -141,7 +157,17 @@ describe('CreateTodoModal', () => {
       },
     ])
     ;(useTagsQuery as jest.Mock).mockReturnValue({
-      data: [{ id: 'tag-a', name: 'Work', uid: 'test-uid', createdAt: '', updatedAt: '' }],
+      data: [
+        {
+          id: 'tag-a',
+          name: 'Work',
+          emoji: '🧰',
+          colorToken: 'tagTeal',
+          uid: 'test-uid',
+          createdAt: '',
+          updatedAt: '',
+        },
+      ],
     })
     mockUpdateMutateAsync.mockResolvedValue(undefined)
     const setSelectedTodoId = jest.fn()
@@ -214,22 +240,140 @@ describe('CreateTodoModal', () => {
     expect(closeModal).toHaveBeenCalled()
   })
 
-  it('shows Tags section with "+ Add tag" link', () => {
+  it('shows "New tag" action when tags already exist', () => {
+    ;(useTagsQuery as jest.Mock).mockReturnValue({
+      data: [
+        {
+          id: 'tag-a',
+          name: 'Work',
+          emoji: '🧰',
+          colorToken: 'tagTeal',
+          uid: 'test-uid',
+          createdAt: '',
+          updatedAt: '',
+        },
+      ],
+    })
     render(<CreateTodoModal />, { wrapper })
-    expect(screen.getByTestId('create-todo-add-tag')).toBeOnTheScreen()
+    expect(screen.getByTestId('create-todo-new-tag')).toBeOnTheScreen()
+    expect(screen.queryByTestId('create-todo-empty-tags')).toBeNull()
+    expect(screen.queryByTestId('create-todo-new-tag-input')).toBeNull()
   })
 
   it('shows tag chips when tags exist from useTagsQuery', () => {
     ;(useTagsQuery as jest.Mock).mockReturnValue({
       data: [
-        { id: 'tag-a', name: 'Work', uid: 'test-uid', createdAt: '', updatedAt: '' },
-        { id: 'tag-b', name: 'Personal', uid: 'test-uid', createdAt: '', updatedAt: '' },
+        {
+          id: 'tag-a',
+          name: 'Work',
+          emoji: '🧰',
+          colorToken: 'tagTeal',
+          uid: 'test-uid',
+          createdAt: '',
+          updatedAt: '',
+        },
+        {
+          id: 'tag-b',
+          name: 'Personal',
+          emoji: '🏠',
+          colorToken: 'tagBlue',
+          uid: 'test-uid',
+          createdAt: '',
+          updatedAt: '',
+        },
       ],
     })
     render(<CreateTodoModal />, { wrapper })
     expect(screen.getByTestId('create-todo-tag-tag-a')).toBeOnTheScreen()
-    expect(screen.getByText('Work')).toBeOnTheScreen()
+    expect(screen.getByText('🧰 Work')).toBeOnTheScreen()
     expect(screen.getByTestId('create-todo-tag-tag-b')).toBeOnTheScreen()
-    expect(screen.getByText('Personal')).toBeOnTheScreen()
+    expect(screen.getByText('🏠 Personal')).toBeOnTheScreen()
+    expect(screen.queryByTestId('create-todo-new-tag-input')).toBeNull()
+  })
+
+  it('shows empty-state action when there are no tags', () => {
+    ;(useTagsQuery as jest.Mock).mockReturnValue({ data: [] })
+    render(<CreateTodoModal />, { wrapper })
+    expect(screen.getByTestId('create-todo-empty-tags')).toBeOnTheScreen()
+    expect(screen.getByTestId('create-todo-create-first-tag')).toBeOnTheScreen()
+    expect(screen.queryByTestId('create-todo-new-tag')).toBeNull()
+  })
+
+  it('removes a selected tag when pressed again in edit mode', () => {
+    const queryClient = new QueryClient()
+    queryClient.setQueryData(queryKeys.todos.list('test-uid', 'all', null), [
+      {
+        id: 'todo-1',
+        uid: 'test-uid',
+        title: 'Existing',
+        completed: false,
+        createdAt: '',
+        updatedAt: '',
+        tagIds: ['tag-a'],
+      },
+    ])
+    ;(useTagsQuery as jest.Mock).mockReturnValue({
+      data: [
+        {
+          id: 'tag-a',
+          name: 'Work',
+          emoji: '🧰',
+          colorToken: 'tagTeal',
+          uid: 'test-uid',
+          createdAt: '',
+          updatedAt: '',
+        },
+      ],
+    })
+    useUIStore.setState({ selectedTodoId: 'todo-1', filter: 'all' })
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <CreateTodoModal />
+      </QueryClientProvider>,
+    )
+
+    expect(screen.getByTestId('create-todo-tag-tag-a')).toHaveProp('accessibilityState', {
+      selected: true,
+    })
+    fireEvent.press(screen.getByTestId('create-todo-tag-tag-a'))
+    expect(screen.getByTestId('create-todo-tag-tag-a')).toHaveProp('accessibilityState', {
+      selected: false,
+    })
+  })
+
+  it('creates a tag from the child modal and auto-selects it', async () => {
+    mockCreateTagMutateAsync.mockResolvedValue({
+      id: 'tag-new',
+      name: 'Errands',
+      emoji: '🛒',
+      colorToken: 'tagGreen',
+      uid: 'test-uid',
+      createdAt: '',
+      updatedAt: '',
+    })
+    ;(useTagsQuery as jest.Mock).mockReturnValue({ data: [] })
+
+    render(<CreateTodoModal />, { wrapper })
+
+    fireEvent.press(screen.getByTestId('create-todo-create-first-tag'))
+    fireEvent.changeText(screen.getByTestId('tag-form-name-input'), 'Errands')
+    fireEvent.press(screen.getByTestId('tag-form-emoji-🛒'))
+    fireEvent.press(screen.getByTestId('tag-form-color-tagGreen'))
+    fireEvent.press(screen.getByTestId('tag-form-save'))
+
+    await waitFor(() => {
+      expect(mockCreateTagMutateAsync).toHaveBeenCalledWith({
+        name: 'Errands',
+        emoji: '🛒',
+        colorToken: 'tagGreen',
+      })
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('create-todo-tag-tag-new')).toHaveProp('accessibilityState', {
+        selected: true,
+      })
+    })
   })
 })

@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { Pressable, ScrollView, View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 import { useTagsQuery } from '@/data/hooks/useTagsQuery'
-import { AppText } from '@/ui/components'
-import { cn } from '@/ui/utils/cn'
+import { AppTagChip, AppText } from '@/ui/components'
 
 export interface TagFiltersProps {
   uid: string
@@ -27,40 +26,26 @@ export function TagFilters({ uid, selectedTagId, setSelectedTagId }: TagFiltersP
         contentContainerStyle={{ gap: 8 }}
         className="flex-1 flex-row items-center"
       >
-        <Pressable
+        <AppTagChip
           testID="tag-filter-all"
-          accessibilityRole="button"
-          accessibilityState={{ selected: isAllSelected }}
-          accessibilityLabel={t('todos.tagFilterAll')}
+          name={t('todos.tagFilterAll')}
           onPress={() => setSelectedTagId(null)}
-          className={cn(
-            'h-8 min-w-[4rem] flex-row items-center justify-center rounded-full border px-4',
-            isAllSelected ? 'border-primary bg-primary' : 'border-border bg-transparent',
-          )}
-        >
-          <AppText size="sm" weight="medium" tone={isAllSelected ? 'inverse' : 'muted'}>
-            {t('todos.tagFilterAll')}
-          </AppText>
-        </Pressable>
+          active={isAllSelected}
+          className="min-w-[4rem] px-4"
+        />
         {tags.map(tag => {
           const selected = tag.id === selectedTagId
           return (
-            <Pressable
+            <AppTagChip
               key={tag.id}
               testID={`tag-filter-${tag.id}`}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
+              name={tag.name}
+              emoji={tag.emoji}
+              colorToken={tag.colorToken}
               accessibilityLabel={tag.name}
-              onPress={() => setSelectedTagId(tag.id)}
-              className={cn(
-                'h-8 flex-row items-center justify-center rounded-full border px-3',
-                selected ? 'border-primary bg-primary' : 'border-border bg-transparent',
-              )}
-            >
-              <AppText size="sm" weight="medium" tone={selected ? 'inverse' : 'muted'} numberOfLines={1}>
-                {tag.name}
-              </AppText>
-            </Pressable>
+              active={selected}
+              onPress={() => setSelectedTagId(selected ? null : tag.id)}
+            />
           )
         })}
       </ScrollView>

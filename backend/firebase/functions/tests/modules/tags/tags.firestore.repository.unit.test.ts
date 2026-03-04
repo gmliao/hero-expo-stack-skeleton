@@ -123,18 +123,24 @@ describe('TagsFirestoreRepository (unit)', () => {
   it('list returns tags for uid ordered by createdAt desc', async () => {
     store.set('user-1:tag-a', {
       name: 'Alpha',
+      emoji: '🧰',
+      colorToken: 'tagTeal',
       uid: 'user-1',
       createdAt: makeTimestamp('2026-03-01T09:00:00.000Z'),
       updatedAt: makeTimestamp('2026-03-01T09:00:00.000Z'),
     })
     store.set('user-1:tag-b', {
       name: 'Beta',
+      emoji: '⚡',
+      colorToken: 'tagAmber',
       uid: 'user-1',
       createdAt: makeTimestamp('2026-03-01T10:00:00.000Z'),
       updatedAt: makeTimestamp('2026-03-01T10:00:00.000Z'),
     })
     store.set('user-2:tag-c', {
       name: 'Other user',
+      emoji: '🏠',
+      colorToken: 'tagBlue',
       uid: 'user-2',
       createdAt: makeTimestamp('2026-03-01T11:00:00.000Z'),
       updatedAt: makeTimestamp('2026-03-01T11:00:00.000Z'),
@@ -147,18 +153,26 @@ describe('TagsFirestoreRepository (unit)', () => {
     expect(list[1]).toMatchObject({ id: 'tag-a', name: 'Alpha' })
   })
 
-  it('create adds doc with name, uid, timestamps', async () => {
+  it('create adds doc with name, emoji, color token, uid, timestamps', async () => {
     const repo = new TagsFirestoreRepository()
-    const tag = await repo.create('user-1', '  Work  ')
+    const tag = await repo.create('user-1', {
+      name: '  Work  ',
+      emoji: '🧰',
+      colorToken: 'tagTeal',
+    })
     expect(tag).toMatchObject({
       id: 'generated-1',
       name: 'Work',
+      emoji: '🧰',
+      colorToken: 'tagTeal',
       uid: 'user-1',
     })
     expect(tag.createdAt).toBeDefined()
     expect(tag.updatedAt).toBeDefined()
     expect(store.get('user-1:generated-1')).toMatchObject({
       name: 'Work',
+      emoji: '🧰',
+      colorToken: 'tagTeal',
       uid: 'user-1',
     })
   })
@@ -171,6 +185,8 @@ describe('TagsFirestoreRepository (unit)', () => {
   it('getById returns tag when present', async () => {
     store.set('user-1:tag-1', {
       name: 'Found',
+      emoji: '🧰',
+      colorToken: 'tagTeal',
       uid: 'user-1',
       createdAt: makeTimestamp('2026-03-01T08:00:00.000Z'),
       updatedAt: makeTimestamp('2026-03-01T08:00:00.000Z'),
@@ -179,26 +195,45 @@ describe('TagsFirestoreRepository (unit)', () => {
     await expect(repo.getById('user-1', 'tag-1')).resolves.toMatchObject({
       id: 'tag-1',
       name: 'Found',
+      emoji: '🧰',
+      colorToken: 'tagTeal',
       uid: 'user-1',
     })
   })
 
   it('update returns null when doc does not exist', async () => {
     const repo = new TagsFirestoreRepository()
-    await expect(repo.update('missing', 'user-1', { name: 'New' })).resolves.toBeNull()
+    await expect(
+      repo.update('missing', 'user-1', { name: 'New', emoji: '📚', colorToken: 'tagGreen' }),
+    ).resolves.toBeNull()
   })
 
-  it('update sets name and updatedAt', async () => {
+  it('update sets name, emoji, colorToken, and updatedAt', async () => {
     store.set('user-1:tag-1', {
       name: 'Old',
+      emoji: '🧰',
+      colorToken: 'tagTeal',
       uid: 'user-1',
       createdAt: makeTimestamp('2026-03-01T08:00:00.000Z'),
       updatedAt: makeTimestamp('2026-03-01T08:00:00.000Z'),
     })
     const repo = new TagsFirestoreRepository()
-    const tag = await repo.update('tag-1', 'user-1', { name: '  Updated  ' })
-    expect(tag).toMatchObject({ id: 'tag-1', name: 'Updated' })
-    expect(store.get('user-1:tag-1')).toMatchObject({ name: 'Updated' })
+    const tag = await repo.update('tag-1', 'user-1', {
+      name: '  Updated  ',
+      emoji: '📚',
+      colorToken: 'tagGreen',
+    })
+    expect(tag).toMatchObject({
+      id: 'tag-1',
+      name: 'Updated',
+      emoji: '📚',
+      colorToken: 'tagGreen',
+    })
+    expect(store.get('user-1:tag-1')).toMatchObject({
+      name: 'Updated',
+      emoji: '📚',
+      colorToken: 'tagGreen',
+    })
   })
 
   it('delete returns false when doc does not exist', async () => {
@@ -209,6 +244,8 @@ describe('TagsFirestoreRepository (unit)', () => {
   it('delete removes doc and returns true', async () => {
     store.set('user-1:tag-1', {
       name: 'Delete me',
+      emoji: '🧰',
+      colorToken: 'tagTeal',
       uid: 'user-1',
       createdAt: makeTimestamp('2026-03-01T08:00:00.000Z'),
       updatedAt: makeTimestamp('2026-03-01T08:00:00.000Z'),

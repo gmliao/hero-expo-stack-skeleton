@@ -3,44 +3,69 @@ import { Alert } from 'react-native'
 
 import ManageTagsScreen from '../../../app/(app)/manage-tags'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { useCreateTagMutation } from '@/data/hooks/useCreateTagMutation'
 import { useTagsQuery } from '@/data/hooks/useTagsQuery'
 import { useUpdateTagMutation } from '@/data/hooks/useUpdateTagMutation'
 import { useDeleteTagMutation } from '@/data/hooks/useDeleteTagMutation'
 import { router } from 'expo-router'
 
+jest.mock('@/data/hooks/useCreateTagMutation')
 jest.mock('@/data/hooks/useTagsQuery')
 jest.mock('@/data/hooks/useUpdateTagMutation')
 jest.mock('@/data/hooks/useDeleteTagMutation')
 jest.mock('expo-router', () => ({ router: { back: jest.fn(), push: jest.fn() } }))
 
 const mockTags = [
-  { id: 'tag-1', name: 'Work', createdAt: '', updatedAt: '' },
-  { id: 'tag-2', name: 'Personal', createdAt: '', updatedAt: '' },
+  {
+    id: 'tag-1',
+    uid: 'user-1',
+    name: 'Work',
+    emoji: '🧰',
+    colorToken: 'tagTeal',
+    createdAt: '',
+    updatedAt: '',
+  },
+  {
+    id: 'tag-2',
+    uid: 'user-1',
+    name: 'Personal',
+    emoji: '🏠',
+    colorToken: 'tagBlue',
+    createdAt: '',
+    updatedAt: '',
+  },
 ]
 
 const mockUpdateMutate = jest.fn()
 const mockDeleteMutate = jest.fn()
+const mockCreateMutate = jest.fn()
 
 describe('ManageTagsScreen', () => {
   beforeEach(() => {
     useAuthStore.setState({ uid: 'user-1' })
+    jest.mocked(useCreateTagMutation).mockReturnValue({
+      mutate: mockCreateMutate,
+      mutateAsync: jest.fn(),
+      isPending: false,
+    } as unknown as ReturnType<typeof useCreateTagMutation>)
     jest.mocked(useTagsQuery).mockReturnValue({
       data: mockTags,
       isLoading: false,
       isError: false,
       refetch: jest.fn(),
-    } as ReturnType<typeof useTagsQuery>)
+    } as unknown as ReturnType<typeof useTagsQuery>)
     jest.mocked(useUpdateTagMutation).mockReturnValue({
       mutate: mockUpdateMutate,
       mutateAsync: jest.fn(),
       isPending: false,
-    } as ReturnType<typeof useUpdateTagMutation>)
+    } as unknown as ReturnType<typeof useUpdateTagMutation>)
     jest.mocked(useDeleteTagMutation).mockReturnValue({
       mutate: mockDeleteMutate,
       mutateAsync: jest.fn(),
       isPending: false,
-    } as ReturnType<typeof useDeleteTagMutation>)
+    } as unknown as ReturnType<typeof useDeleteTagMutation>)
     jest.mocked(router.back).mockClear()
+    mockCreateMutate.mockClear()
     mockUpdateMutate.mockClear()
     mockDeleteMutate.mockClear()
     jest.spyOn(Alert, 'alert').mockImplementation(() => {})
@@ -56,12 +81,12 @@ describe('ManageTagsScreen', () => {
     render(<ManageTagsScreen />)
     expect(screen.getByTestId('manage-tags-item-tag-1')).toBeOnTheScreen()
     expect(screen.getByTestId('manage-tags-item-tag-2')).toBeOnTheScreen()
-    expect(screen.getByTestId('manage-tags-rename-tag-1')).toBeOnTheScreen()
-    expect(screen.getByTestId('manage-tags-rename-tag-2')).toBeOnTheScreen()
+    expect(screen.getByTestId('manage-tags-edit-tag-1')).toBeOnTheScreen()
+    expect(screen.getByTestId('manage-tags-edit-tag-2')).toBeOnTheScreen()
     expect(screen.getByTestId('manage-tags-delete-tag-1')).toBeOnTheScreen()
     expect(screen.getByTestId('manage-tags-delete-tag-2')).toBeOnTheScreen()
-    expect(screen.getByText('Work')).toBeOnTheScreen()
-    expect(screen.getByText('Personal')).toBeOnTheScreen()
+    expect(screen.getByText('🧰 Work')).toBeOnTheScreen()
+    expect(screen.getByText('🏠 Personal')).toBeOnTheScreen()
   })
 
   it('on back press calls router.back', () => {
@@ -70,17 +95,27 @@ describe('ManageTagsScreen', () => {
     expect(router.back).toHaveBeenCalled()
   })
 
-  it('on Rename shows inline input and on save calls updateTagMutation', () => {
+  it('opens edit modal and saves full tag payload', () => {
     render(<ManageTagsScreen />)
-    fireEvent.press(screen.getByTestId('manage-tags-rename-tag-1'))
-    expect(screen.getByTestId('manage-tags-edit-input')).toBeOnTheScreen()
-    expect(screen.getByTestId('manage-tags-edit-save')).toBeOnTheScreen()
-    fireEvent.changeText(screen.getByTestId('manage-tags-edit-input'), 'Work Updated')
-    fireEvent.press(screen.getByTestId('manage-tags-edit-save'))
+    fireEvent.press(screen.getByTestId('manage-tags-edit-tag-1'))
+    expect(screen.getByTestId('tag-form-name-input')).toBeOnTheScreen()
+    fireEvent.changeText(screen.getByTestId('tag-form-name-input'), 'Work Updated')
+    fireEvent.press(screen.getByTestId('tag-form-emoji-📚'))
+    fireEvent.press(screen.getByTestId('tag-form-color-tagRose'))
+    fireEvent.press(screen.getByTestId('tag-form-save'))
     expect(mockUpdateMutate).toHaveBeenCalledWith(
-      { tagId: 'tag-1', body: { name: 'Work Updated' } },
+      {
+        tagId: 'tag-1',
+        body: { name: 'Work Updated', emoji: '📚', colorToken: 'tagRose' },
+      },
       expect.any(Object),
     )
+  })
+
+  it('opens new-tag modal from the top CTA', () => {
+    render(<ManageTagsScreen />)
+    fireEvent.press(screen.getByTestId('manage-tags-new-tag'))
+    expect(screen.getByTestId('tag-form-name-input')).toBeOnTheScreen()
   })
 
   it('on Delete shows Alert and on confirm calls deleteTagMutation', () => {

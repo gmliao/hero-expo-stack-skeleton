@@ -7,8 +7,8 @@ jest.mock('@/data/hooks/useTagsQuery')
 const useTagsQuery = jest.requireMock('@/data/hooks/useTagsQuery').useTagsQuery as jest.Mock
 
 const mockTags: Tag[] = [
-  { id: 'tag-1', name: 'Work', uid: 'user-1', createdAt: '', updatedAt: '' },
-  { id: 'tag-2', name: 'Personal', uid: 'user-1', createdAt: '', updatedAt: '' },
+  { id: 'tag-1', name: 'Work', emoji: '🧰', colorToken: 'tagTeal', uid: 'user-1', createdAt: '', updatedAt: '' },
+  { id: 'tag-2', name: 'Personal', emoji: '🏠', colorToken: 'tagBlue', uid: 'user-1', createdAt: '', updatedAt: '' },
 ]
 
 describe('TagFilters', () => {
@@ -24,8 +24,8 @@ describe('TagFilters', () => {
     )
     expect(screen.getByText('todos.tagsLabel')).toBeOnTheScreen()
     expect(screen.getByTestId('tag-filter-all')).toBeOnTheScreen()
-    expect(screen.getByText('Work')).toBeOnTheScreen()
-    expect(screen.getByText('Personal')).toBeOnTheScreen()
+    expect(screen.getByText('🧰 Work')).toBeOnTheScreen()
+    expect(screen.getByText('🏠 Personal')).toBeOnTheScreen()
   })
 
   it('calls setSelectedTagId(null) when All is pressed', () => {
@@ -46,5 +46,14 @@ describe('TagFilters', () => {
     expect(setSelectedTagId).toHaveBeenCalledWith('tag-1')
     fireEvent.press(screen.getByTestId('tag-filter-tag-2'))
     expect(setSelectedTagId).toHaveBeenCalledWith('tag-2')
+  })
+
+  it('clears the active tag when pressed again', () => {
+    const setSelectedTagId = jest.fn()
+    render(
+      <TagFilters uid="user-1" selectedTagId="tag-1" setSelectedTagId={setSelectedTagId} />,
+    )
+    fireEvent.press(screen.getByTestId('tag-filter-tag-1'))
+    expect(setSelectedTagId).toHaveBeenCalledWith(null)
   })
 })
