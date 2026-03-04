@@ -1,10 +1,11 @@
 import { useLayoutEffect, useState } from 'react'
-import { Modal, Pressable, ScrollView, View } from 'react-native'
+import { Modal, Pressable, View } from 'react-native'
 import { useTranslation } from 'react-i18next'
 
 import type { CreateTagRequest, TagColorToken } from '@shared/types/api'
 import {
   AppButton,
+  AppHorizontalScrollArea,
   AppInput,
   AppStack,
   AppTagBadge,
@@ -121,11 +122,7 @@ export function TagFormModal({
               <AppText size="sm" tone="muted">
                 {t('tags.form.emojiLabel')}
               </AppText>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 8 }}
-              >
+              <AppHorizontalScrollArea gap={8}>
                 {EMOJI_OPTIONS.map(option => (
                   <AppTagChip
                     key={option}
@@ -135,18 +132,14 @@ export function TagFormModal({
                     onPress={() => setEmoji(option)}
                   />
                 ))}
-              </ScrollView>
+              </AppHorizontalScrollArea>
             </AppStack>
 
             <AppStack gap={2}>
               <AppText size="sm" tone="muted">
                 {t('tags.form.colorLabel')}
               </AppText>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 8 }}
-              >
+              <AppHorizontalScrollArea gap={8}>
                 {COLOR_OPTIONS.map(option => (
                   <AppTagChip
                     key={option}
@@ -158,7 +151,7 @@ export function TagFormModal({
                     onPress={() => setColorToken(option)}
                   />
                 ))}
-              </ScrollView>
+              </AppHorizontalScrollArea>
             </AppStack>
 
             <AppStack direction="horizontal" gap={3} className="justify-end">
