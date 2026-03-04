@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Platform, View, type StyleProp, type ViewStyle } from 'react-native'
 import { Gesture, GestureDetector, ScrollView } from 'react-native-gesture-handler'
 import { cn } from '@/ui/utils/cn'
@@ -25,17 +25,23 @@ export function AppHorizontalScrollArea({
 
   const isWeb = Platform.OS === 'web'
 
-  const pan = Gesture.Pan()
-    .runOnJS(true)
-    .activeOffsetX([-4, 4])
-    .failOffsetY([-8, 8])
-    .onBegin(() => {
-      startScrollXRef.current = scrollXRef.current
-    })
-    .onUpdate(e => {
-      const newX = Math.max(0, startScrollXRef.current - e.translationX)
-      scrollRef.current?.scrollTo({ x: newX, animated: false })
-    })
+  const pan = useMemo(
+    () =>
+      isWeb
+        ? Gesture.Pan()
+            .runOnJS(true)
+            .activeOffsetX([-4, 4])
+            .failOffsetY([-8, 8])
+            .onBegin(() => {
+              startScrollXRef.current = scrollXRef.current
+            })
+            .onUpdate(e => {
+              const newX = Math.max(0, startScrollXRef.current - e.translationX)
+              scrollRef.current?.scrollTo({ x: newX, animated: false })
+            })
+        : Gesture.Pan(),
+    [isWeb],
+  )
 
   function handleScroll(e: {
     nativeEvent: {
@@ -64,7 +70,7 @@ export function AppHorizontalScrollArea({
       showsHorizontalScrollIndicator={false}
       onScroll={isWeb ? handleScroll : undefined}
       onContentSizeChange={isWeb ? handleContentSizeChange : undefined}
-      scrollEventThrottle={16}
+      scrollEventThrottle={isWeb ? 16 : 0}
       contentContainerStyle={[{ gap }, contentStyle as StyleProp<ViewStyle>]}
     >
       {children}
