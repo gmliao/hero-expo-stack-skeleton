@@ -19,6 +19,7 @@ Agents must invoke and follow the relevant skill workflow before doing any work 
 - If phase 5 changes behavior or production code, it must also follow `test-driven-development`.
 - Before any completion claim in phase 5, it must follow `verification-before-completion`.
 - If the implementation plan contains multiple independent tasks, phase 5 must also use `subagent-driven-development`.
+- Before marking phase 5 as done, it must run a final whole-feature code review using the repo's Codex CLI review flow and record the result in the phase artifacts.
 
 Do not execute these phases freeform outside the corresponding skill workflow.
 
@@ -119,7 +120,7 @@ Template for **`status.md`**:
 | 2 → 3    | YYYY-MM-DD        | [ui-design.md](ui-design.md); .pen nodes: … (or "N/A backend-only") |
 | 3 → 4    | YYYY-MM-DD        | [implementation-plan.md](implementation-plan.md): task breakdown, order. |
 | 4 → 5    | YYYY-MM-DD        | [tasks.md](tasks.md) (or implementation-plan § Tasks): executable list. |
-| 5 done   | YYYY-MM-DD        | Code in repo; mapping/pen updated as needed. |
+| 5 done   | YYYY-MM-DD        | Code in repo; mapping/pen updated as needed; final review recorded with scope and finding disposition. |
 ```
 
 Create or update `status.md` when you **finish** a phase (set current phase, append handoff row). The handoff row states what the *next* phase receives.
@@ -151,7 +152,7 @@ Create or update `status.md` when you **finish** a phase (set current phase, app
 
 | | |
 |---|---|
-| **Entry** | [docs/design-system/workflow.md](../../docs/design-system/workflow.md) (Confirm Pen UI). |
+| **Entry** | [docs/design-system/workflow.md](../../docs/design-system/workflow.md) (Confirm Pen UI). Before any UI decomposition, load: `docs/design-system/workflow.md`, `docs/design-system/color-scheme.md`, `docs/design-system/tokens-reference.md`, and `docs/architecture/client.md`. If the feature adds or changes reusable UI, also load `docs/design-system/pen-code-component-mapping.md`. |
 | **Output** | Pen finalized: layout, semantic variables, reusable components. Optional: `ui-design.md` summarizing decisions and which .pen nodes/screens belong to this feature. |
 | **Where** | Changes in `pencil/app/app-core-screens.pen`; optional `docs/plans/YYYY-MM-DD-<feature-slug>/ui-design.md`. |
 | **Handoff** | Phase 3 uses: .pen as source of truth, list of screens/components/node IDs (or names) that this feature touches. |
@@ -159,6 +160,8 @@ Create or update `status.md` when you **finish** a phase (set current phase, app
 | **CRUD** | If the feature adds a new entity: ensure **Entity/Resource CRUD checklist** in [docs/design-system/workflow.md](../../docs/design-system/workflow.md) is filled and that **ui-design.md** (and Pen) explicitly cover each operation and its screen/modal (Create/Read/Update/Delete and where). |
 
 *Backend-only work:* mark phase 2 as `N/A` in `status.md` and continue to phase 3; no `.pen` output is required.
+
+**Phase 2 subagent rule:** UI decomposition may use subagents for bounded analysis tasks such as screen inventory, shared-component extraction candidates, Pen node mapping, and CRUD surface coverage checks. The main agent remains responsible for loading the required UI references, integrating the outputs, and making the final phase 2 design decisions. Do not apply the phase 5 `subagent-driven-development` execution workflow to phase 2.
 
 ---
 
@@ -192,18 +195,26 @@ Create or update `status.md` when you **finish** a phase (set current phase, app
 
 | | |
 |---|---|
-| **Entry** | [execute-plan.md](execute-plan.md) → REQUIRED: invoke `executing-plans` and follow its workflow. If the plan has multiple independent tasks, also use `subagent-driven-development`. If phase 5 changes behavior or production code, also follow `test-driven-development`. Before any completion claim, follow `verification-before-completion`. |
-| **Output** | Code and tests in repo; checklist/task list updated; verification passed. |
+| **Entry** | [execute-plan.md](execute-plan.md) → REQUIRED: invoke `executing-plans` and follow its workflow. If the plan has multiple independent tasks, also use `subagent-driven-development`. If phase 5 changes behavior or production code, also follow `test-driven-development`. Before any completion claim, follow `verification-before-completion`. After implementation and verification are complete, run one final whole-feature code review using the repo's Codex CLI review flow (via `requesting-code-review`) against an explicit review scope (`origin/main...HEAD` or documented base/head SHAs). |
+| **Output** | Code and tests in repo; checklist/task list updated; verification passed; final code review completed and recorded. |
 | **Where** | Code under `apps/client/`, `backend/`, etc.; plan folder can hold a short execution log or “Done” checklist. |
 | **Handoff** | N/A (final phase for this workflow). |
 | **Links** | **Pen:** keep `pencil/app/app-core-screens.pen` in sync if UI changed. **Mapping:** update `docs/design-system/pen-code-component-mapping.md` when adding/changing components. |
+
+**Final review exit criteria:**
+
+- Run a final feature-level review after the last implementation task, even if per-task reviews already happened.
+- Review scope must be explicit: use `origin/main...HEAD` or record the exact base/head SHAs.
+- Do not mark phase `5 (done)` while Critical or Important findings remain unresolved.
+- Record the review result in `status.md` and in the execution artifact (`implementation-plan.md`, `tasks.md`, or execution log): date, review scope, summary of findings, and disposition of each non-trivial finding.
 
 ---
 
 ## When to use subagents (no conflict with phase order)
 
 - **Subagent-driven development** in this workflow means: **within phase 5 only**, when there are multiple implementation tasks, run them via subagents (one subagent per task, then review). That is task-level parallelism, not phase-level.
-- **Phases 1–4** are normally run **in sequence by the same agent** (or human). Each phase has a single main output (scope doc, Pen + optional ui-design, plan, tasks). There is no need to “run each phase in a subagent”: phases 1–4 are not parallelizable and delegating each to a subagent would add handoff overhead without clear benefit.
+- **Phases 1, 3, and 4** are normally run **in sequence by the same agent** (or human). Each phase has a single main output (scope doc, plan, tasks). There is no need to “run each phase in a subagent”: these phases are not parallelizable and delegating each to a subagent would add handoff overhead without clear benefit.
+- **Phase 2** may use subagents only for bounded UI decomposition analysis. This does not replace the Design System workflow, and it does not permit phase-level delegation of the final design decision.
 - **Do not** interpret the workflow as “each phase is executed by a subagent.” Subagents are for **splitting work inside phase 5** (the execution phase), not for splitting the five phases themselves. That keeps phase order and subagent-driven development aligned and avoids conflict.
 
 ---
