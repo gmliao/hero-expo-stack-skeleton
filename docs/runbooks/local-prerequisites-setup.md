@@ -10,6 +10,7 @@ This runbook documents the correct local installation steps for this repo.
 - Java runtime (OpenJDK) for Firebase Emulator Suite
 - Android local toolchain (Android Studio + SDK + Emulator + adb)
 - Android command-line tools (`android-commandlinetools` via Homebrew cask)
+- Maestro CLI
 - Firebase CLI access via `bunx firebase`
 - Repo dependencies (`bun install`)
 - `backend/firebase/.firebaserc` from example if missing
@@ -44,8 +45,9 @@ bash scripts/setup-prerequisites.sh
 6. Installs `android-commandlinetools` (Homebrew cask) if missing.
 7. Verifies Firebase CLI through `bunx firebase --version`.
 8. Runs `bun install` at repo root.
-9. Creates `backend/firebase/.firebaserc` from `.firebaserc.example` if missing.
-10. Runs project guard check and emulator smoke test.
+9. Installs Maestro CLI if missing.
+10. Creates `backend/firebase/.firebaserc` from `.firebaserc.example` if missing.
+11. Runs project guard check and emulator smoke test.
 
 ## Expected success signal
 

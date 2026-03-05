@@ -1,0 +1,37 @@
+appId: com.example.herostack
+---
+- launchApp
+
+# Login if session is not already authenticated.
+- runFlow:
+    when:
+      visible:
+        id: "email-input"
+    commands:
+      - tapOn:
+          id: "email-input"
+      - inputText: "test1@example.com"
+      - tapOn:
+          id: "password-input"
+      - inputText: "password"
+      - pressKey: Enter
+      - tapOn:
+          id: "login-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "todos-title"
+    timeout: 15000
+- assertVisible:
+    id: "todos-title"
+
+- tapOn:
+    id: "create-todo-button"
+- tapOn:
+    id: "create-todo-input"
+- inputText: "Maestro Todo ${MAESTRO_TODO_SUFFIX}"
+- tapOn:
+    id: "create-todo-save"
+
+- assertVisible: "Maestro Todo ${MAESTRO_TODO_SUFFIX}"
+- tapOn: "Maestro Todo ${MAESTRO_TODO_SUFFIX}"

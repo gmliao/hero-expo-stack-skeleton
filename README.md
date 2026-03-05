@@ -29,7 +29,7 @@ Production-ready reference skeleton for React Native / Expo projects with Fireba
 | Backend | Firebase Functions + Firestore |
 | Unit Test | Jest + React Native Testing Library |
 | Web E2E | Playwright |
-| Mobile E2E | Detox |
+| Mobile E2E | Maestro |
 | Design | [Pencil](https://pencil.so) + `.pen` files + MCP |
 | CI | GitHub Actions |
 
@@ -86,6 +86,7 @@ bun run dev
 | [Bun](https://bun.sh) | ≥ 1.1 | `brew install bun` |
 | Java (JDK) | ≥ 11 | `brew install openjdk` |
 | Android Command-line Tools | 最新穩定版 | `brew install --cask android-commandlinetools` |
+| Maestro CLI | 最新穩定版 | `curl -Ls "https://get.maestro.mobile.dev" | bash` |
 | Android Studio + SDK | 最新穩定版 | 安裝 Android Studio，勾選 SDK Platform / Platform-Tools / Command-line Tools / Android Emulator |
 | Firebase CLI | 透過 bunx | 專案內 `bunx firebase --version` 即可（`bun install` 後） |
 
@@ -131,7 +132,7 @@ bunx playwright install --with-deps chromium
 
 ### 選用（Mobile E2E）
 
-執行 `bun run e2e:ios` 需 Detox 與 Xcode；詳見 `apps/client` 內設定。不進 CI。
+執行 `bun run e2e:ios` 需 Maestro CLI 與 Xcode；詳見 `docs/runbooks/maestro-mobile-e2e.md`。不進 CI。
 
 ### Java PATH 設定（macOS Homebrew）
 
@@ -194,7 +195,7 @@ hero-stack-skeleton/
 │   │   ├── lib/                 # helpers (logger, env, error mapping)
 │   │   └── types/               # app-only types
 │       ├── tests/               # unit/integration (Jest + RNTL)
-│       └── e2e/                 # Detox (mobile)
+│       └── maestro/             # Maestro flows (mobile)
 │
 ├── backend/
 │   └── firebase/
@@ -338,7 +339,7 @@ bun run test:backend
 # Web E2E（Playwright）
 bun run e2e:web          # 自己起一組「e2e 專用」Emulator（port 9199/8180/5011）→ seed → 跑測試；與 dev 並存，無需關閉開發用 Emulator
 
-# Mobile E2E（Detox，本地執行）
+# Mobile E2E（Maestro，本地執行）
 bun run e2e:ios
 
 # 完整 CI pipeline（含各項 check）

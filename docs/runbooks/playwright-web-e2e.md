@@ -15,7 +15,7 @@
 不適用於：
 
 - Jest / RNTL 單元測試
-- Detox mobile E2E
+- Maestro mobile E2E
 
 ## Required Baseline
 

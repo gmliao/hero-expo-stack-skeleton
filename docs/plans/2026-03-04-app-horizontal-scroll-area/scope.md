@@ -29,7 +29,7 @@
 - Snap / paging 行為
 - iOS/Android 原生 fade（原生 scroll indicator 已足夠）
 - Playwright drag mouse E2E（不穩定，跳過）
-- Detox mobile（原生行為不變）
+- Mobile E2E（Maestro，原生行為不變）
 
 ## API
 
