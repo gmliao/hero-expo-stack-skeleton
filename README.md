@@ -85,6 +85,8 @@ bun run dev
 | Node.js | 20.x | `fnm install 20 && fnm use 20` |
 | [Bun](https://bun.sh) | ≥ 1.1 | `brew install bun` |
 | Java (JDK) | ≥ 11 | `brew install openjdk` |
+| Android Command-line Tools | 最新穩定版 | `brew install --cask android-commandlinetools` |
+| Android Studio + SDK | 最新穩定版 | 安裝 Android Studio，勾選 SDK Platform / Platform-Tools / Command-line Tools / Android Emulator |
 | Firebase CLI | 透過 bunx | 專案內 `bunx firebase --version` 即可（`bun install` 後） |
 
 先把 `fnm` 掛進 shell，讓進入 repo 時會自動套用 `.node-version`：
@@ -272,8 +274,7 @@ bun run seed
 本專案使用 **Expo Dev Client**（不是 Expo Go）。在 **這台 Mac / 模擬器第一次跑專案時**，需要先安裝 iOS 開發版 App 一次：
 
 ```bash
-cd apps/client
-bunx expo run:ios
+bun run app:ios
 ```
 
 成功後會在 iOS Simulator 中看到 `HeroStack` App（bundle id `com.example.herostack`）。
@@ -287,7 +288,28 @@ bun run dev
 
 再到 iOS 模擬器中打開已安裝的 `HeroStack` App，它會自動連上目前的 Metro dev server。
 
-若你重置模擬器或把 App 刪掉，需要再跑一次 `bunx expo run:ios` 重新安裝 Dev Client。
+若你重置模擬器或把 App 刪掉，需要再跑一次 `bun run app:ios` 重新安裝 Dev Client。
+
+### Android Dev Client（必要一次安裝）
+
+先確認你已完成 Android Studio + Android SDK + Emulator 設定（詳見 `docs/runbooks/local-prerequisites-setup.md`）。
+
+在第一次於這台機器執行 Android 時，先建立並啟動一台 Android Emulator，然後執行：
+
+```bash
+# 在 repo root
+bun run app:android
+```
+
+這會進入 `apps/client` 並執行 `expo run:android`，首次會安裝原生 Android 開發版 App 到 emulator。
+
+後續日常開發可先跑：
+
+```bash
+bun run dev
+```
+
+若需要重新安裝 Android Dev Client（例如清掉 emulator data），再次執行 `bun run app:android`。
 
 ### 測試帳號（Emulator）
 
