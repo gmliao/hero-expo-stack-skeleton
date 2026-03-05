@@ -7,6 +7,8 @@
     "kill-test-ports": "bash scripts/kill-test-ports.sh",
     "dev": "bun run kill-dev-ports && concurrently \"bun run emulators\" \"bun run wait-emulators && bun run seed && bun run app\"",
     "app": "cd apps/client && dotenv -e ../../.env -- bun run start",
+    "app:ios": "cd apps/client && dotenv -e ../../.env -- bun run ios",
+    "app:android": "cd apps/client && dotenv -e ../../.env -- bun run android",
     "firebase:cli": "cd backend/firebase && bunx firebase",
     "firebase:login": "cd backend/firebase && bunx firebase login",
     "firebase:whoami": "cd backend/firebase && bunx firebase login:list",

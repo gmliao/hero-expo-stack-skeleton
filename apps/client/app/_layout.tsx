@@ -12,7 +12,8 @@ import { Stack, useRouter, useSegments } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect, useState } from 'react'
 import { I18nextProvider } from 'react-i18next'
-import { AppState } from 'react-native'
+import { AppState, StyleSheet } from 'react-native'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { handleMutationError } from '@/lib/mutationError'
 import { firebaseAuth } from '@/lib/firebase'
@@ -84,15 +85,23 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <I18nextProvider i18n={i18n}>
-          <GluestackUIProvider>
-            <StatusBar style="dark" />
-            <Stack screenOptions={{ headerShown: false }} />
-          </GluestackUIProvider>
-        </I18nextProvider>
-      </QueryClientProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={styles.gestureRoot}>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n}>
+            <GluestackUIProvider>
+              <StatusBar style="dark" />
+              <Stack screenOptions={{ headerShown: false }} />
+            </GluestackUIProvider>
+          </I18nextProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   )
 }
+
+const styles = StyleSheet.create({
+  gestureRoot: {
+    flex: 1,
+  },
+})
