@@ -17,16 +17,16 @@ need_cmd() {
   fi
 }
 
-echo "[1/8] Checking Homebrew"
+echo "[1/9] Checking Homebrew"
 need_cmd "brew" "Install Homebrew first: https://brew.sh"
 
-echo "[2/8] Checking bun"
+echo "[2/9] Checking bun"
 if ! command -v bun >/dev/null 2>&1; then
   echo "[INFO] Installing bun via Homebrew"
   brew install bun
 fi
 
-echo "[3/8] Checking Java (for Firebase emulators)"
+echo "[3/9] Checking Java (for Firebase emulators)"
 if ! command -v java >/dev/null 2>&1 && [[ ! -x "${JAVA_BIN}/java" ]]; then
   echo "[INFO] Installing openjdk via Homebrew"
   brew install openjdk
@@ -55,20 +55,26 @@ fi
 
 need_cmd "java" "Install openjdk (brew install openjdk) and add /opt/homebrew/opt/openjdk/bin to PATH"
 
-echo "[4/8] Checking Android command-line tools (for Android local dev)"
+echo "[4/9] Checking Android command-line tools (for Android local dev)"
 if ! brew list --cask android-commandlinetools >/dev/null 2>&1; then
   echo "[INFO] Installing android-commandlinetools via Homebrew cask"
   brew install --cask android-commandlinetools
 fi
 
-echo "[5/8] Verifying Firebase CLI availability via bunx"
+echo "[5/9] Verifying Firebase CLI availability via bunx"
 cd "${ROOT_DIR}"
 bunx firebase --version >/dev/null
 
-echo "[6/8] Installing project dependencies"
+echo "[6/9] Installing project dependencies"
 bun install
 
-echo "[7/8] Ensuring backend/firebase/.firebaserc exists"
+echo "[7/9] Checking Maestro CLI"
+if ! command -v maestro >/dev/null 2>&1; then
+  echo "[INFO] Installing Maestro CLI"
+  curl -Ls "https://get.maestro.mobile.dev" | bash
+fi
+
+echo "[8/9] Ensuring backend/firebase/.firebaserc exists"
 if [[ ! -f "${FIREBASERC_FILE}" ]]; then
   if [[ -f "${FIREBASERC_EXAMPLE}" ]]; then
     cp "${FIREBASERC_EXAMPLE}" "${FIREBASERC_FILE}"
@@ -79,7 +85,7 @@ if [[ ! -f "${FIREBASERC_FILE}" ]]; then
   fi
 fi
 
-echo "[8/8] Validating Firebase project guard + emulator smoke"
+echo "[9/9] Validating Firebase project guard + emulator smoke"
 bash "${ROOT_DIR}/scripts/firebase/check-project.sh"
 cd "${FIREBASE_DIR}"
 bunx firebase emulators:exec --project hero-stack-local --only auth,firestore,functions "node -e \"console.log('emulator-ready')\"" >/dev/null

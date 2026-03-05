@@ -57,7 +57,7 @@
 mkdir -p app/app app/src/ui/theme app/src/ui/components app/src/data/hooks \
   app/src/stores app/src/features/auth app/src/features/todos \
   app/src/i18n \
-  app/src/lib app/src/types app/tests app/e2e \
+  app/src/lib app/src/types app/tests app/maestro \
   backend/firebase/functions/src/middleware backend/firebase/functions/src/handlers \
   backend/firebase/functions/tests \
   e2e-web/tests shared/types scripts docs/runbooks \
@@ -306,4 +306,3 @@ git commit -m "docs: runbook for LLM-assisted Firebase CLI operations"
 ```
 
 ---
-

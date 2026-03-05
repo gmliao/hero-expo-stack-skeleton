@@ -145,9 +145,9 @@ FieldValue.delete()
 - Use the seeded test accounts for login. Do not create accounts in E2E tests.
 - After mutations (create/toggle), assert that the list reflects the new state — this validates TanStack Query invalidation.
 
-### Mobile E2E (`app/e2e/`)
+### Mobile E2E (`app/maestro/`)
 
-- Detox, iOS-first. At minimum: login → create → toggle happy path.
+- Maestro, iOS-first. At minimum: login → create → toggle happy path.
 - Not required in CI. Must pass locally before merging features that touch mobile flows.
 
 ---
@@ -172,7 +172,7 @@ bun run dev            # app + emulators + seed (full local env)
 bun run test           # app unit tests
 bun run test:backend   # backend emulator tests
 bun run e2e:web        # Playwright web e2e
-bun run e2e:ios        # Detox mobile e2e (local only)
+bun run e2e:ios        # Maestro mobile e2e (local only)
 bun run ci             # full pipeline (unit + backend + web e2e)
 ```
 

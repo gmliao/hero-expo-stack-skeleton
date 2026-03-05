@@ -2,7 +2,8 @@
 
 > **入口**：[README Test Commands](../README.md#test-commands)  
 > **CI**：`.github/workflows/ci.yml`  
-> **Web E2E 細則**：[Playwright Web E2E](./runbooks/playwright-web-e2e.md)
+> **Web E2E 細則**：[Playwright Web E2E](./runbooks/playwright-web-e2e.md)  
+> **Mobile E2E 細則**：[Maestro Mobile E2E](./runbooks/maestro-mobile-e2e.md)
 
 ---
 
@@ -80,13 +81,17 @@ bunx playwright install --with-deps chromium
 | **Edit 預填** | 凡有「編輯」表單（如 edit todo），E2E 需涵蓋：建立一筆已知資料 → 點編輯 → **斷言各欄位已帶入正確值**（title、description、due date、tags 等），避免 cache key 或 null/undefined 導致表單空白之 regression。 |
 | Accessibility | 鍵盤操作、錯誤顯示、role/name 可發現 |
 
-### Mobile E2E（Detox）
+### Mobile E2E（Maestro）
 
 Happy path（iOS 優先）：
 
 ```
 login → create todo → toggle todo
 ```
+
+指令：
+
+- `bun run e2e:ios`
 
 > Mobile E2E 目前為本地執行，不進 CI（成本考量）。
 

@@ -35,7 +35,7 @@
     "test": "jest --watchAll=false",
     "test:watch": "jest --watch",
     "type-check": "tsc --noEmit",
-    "e2e:ios": "detox test --configuration ios"
+    "e2e:ios": "bun run e2e:ios"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
