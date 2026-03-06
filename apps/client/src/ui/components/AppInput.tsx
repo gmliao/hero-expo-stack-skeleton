@@ -1,3 +1,4 @@
+import { forwardRef } from 'react'
 import { TextInput, type TextInputProps } from 'react-native'
 import { tokens, type AppComponentSize } from '@/ui/tokens'
 import { cn } from '@/ui/utils/cn'
@@ -15,20 +16,17 @@ interface AppInputProps extends TextInputProps {
   className?: string
 }
 
-export function AppInput({
-  size = 'md',
-  invalid = false,
-  state = 'default',
-  editable,
-  className,
-  ...props
-}: AppInputProps) {
+export const AppInput = forwardRef<TextInput, AppInputProps>(function AppInput(
+  { size = 'md', invalid = false, state = 'default', editable, className, ...props },
+  ref,
+) {
   const resolvedState = invalid ? 'invalid' : state
   const isDisabled = resolvedState === 'disabled'
 
   return (
     <TextInput
       {...props}
+      ref={ref}
       editable={editable ?? !isDisabled}
       placeholderTextColor={tokens.colors.muted}
       className={cn(
@@ -43,4 +41,4 @@ export function AppInput({
       )}
     />
   )
-}
+})
