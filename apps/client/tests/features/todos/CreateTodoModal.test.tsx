@@ -1,4 +1,9 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react-native'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Alert } from 'react-native'
 import { CreateTodoModal } from '@/features/todos/CreateTodoModal'
@@ -15,12 +20,32 @@ jest.mock('@/data/hooks/useUpdateTodoMutation')
 jest.mock('@/data/hooks/useTagsQuery')
 jest.mock('@/data/hooks/useCreateTagMutation')
 
+const mockModalFormSheet = jest.fn(
+  ({
+    children,
+    footer,
+  }: {
+    children: React.ReactNode
+    footer?: React.ReactNode
+  }) => (
+    <>
+      {children}
+      {footer}
+    </>
+  ),
+)
+
+jest.mock('@/ui/components/ModalFormSheet', () => ({
+  ModalFormSheet: (props: {
+    children: React.ReactNode
+    footer?: React.ReactNode
+  }) => mockModalFormSheet(props),
+}))
+
 function wrapper({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient()
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   )
 }
 
@@ -60,12 +85,15 @@ describe('CreateTodoModal', () => {
     render(<CreateTodoModal />, { wrapper })
     expect(screen.getByTestId('create-todo-input')).toBeOnTheScreen()
     expect(screen.getByTestId('create-todo-save')).toBeOnTheScreen()
+    expect(mockModalFormSheet).toHaveBeenCalled()
   })
 
   it('shows title error when save with empty title', async () => {
     render(<CreateTodoModal />, { wrapper })
     fireEvent.press(screen.getByTestId('create-todo-save'))
-    expect(await screen.findByTestId('create-todo-title-error')).toBeOnTheScreen()
+    expect(
+      await screen.findByTestId('create-todo-title-error'),
+    ).toBeOnTheScreen()
     expect(mockCreateMutateAsync).not.toHaveBeenCalled()
     expect(mockUpdateMutateAsync).not.toHaveBeenCalled()
   })
@@ -125,7 +153,9 @@ describe('CreateTodoModal', () => {
         },
       ],
     })
-    queryClient.setQueryData(queryKeys.todos.list('test-uid', 'all', null), [todo])
+    queryClient.setQueryData(queryKeys.todos.list('test-uid', 'all', null), [
+      todo,
+    ])
     useUIStore.setState({ selectedTodoId: 'todo-1', filter: 'all' })
 
     render(
@@ -134,11 +164,25 @@ describe('CreateTodoModal', () => {
       </QueryClientProvider>,
     )
 
-    expect(screen.getByTestId('create-todo-input')).toHaveProp('value', 'Edit me')
-    expect(screen.getByTestId('create-todo-description').props.value).toBe('Notes')
-    expect(screen.getByTestId('create-todo-due-date')).toHaveProp('value', '2026-03-20')
-    expect(screen.getByTestId('create-todo-tag-tag-a')).toHaveProp('accessibilityState', { selected: true })
-    expect(screen.getByTestId('create-todo-tag-tag-b')).toHaveProp('accessibilityState', { selected: false })
+    expect(screen.getByTestId('create-todo-input')).toHaveProp(
+      'value',
+      'Edit me',
+    )
+    expect(screen.getByTestId('create-todo-description').props.value).toBe(
+      'Notes',
+    )
+    expect(screen.getByTestId('create-todo-due-date')).toHaveProp(
+      'value',
+      '2026-03-20',
+    )
+    expect(screen.getByTestId('create-todo-tag-tag-a')).toHaveProp(
+      'accessibilityState',
+      { selected: true },
+    )
+    expect(screen.getByTestId('create-todo-tag-tag-b')).toHaveProp(
+      'accessibilityState',
+      { selected: false },
+    )
   })
 
   it('calls update mutation when editing existing todo', async () => {
@@ -185,7 +229,10 @@ describe('CreateTodoModal', () => {
       </QueryClientProvider>,
     )
 
-    expect(screen.getByTestId('create-todo-input')).toHaveProp('value', 'Existing')
+    expect(screen.getByTestId('create-todo-input')).toHaveProp(
+      'value',
+      'Existing',
+    )
     fireEvent.changeText(screen.getByTestId('create-todo-input'), 'Updated')
     fireEvent.press(screen.getByTestId('create-todo-save'))
 
@@ -224,7 +271,9 @@ describe('CreateTodoModal', () => {
   it('clears title error when user types after validation error', async () => {
     render(<CreateTodoModal />, { wrapper })
     fireEvent.press(screen.getByTestId('create-todo-save'))
-    expect(await screen.findByTestId('create-todo-title-error')).toBeOnTheScreen()
+    expect(
+      await screen.findByTestId('create-todo-title-error'),
+    ).toBeOnTheScreen()
 
     fireEvent.changeText(screen.getByTestId('create-todo-input'), 'a')
     expect(screen.queryByTestId('create-todo-title-error')).toBeNull()
@@ -333,13 +382,19 @@ describe('CreateTodoModal', () => {
       </QueryClientProvider>,
     )
 
-    expect(screen.getByTestId('create-todo-tag-tag-a')).toHaveProp('accessibilityState', {
-      selected: true,
-    })
+    expect(screen.getByTestId('create-todo-tag-tag-a')).toHaveProp(
+      'accessibilityState',
+      {
+        selected: true,
+      },
+    )
     fireEvent.press(screen.getByTestId('create-todo-tag-tag-a'))
-    expect(screen.getByTestId('create-todo-tag-tag-a')).toHaveProp('accessibilityState', {
-      selected: false,
-    })
+    expect(screen.getByTestId('create-todo-tag-tag-a')).toHaveProp(
+      'accessibilityState',
+      {
+        selected: false,
+      },
+    )
   })
 
   it('creates a tag from the child modal and auto-selects it', async () => {
@@ -371,9 +426,12 @@ describe('CreateTodoModal', () => {
     })
 
     await waitFor(() => {
-      expect(screen.getByTestId('create-todo-tag-tag-new')).toHaveProp('accessibilityState', {
-        selected: true,
-      })
+      expect(screen.getByTestId('create-todo-tag-tag-new')).toHaveProp(
+        'accessibilityState',
+        {
+          selected: true,
+        },
+      )
     })
   })
 })
