@@ -1,3 +1,4 @@
+import { forwardRef } from 'react'
 import { TextInput, type TextInputProps } from 'react-native'
 import { tokens, type AppComponentSize } from '@/ui/tokens'
 import { cn } from '@/ui/utils/cn'
@@ -15,20 +16,17 @@ interface AppTextAreaProps extends TextInputProps {
   className?: string
 }
 
-export function AppTextArea({
-  size = 'md',
-  invalid = false,
-  state = 'default',
-  editable,
-  className,
-  ...props
-}: AppTextAreaProps) {
+export const AppTextArea = forwardRef<TextInput, AppTextAreaProps>(function AppTextArea(
+  { size = 'md', invalid = false, state = 'default', editable, className, ...props },
+  ref,
+) {
   const resolvedState = invalid ? 'invalid' : state
   const isDisabled = resolvedState === 'disabled'
 
   return (
     <TextInput
       {...props}
+      ref={ref}
       multiline
       editable={editable ?? !isDisabled}
       placeholderTextColor={tokens.colors.muted}
@@ -45,4 +43,4 @@ export function AppTextArea({
       )}
     />
   )
-}
+})
