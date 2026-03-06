@@ -7,6 +7,7 @@ export { AppHorizontalScrollArea } from "@/ui/primitives/AppHorizontalScrollArea
 export { AppInput } from "./AppInput";
 export { KeyboardAwareScrollContainer } from "./KeyboardAwareScrollContainer";
 export { AppLinkAction } from "./AppLinkAction";
+export { ModalFormSheet } from "./ModalFormSheet";
 export {
   AppScreenContainer,
   SCREEN_CONTENT_MAX_WIDTH,
