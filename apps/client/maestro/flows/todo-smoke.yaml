@@ -15,8 +15,14 @@ appId: com.example.herostack
           id: "password-input"
       - inputText: "password"
       - pressKey: Enter
-      - tapOn:
-          id: "login-button"
+      - hideKeyboard
+      - runFlow:
+          when:
+            visible:
+              id: "login-button"
+          commands:
+            - tapOn:
+                id: "login-button"
 
 - extendedWaitUntil:
     visible:
@@ -30,6 +36,7 @@ appId: com.example.herostack
 - tapOn:
     id: "create-todo-input"
 - inputText: "Maestro Todo ${MAESTRO_TODO_SUFFIX}"
+- hideKeyboard
 - tapOn:
     id: "create-todo-save"
 
