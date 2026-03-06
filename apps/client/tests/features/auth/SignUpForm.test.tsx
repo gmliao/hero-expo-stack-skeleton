@@ -1,6 +1,27 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native'
 import { SignUpForm } from '@/features/auth/SignUpForm'
 
+const mockFormScreenContainer = jest.fn(
+  ({
+    children,
+    contentClassName,
+  }: {
+    children: React.ReactNode
+    contentClassName?: string
+  }) => <>{children}</>,
+)
+
+jest.mock('@/ui/components', () => {
+  const actual = jest.requireActual('@/ui/components')
+  return {
+    ...actual,
+    FormScreenContainer: (props: {
+      children: React.ReactNode
+      contentClassName?: string
+    }) => mockFormScreenContainer(props),
+  }
+})
+
 describe('SignUpForm', () => {
   it('renders sign-up title and inputs', () => {
     const onSubmit = jest.fn()
@@ -11,6 +32,11 @@ describe('SignUpForm', () => {
     expect(screen.getByTestId('sign-up-confirm-input')).toBeOnTheScreen()
     expect(screen.getByTestId('sign-up-button')).toBeOnTheScreen()
     expect(screen.getByTestId('sign-up-link-login')).toBeOnTheScreen()
+    expect(mockFormScreenContainer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contentClassName: 'py-7',
+      }),
+    )
   })
 
   it('does not call onSubmit when email is blank and shows fieldsRequired error', () => {
