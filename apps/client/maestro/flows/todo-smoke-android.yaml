@@ -1,0 +1,63 @@
+appId: com.example.herostack
+---
+- launchApp
+
+- runFlow:
+    when:
+      visible: "Wait"
+    commands:
+      - tapOn: "Wait"
+
+# Login if session is not already authenticated.
+- runFlow:
+    when:
+      notVisible:
+        id: "todos-title"
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: "email-input"
+          timeout: 15000
+      - tapOn:
+          id: "email-input"
+      - runFlow:
+          when:
+            visible: "Wait"
+          commands:
+            - tapOn: "Wait"
+      - inputText: "test1@example.com"
+      - tapOn:
+          id: "password-input"
+      - runFlow:
+          when:
+            visible: "Wait"
+          commands:
+            - tapOn: "Wait"
+      - inputText: "password"
+      - hideKeyboard
+      - tapOn:
+          id: "login-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "todos-title"
+    timeout: 30000
+- assertVisible:
+    id: "todos-title"
+
+- tapOn:
+    id: "create-todo-button"
+- tapOn:
+    id: "create-todo-input"
+- inputText: "Maestro Android ${MAESTRO_TODO_SUFFIX}"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "create-todo-save"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "create-todo-save"
+
+- assertVisible: "Maestro Android ${MAESTRO_TODO_SUFFIX}"
+- tapOn: "Maestro Android ${MAESTRO_TODO_SUFFIX}"

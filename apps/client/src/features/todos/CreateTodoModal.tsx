@@ -190,6 +190,7 @@ export function CreateTodoModal() {
       <ModalFormSheet
         visible={isOpen}
         onClose={handleClose}
+        placement="center"
         maxWidth={isDesktop ? SCREEN_CONTENT_MAX_WIDTH : undefined}
         footer={
           <AppStack direction="horizontal" gap={3} className="justify-end">
@@ -235,7 +236,6 @@ export function CreateTodoModal() {
                 setTitle(text)
                 if (titleError) setTitleError(null)
               }}
-              autoFocus
               returnKeyType="next"
               blurOnSubmit={false}
               onSubmitEditing={() => descriptionRef.current?.focus()}

@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { Keyboard, Modal, Platform, Pressable, View } from 'react-native'
+import { Keyboard, Modal, Platform, Pressable, ScrollView, View } from 'react-native'
 import { KeyboardAwareScrollContainer } from '@/ui/components/KeyboardAwareScrollContainer'
 import { AppSheetHandle } from '@/ui/components/AppSheetHandle'
 import { cn } from '@/ui/utils/cn'
@@ -11,6 +11,7 @@ type ModalFormSheetProps = {
   footer?: ReactNode
   maxWidth?: number
   testID?: string
+  placement?: 'bottom' | 'center'
 }
 
 export function ModalFormSheet({
@@ -20,6 +21,7 @@ export function ModalFormSheet({
   footer,
   maxWidth,
   testID,
+  placement = 'bottom',
 }: ModalFormSheetProps) {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
 
@@ -37,8 +39,8 @@ export function ModalFormSheet({
     }
   }, [])
 
-  function handleRequestClose() {
-    if (Platform.OS === 'android' && isKeyboardVisible) {
+  function handleDismissAttempt() {
+    if (isKeyboardVisible) {
       Keyboard.dismiss()
       return
     }
@@ -46,19 +48,46 @@ export function ModalFormSheet({
     onClose()
   }
 
+  const body =
+    placement === 'center' ? (
+      <ScrollView
+        className="bg-bg"
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+      >
+        <View className="pb-2">{children}</View>
+      </ScrollView>
+    ) : (
+      <KeyboardAwareScrollContainer className="flex-1" contentClassName="pb-2">
+        <View className="flex-1">{children}</View>
+      </KeyboardAwareScrollContainer>
+    )
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleRequestClose}>
-      <View className="flex-1 justify-end bg-overlay">
-        <Pressable className="absolute inset-0" onPress={onClose} />
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleDismissAttempt}>
+      <View
+        className={cn(
+          'flex-1 bg-overlay',
+          placement === 'center' ? 'justify-center px-4 py-6' : 'justify-end',
+        )}
+      >
+        <Pressable
+          testID="modal-form-sheet-overlay"
+          className="absolute inset-0"
+          onPress={handleDismissAttempt}
+        />
         <View
           testID={testID}
-          className={cn('w-full max-h-[85%] rounded-t-lg border border-border bg-surface px-5 py-4')}
+          className={cn(
+            placement === 'center'
+              ? 'w-full max-h-[80%] rounded-3xl border border-border bg-surface px-5 py-4'
+              : 'w-full min-h-[360px] max-h-[85%] rounded-t-lg border border-border bg-surface px-5 py-4',
+          )}
           style={maxWidth ? { maxWidth, alignSelf: 'center' } : undefined}
         >
           <AppSheetHandle className="mb-4" />
-          <KeyboardAwareScrollContainer className="flex-1">
-            <View className="flex-1">{children}</View>
-          </KeyboardAwareScrollContainer>
+          {body}
           {footer ? <View className="border-t border-border pt-4">{footer}</View> : null}
         </View>
       </View>
