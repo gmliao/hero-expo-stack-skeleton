@@ -1,8 +1,15 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
-import { AppButton, AppInput, AppLinkAction, AppStack, AppText } from '@/ui/components'
+import { Keyboard, TextInput } from 'react-native'
+import {
+  AppButton,
+  AppInput,
+  AppLinkAction,
+  AppStack,
+  AppText,
+  FormScreenContainer,
+} from '@/ui/components'
 
 const MIN_PASSWORD_LENGTH = 6
 
@@ -19,8 +26,11 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const passwordRef = useRef<TextInput>(null)
+  const confirmPasswordRef = useRef<TextInput>(null)
 
   async function handleSubmit() {
+    Keyboard.dismiss()
     setError(null)
     if (!email.trim()) {
       setError(t('auth.fieldsRequired'))
@@ -45,7 +55,7 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
   }
 
   return (
-    <View className="flex-1 items-center bg-bg px-5 py-7">
+    <FormScreenContainer contentClassName="py-7">
       <AppStack gap={5} className="flex-1 w-full max-w-[420px] justify-center">
         <AppText size="xl" weight="bold">
           {t('auth.signUpTitle')}
@@ -71,6 +81,9 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
             autoCorrect={false}
             keyboardType="email-address"
             textContentType="emailAddress"
+            returnKeyType="next"
+            blurOnSubmit={false}
+            onSubmitEditing={() => passwordRef.current?.focus()}
             size="md"
           />
         </AppStack>
@@ -80,6 +93,7 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
             {t('auth.password')}
           </AppText>
           <AppInput
+            ref={passwordRef}
             testID="sign-up-password-input"
             accessibilityLabel={t('auth.password')}
             placeholder={t('auth.password')}
@@ -87,6 +101,9 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
             onChangeText={setPassword}
             secureTextEntry
             textContentType="newPassword"
+            returnKeyType="next"
+            blurOnSubmit={false}
+            onSubmitEditing={() => confirmPasswordRef.current?.focus()}
             size="md"
           />
         </AppStack>
@@ -96,6 +113,7 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
             {t('auth.confirmPassword')}
           </AppText>
           <AppInput
+            ref={confirmPasswordRef}
             testID="sign-up-confirm-input"
             accessibilityLabel={t('auth.confirmPassword')}
             placeholder={t('auth.confirmPassword')}
@@ -103,6 +121,10 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
             onChangeText={setConfirmPassword}
             secureTextEntry
             textContentType="newPassword"
+            returnKeyType="done"
+            onSubmitEditing={() => {
+              void handleSubmit()
+            }}
             size="md"
           />
         </AppStack>
@@ -125,6 +147,6 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
           {t('auth.goToSignIn')}
         </AppLinkAction>
       </AppStack>
-    </View>
+    </FormScreenContainer>
   )
 }

@@ -1,8 +1,15 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { router } from 'expo-router'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
-import { AppButton, AppInput, AppLinkAction, AppStack, AppText } from '@/ui/components'
+import { Keyboard, TextInput } from 'react-native'
+import {
+  AppButton,
+  AppInput,
+  AppLinkAction,
+  AppStack,
+  AppText,
+  FormScreenContainer,
+} from '@/ui/components'
 
 export type LoginSubmitResult = { error?: string } | void
 
@@ -16,8 +23,10 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const passwordRef = useRef<TextInput>(null)
 
   async function handleSubmit() {
+    Keyboard.dismiss()
     if (!email.trim() || !password) {
       setError(t('auth.fieldsRequired'))
       return
@@ -33,7 +42,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
   }
 
   return (
-    <View className="flex-1 items-center bg-bg px-5 py-8">
+    <FormScreenContainer>
       <AppStack gap={6} className="flex-1 w-full max-w-[420px] justify-center">
         <AppText size="xl" weight="bold">
           {t('auth.signInTitle')}
@@ -59,6 +68,9 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
             autoCorrect={false}
             keyboardType="email-address"
             textContentType="emailAddress"
+            returnKeyType="next"
+            blurOnSubmit={false}
+            onSubmitEditing={() => passwordRef.current?.focus()}
             size="md"
           />
         </AppStack>
@@ -68,6 +80,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
             {t('auth.password')}
           </AppText>
           <AppInput
+            ref={passwordRef}
             testID="password-input"
             accessibilityLabel={t('auth.password')}
             placeholder={t('auth.password')}
@@ -75,6 +88,10 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
             onChangeText={setPassword}
             secureTextEntry
             textContentType="password"
+            returnKeyType="done"
+            onSubmitEditing={() => {
+              void handleSubmit()
+            }}
             size="md"
           />
         </AppStack>
@@ -97,6 +114,6 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           {t('auth.goToSignUp')}
         </AppLinkAction>
       </AppStack>
-    </View>
+    </FormScreenContainer>
   )
 }

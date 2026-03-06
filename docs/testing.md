@@ -83,7 +83,7 @@ bunx playwright install --with-deps chromium
 
 ### Mobile E2E（Maestro）
 
-Happy path（iOS 優先）：
+Happy path（iOS / Android）：
 
 ```
 login → create todo → toggle todo
@@ -92,6 +92,7 @@ login → create todo → toggle todo
 指令：
 
 - `bun run e2e:ios`
+- `bun run e2e:android`
 
 > Mobile E2E 目前為本地執行，不進 CI（成本考量）。
 

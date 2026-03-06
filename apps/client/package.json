@@ -13,6 +13,7 @@
     "test:watch": "jest --watch",
     "type-check": "tsc --noEmit",
     "maestro:test:ios": "bash scripts/run-maestro-ios.sh",
+    "maestro:test:android": "bash scripts/run-maestro-android.sh",
     "build:web": "expo export --platform web"
   },
   "dependencies": {
