@@ -92,6 +92,7 @@ export function TagFormModal({
     <ModalFormSheet
       visible={visible}
       onClose={onClose}
+      placement="center"
       maxWidth={420}
       testID="tag-form-card"
       footer={

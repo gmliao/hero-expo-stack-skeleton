@@ -142,6 +142,7 @@ describe('TagFormModal', () => {
     expect(mockModalFormSheet).toHaveBeenCalledWith(
       expect.objectContaining({
         maxWidth: 420,
+        placement: 'center',
         testID: 'tag-form-card',
       }),
     )

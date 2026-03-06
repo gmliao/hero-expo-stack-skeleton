@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react-native'
+import { act, fireEvent, render, screen } from '@testing-library/react-native'
 import { Keyboard, Modal, Platform, ScrollView, Text } from 'react-native'
 import { ModalFormSheet } from '@/ui/components/ModalFormSheet'
 
@@ -44,8 +44,43 @@ describe('ModalFormSheet', () => {
     expect(UNSAFE_getByType(ScrollView)).toBeTruthy()
   })
 
-  it('dismisses keyboard before closing on android request close', () => {
-    ;(Platform as any).OS = 'android'
+  it('applies a minimum sheet height so the body and footer can coexist on mobile', () => {
+    render(
+      <ModalFormSheet visible onClose={jest.fn()} testID="modal-form-sheet">
+        <Text>Body</Text>
+      </ModalFormSheet>,
+    )
+
+    expect(screen.getByTestId('modal-form-sheet')).toHaveProp(
+      'className',
+      expect.stringContaining('min-h-[360px]'),
+    )
+  })
+
+  it('supports centered dialog placement for form modals', () => {
+    render(
+      <ModalFormSheet
+        visible
+        onClose={jest.fn()}
+        placement="center"
+        testID="modal-form-sheet"
+      >
+        <Text>Body</Text>
+      </ModalFormSheet>,
+    )
+
+    expect(screen.getByTestId('modal-form-sheet')).toHaveProp(
+      'className',
+      expect.stringContaining('rounded-3xl'),
+    )
+    expect(screen.getByTestId('modal-form-sheet')).toHaveProp(
+      'className',
+      expect.not.stringContaining('min-h-[360px]'),
+    )
+  })
+
+  it('dismisses keyboard before closing on request close when keyboard is visible', () => {
+    ;(Platform as any).OS = 'ios'
     const onClose = jest.fn()
     const dismissSpy = jest.spyOn(Keyboard, 'dismiss')
 
@@ -61,6 +96,26 @@ describe('ModalFormSheet', () => {
     act(() => {
       UNSAFE_getByType(Modal).props.onRequestClose()
     })
+
+    expect(dismissSpy).toHaveBeenCalled()
+    expect(onClose).not.toHaveBeenCalled()
+  })
+
+  it('dismisses keyboard before closing when pressing the overlay', () => {
+    ;(Platform as any).OS = 'ios'
+    const onClose = jest.fn()
+    const dismissSpy = jest.spyOn(Keyboard, 'dismiss')
+
+    const { UNSAFE_getByType } = render(
+      <ModalFormSheet visible onClose={onClose}>
+        <Text>Body</Text>
+      </ModalFormSheet>,
+    )
+
+    act(() => {
+      keyboardListeners.keyboardDidShow?.()
+    })
+    fireEvent.press(screen.getByTestId('modal-form-sheet-overlay'))
 
     expect(dismissSpy).toHaveBeenCalled()
     expect(onClose).not.toHaveBeenCalled()
