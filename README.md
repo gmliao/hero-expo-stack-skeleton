@@ -132,7 +132,7 @@ bunx playwright install --with-deps chromium
 
 ### 選用（Mobile E2E）
 
-執行 `bun run e2e:ios` 需 Maestro CLI 與 Xcode；詳見 `docs/runbooks/maestro-mobile-e2e.md`。不進 CI。
+執行 `bun run e2e:ios` 需 Maestro CLI 與 Xcode，執行 `bun run e2e:android` 需 Android Emulator + adb；詳見 `docs/runbooks/maestro-mobile-e2e.md`。不進 CI。
 
 ### Java PATH 設定（macOS Homebrew）
 
@@ -341,6 +341,7 @@ bun run e2e:web          # 自己起一組「e2e 專用」Emulator（port 9199/8
 
 # Mobile E2E（Maestro，本地執行）
 bun run e2e:ios
+bun run e2e:android
 
 # 完整 CI pipeline（含各項 check）
 bun run ci
