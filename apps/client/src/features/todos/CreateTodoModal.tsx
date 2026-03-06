@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Modal, Pressable, ScrollView, View } from 'react-native'
+import { Keyboard, TextInput, View } from 'react-native'
 import { useQueryClient } from '@tanstack/react-query'
 
 import type { Tag, Todo } from '@shared/types/api'
@@ -21,6 +21,7 @@ import {
   AppTagChip,
   AppText,
   AppTextArea,
+  ModalFormSheet,
   SCREEN_CONTENT_MAX_WIDTH,
 } from '@/ui/components'
 import { TagFormModal } from './TagFormModal'
@@ -45,19 +46,19 @@ function findTodoFromCache(
     fromList(filter, undefined) ??
     fromList('all', selectedTagId) ??
     fromList('all', undefined)
-  return list?.find(t => t.id === todoId)
+  return list?.find((t) => t.id === todoId)
 }
 
 export function CreateTodoModal() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const uid = useAuthStore(s => s.uid) ?? ''
-  const isOpen = useUIStore(s => s.isCreateModalOpen)
-  const closeModal = useUIStore(s => s.closeCreateModal)
-  const filter = useUIStore(s => s.filter)
-  const selectedTagId = useUIStore(s => s.selectedTagId)
-  const selectedTodoId = useUIStore(s => s.selectedTodoId)
-  const setSelectedTodoId = useUIStore(s => s.setSelectedTodoId)
+  const uid = useAuthStore((s) => s.uid) ?? ''
+  const isOpen = useUIStore((s) => s.isCreateModalOpen)
+  const closeModal = useUIStore((s) => s.closeCreateModal)
+  const filter = useUIStore((s) => s.filter)
+  const selectedTagId = useUIStore((s) => s.selectedTagId)
+  const selectedTodoId = useUIStore((s) => s.selectedTodoId)
+  const setSelectedTodoId = useUIStore((s) => s.setSelectedTodoId)
 
   const createMutation = useCreateTodoMutation()
   const updateMutation = useUpdateTodoMutation()
@@ -71,16 +72,29 @@ export function CreateTodoModal() {
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
   const [createdTags, setCreatedTags] = useState<Tag[]>([])
   const [isTagFormOpen, setIsTagFormOpen] = useState(false)
+  const descriptionRef = useRef<TextInput>(null)
+  const dueDateRef = useRef<TextInput>(null)
 
   const isEdit = selectedTodoId !== null
   const isPending = createMutation.isPending || updateMutation.isPending
   const isDesktop = useBreakpoint() === 'desktop'
-  const availableTags = [...tags, ...createdTags.filter(tag => !tags.some(existing => existing.id === tag.id))]
+  const availableTags = [
+    ...tags,
+    ...createdTags.filter(
+      (tag) => !tags.some((existing) => existing.id === tag.id),
+    ),
+  ]
 
   useEffect(() => {
     if (!isOpen) return
     if (selectedTodoId) {
-      const todo = findTodoFromCache(queryClient, uid, selectedTodoId, filter, selectedTagId)
+      const todo = findTodoFromCache(
+        queryClient,
+        uid,
+        selectedTodoId,
+        filter,
+        selectedTagId,
+      )
       if (todo) {
         setTitle(todo.title)
         setDescription(todo.description ?? '')
@@ -118,6 +132,7 @@ export function CreateTodoModal() {
   }
 
   async function handleSave() {
+    Keyboard.dismiss()
     if (!title.trim()) {
       setTitleError(t('todos.modal.titleRequired'))
       return
@@ -153,11 +168,17 @@ export function CreateTodoModal() {
     }
   }
 
-  async function handleCreateTag(values: { name: string; emoji: string; colorToken: Tag['colorToken'] }) {
+  async function handleCreateTag(values: {
+    name: string
+    emoji: string
+    colorToken: Tag['colorToken']
+  }) {
     try {
       const tag = await createTagMutation.mutateAsync(values)
-      setCreatedTags(prev => [...prev, tag])
-      setSelectedTagIds(prev => (prev.includes(tag.id) ? prev : [...prev, tag.id]))
+      setCreatedTags((prev) => [...prev, tag])
+      setSelectedTagIds((prev) =>
+        prev.includes(tag.id) ? prev : [...prev, tag.id],
+      )
       setIsTagFormOpen(false)
     } catch {
       // Mutation-level error handling owns visible error state.
@@ -165,177 +186,188 @@ export function CreateTodoModal() {
   }
 
   return (
-    <Modal
-      visible={isOpen}
-      transparent
-      animationType="slide"
-      onRequestClose={handleClose}
-    >
-      <View className="flex-1 justify-end bg-overlay">
-        <Pressable className="flex-1" onPress={handleClose} />
-
-        <View
-          className="w-full max-h-[85%] rounded-t-lg border border-border bg-surface px-5 py-6"
-          style={isDesktop ? { maxWidth: SCREEN_CONTENT_MAX_WIDTH, alignSelf: 'center' } : undefined}
-        >
-          <ScrollView
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 8 }}
-          >
-            <AppStack gap={5}>
-              <AppText
-              testID="create-todo-modal-title"
-              size="xl"
-              weight="bold"
-              accessibilityRole="header"
+    <>
+      <ModalFormSheet
+        visible={isOpen}
+        onClose={handleClose}
+        maxWidth={isDesktop ? SCREEN_CONTENT_MAX_WIDTH : undefined}
+        footer={
+          <AppStack direction="horizontal" gap={3} className="justify-end">
+            <AppButton
+              testID="create-todo-cancel"
+              variant="secondary"
+              onPress={handleClose}
+              disabled={isPending}
+              accessibilityLabel={t('todos.modal.cancel')}
             >
-              {t(isEdit ? 'todos.modal.editTitle' : 'todos.modal.title')}
-            </AppText>
+              {t('todos.modal.cancel')}
+            </AppButton>
 
-            <AppStack gap={1}>
-              <AppInput
-                testID="create-todo-input"
-                accessibilityLabel={t('todos.modal.placeholder')}
-                placeholder={t('todos.modal.placeholder')}
-                value={title}
-                onChangeText={text => {
-                  setTitle(text)
-                  if (titleError) setTitleError(null)
-                }}
-                autoFocus
-                returnKeyType="next"
-                size="md"
-                invalid={Boolean(titleError)}
-              />
-
-              {titleError ? (
-                <AppText
-                  testID="create-todo-title-error"
-                  tone="danger"
-                  size="sm"
-                  accessibilityLiveRegion="polite"
-                >
-                  {titleError}
-                </AppText>
-              ) : null}
-            </AppStack>
-
-            <AppStack gap={1}>
-              <AppText size="sm" tone="muted" accessibilityLabel={t('todos.modal.description')}>
-                {t('todos.modal.description')}
-              </AppText>
-              <AppTextArea
-                testID="create-todo-description"
-                accessibilityLabel={t('todos.modal.description')}
-                placeholder={t('todos.modal.descriptionPlaceholder')}
-                value={description}
-                onChangeText={setDescription}
-                size="md"
-                className="min-h-24"
-              />
-            </AppStack>
-
-            <AppStack gap={1}>
-              <AppText size="sm" tone="muted" accessibilityLabel={t('todos.modal.dueDate')}>
-                {t('todos.modal.dueDate')}
-              </AppText>
-              <AppInput
-                testID="create-todo-due-date"
-                accessibilityLabel={t('todos.modal.dueDate')}
-                placeholder={t('todos.modal.dueDatePlaceholder')}
-                value={dueDate}
-                onChangeText={setDueDate}
-                keyboardType="numbers-and-punctuation"
-                returnKeyType="done"
-                onSubmitEditing={handleSave}
-              />
-            </AppStack>
-
-            <AppStack gap={2}>
-              <View className="flex-row items-center justify-between">
-                <AppText
-                  size="sm"
-                  tone="muted"
-                  accessibilityLabel={t('todos.tagsLabel')}
-                >
-                  {t('todos.tagsLabel')}
-                </AppText>
-                {availableTags.length > 0 ? (
-                  <AppLinkAction
-                    testID="create-todo-new-tag"
-                    onPress={() => setIsTagFormOpen(true)}
-                    accessibilityLabel={t('todos.modal.newTag')}
-                  >
-                    {t('todos.modal.newTag')}
-                  </AppLinkAction>
-                ) : null}
-              </View>
-              {availableTags.length === 0 ? (
-                <AppStack gap={3} className="rounded-2xl border border-dashed border-border bg-bg p-4">
-                  <AppText testID="create-todo-empty-tags" size="sm" tone="muted">
-                    {t('todos.modal.noTags')}
-                  </AppText>
-                  <AppButton
-                    testID="create-todo-create-first-tag"
-                    variant="secondary"
-                    onPress={() => setIsTagFormOpen(true)}
-                    accessibilityLabel={t('todos.modal.createFirstTag')}
-                  >
-                    {t('todos.modal.createFirstTag')}
-                  </AppButton>
-                </AppStack>
-              ) : (
-                <AppHorizontalScrollArea gap={8} className="flex-row items-center">
-                  {availableTags.map(tag => {
-                    const selected = selectedTagIds.includes(tag.id)
-                    return (
-                      <AppTagChip
-                        key={tag.id}
-                        testID={`create-todo-tag-${tag.id}`}
-                        name={tag.name}
-                        emoji={tag.emoji}
-                        colorToken={tag.colorToken}
-                        accessibilityLabel={tag.name}
-                        active={selected}
-                        onPress={() => {
-                          setSelectedTagIds(prev =>
-                            selected ? prev.filter(id => id !== tag.id) : [...prev, tag.id],
-                          )
-                        }}
-                      />
-                    )
-                  })}
-                </AppHorizontalScrollArea>
-              )}
-            </AppStack>
-
-            <AppStack direction="horizontal" gap={3} className="justify-end">
-              <AppButton
-                testID="create-todo-cancel"
-                variant="secondary"
-                onPress={handleClose}
-                disabled={isPending}
-                accessibilityLabel={t('todos.modal.cancel')}
-              >
-                {t('todos.modal.cancel')}
-              </AppButton>
-
-              <AppButton
-                testID="create-todo-save"
-                onPress={handleSave}
-                disabled={isPending}
-                isLoading={isPending}
-                accessibilityLabel={t('todos.modal.save')}
-              >
-                {t('todos.modal.save')}
-              </AppButton>
-            </AppStack>
+            <AppButton
+              testID="create-todo-save"
+              onPress={handleSave}
+              disabled={isPending}
+              isLoading={isPending}
+              accessibilityLabel={t('todos.modal.save')}
+            >
+              {t('todos.modal.save')}
+            </AppButton>
           </AppStack>
-          </ScrollView>
-        </View>
-      </View>
+        }
+      >
+        <AppStack gap={5}>
+          <AppText
+            testID="create-todo-modal-title"
+            size="xl"
+            weight="bold"
+            accessibilityRole="header"
+          >
+            {t(isEdit ? 'todos.modal.editTitle' : 'todos.modal.title')}
+          </AppText>
 
+          <AppStack gap={1}>
+            <AppInput
+              testID="create-todo-input"
+              accessibilityLabel={t('todos.modal.placeholder')}
+              placeholder={t('todos.modal.placeholder')}
+              value={title}
+              onChangeText={(text) => {
+                setTitle(text)
+                if (titleError) setTitleError(null)
+              }}
+              autoFocus
+              returnKeyType="next"
+              blurOnSubmit={false}
+              onSubmitEditing={() => descriptionRef.current?.focus()}
+              size="md"
+              invalid={Boolean(titleError)}
+            />
+
+            {titleError ? (
+              <AppText
+                testID="create-todo-title-error"
+                tone="danger"
+                size="sm"
+                accessibilityLiveRegion="polite"
+              >
+                {titleError}
+              </AppText>
+            ) : null}
+          </AppStack>
+
+          <AppStack gap={1}>
+            <AppText
+              size="sm"
+              tone="muted"
+              accessibilityLabel={t('todos.modal.description')}
+            >
+              {t('todos.modal.description')}
+            </AppText>
+            <AppTextArea
+              ref={descriptionRef}
+              testID="create-todo-description"
+              accessibilityLabel={t('todos.modal.description')}
+              placeholder={t('todos.modal.descriptionPlaceholder')}
+              value={description}
+              onChangeText={setDescription}
+              returnKeyType="next"
+              blurOnSubmit
+              onSubmitEditing={() => dueDateRef.current?.focus()}
+              size="md"
+              className="min-h-24"
+            />
+          </AppStack>
+
+          <AppStack gap={1}>
+            <AppText
+              size="sm"
+              tone="muted"
+              accessibilityLabel={t('todos.modal.dueDate')}
+            >
+              {t('todos.modal.dueDate')}
+            </AppText>
+            <AppInput
+              ref={dueDateRef}
+              testID="create-todo-due-date"
+              accessibilityLabel={t('todos.modal.dueDate')}
+              placeholder={t('todos.modal.dueDatePlaceholder')}
+              value={dueDate}
+              onChangeText={setDueDate}
+              keyboardType="numbers-and-punctuation"
+              returnKeyType="done"
+              onSubmitEditing={() => {
+                void handleSave()
+              }}
+            />
+          </AppStack>
+
+          <AppStack gap={2}>
+            <View className="flex-row items-center justify-between">
+              <AppText
+                size="sm"
+                tone="muted"
+                accessibilityLabel={t('todos.tagsLabel')}
+              >
+                {t('todos.tagsLabel')}
+              </AppText>
+              {availableTags.length > 0 ? (
+                <AppLinkAction
+                  testID="create-todo-new-tag"
+                  onPress={() => setIsTagFormOpen(true)}
+                  accessibilityLabel={t('todos.modal.newTag')}
+                >
+                  {t('todos.modal.newTag')}
+                </AppLinkAction>
+              ) : null}
+            </View>
+            {availableTags.length === 0 ? (
+              <AppStack
+                gap={3}
+                className="rounded-2xl border border-dashed border-border bg-bg p-4"
+              >
+                <AppText testID="create-todo-empty-tags" size="sm" tone="muted">
+                  {t('todos.modal.noTags')}
+                </AppText>
+                <AppButton
+                  testID="create-todo-create-first-tag"
+                  variant="secondary"
+                  onPress={() => setIsTagFormOpen(true)}
+                  accessibilityLabel={t('todos.modal.createFirstTag')}
+                >
+                  {t('todos.modal.createFirstTag')}
+                </AppButton>
+              </AppStack>
+            ) : (
+              <AppHorizontalScrollArea
+                gap={8}
+                className="flex-row items-center"
+              >
+                {availableTags.map((tag) => {
+                  const selected = selectedTagIds.includes(tag.id)
+                  return (
+                    <AppTagChip
+                      key={tag.id}
+                      testID={`create-todo-tag-${tag.id}`}
+                      name={tag.name}
+                      emoji={tag.emoji}
+                      colorToken={tag.colorToken}
+                      accessibilityLabel={tag.name}
+                      active={selected}
+                      onPress={() => {
+                        setSelectedTagIds((prev) =>
+                          selected
+                            ? prev.filter((id) => id !== tag.id)
+                            : [...prev, tag.id],
+                        )
+                      }}
+                    />
+                  )
+                })}
+              </AppHorizontalScrollArea>
+            )}
+          </AppStack>
+        </AppStack>
+      </ModalFormSheet>
       <TagFormModal
         visible={isTagFormOpen}
         mode="create"
@@ -343,6 +375,6 @@ export function CreateTodoModal() {
         onSubmit={handleCreateTag}
         isPending={createTagMutation.isPending}
       />
-    </Modal>
+    </>
   )
 }
