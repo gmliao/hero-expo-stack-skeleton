@@ -1,5 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native'
 import { SignUpForm } from '@/features/auth/SignUpForm'
+import { router } from 'expo-router'
+
+jest.mock('expo-router', () => ({ router: { push: jest.fn() } }))
 
 const mockFormScreenContainer = jest.fn(
   ({
@@ -93,5 +96,24 @@ describe('SignUpForm', () => {
     fireEvent.press(screen.getByTestId('sign-up-button'))
     expect(await screen.findByTestId('sign-up-error')).toBeOnTheScreen()
     expect(screen.getByText('Email already in use')).toBeOnTheScreen()
+  })
+
+  it('navigates to login when sign-up-link-login is pressed', () => {
+    const onSubmit = jest.fn()
+    render(<SignUpForm onSubmit={onSubmit} />)
+    fireEvent.press(screen.getByTestId('sign-up-link-login'))
+    expect(router.push).toHaveBeenCalledWith('/(auth)/login')
+  })
+
+  it('submits when confirm input triggers submitEditing with valid data', async () => {
+    const onSubmit = jest.fn().mockResolvedValue(undefined)
+    render(<SignUpForm onSubmit={onSubmit} />)
+    fireEvent.changeText(screen.getByTestId('sign-up-email-input'), 'a@b.com')
+    fireEvent.changeText(screen.getByTestId('sign-up-password-input'), 'password1')
+    fireEvent.changeText(screen.getByTestId('sign-up-confirm-input'), 'password1')
+    fireEvent(screen.getByTestId('sign-up-confirm-input'), 'submitEditing')
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith('a@b.com', 'password1')
+    })
   })
 })
