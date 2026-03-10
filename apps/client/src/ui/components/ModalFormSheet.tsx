@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { Keyboard, Modal, Platform, Pressable, ScrollView, View } from 'react-native'
+import { Keyboard, Modal, Platform, Pressable, View } from 'react-native'
 import { KeyboardAwareScrollContainer } from '@/ui/components/KeyboardAwareScrollContainer'
 import { AppSheetHandle } from '@/ui/components/AppSheetHandle'
 import { cn } from '@/ui/utils/cn'
@@ -50,14 +50,9 @@ export function ModalFormSheet({
 
   const body =
     placement === 'center' ? (
-      <ScrollView
-        className="bg-bg"
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
-      >
-        <View className="pb-2">{children}</View>
-      </ScrollView>
+      <KeyboardAwareScrollContainer className="flex-1" contentClassName="pb-2">
+        <View className="flex-1">{children}</View>
+      </KeyboardAwareScrollContainer>
     ) : (
       <KeyboardAwareScrollContainer className="flex-1" contentClassName="pb-2">
         <View className="flex-1">{children}</View>

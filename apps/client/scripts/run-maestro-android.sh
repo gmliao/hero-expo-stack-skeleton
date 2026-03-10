@@ -44,7 +44,13 @@ if [ ! -f "$APK_PATH" ]; then
   exit 1
 fi
 
+# Prefer emulator devices: e2e uses 10.0.2.2 for Auth/Functions; physical devices cannot reach that.
+pick_online_emulator() {
+  adb devices | awk '$2 == "device" && $1 ~ /^emulator-/ { print $1; exit }'
+}
+
 pick_online_device() {
+  # Fallback: any device when explicitly requested via MAESTRO_ANDROID_DEVICE
   adb devices | awk '$2 == "device" { print $1; exit }'
 }
 
@@ -52,7 +58,7 @@ wait_for_online_device() {
   local waited_seconds=0
   while [ "$waited_seconds" -lt "$BOOT_TIMEOUT_SECONDS" ]; do
     local serial
-    serial="$(pick_online_device)"
+    serial="$(pick_online_emulator)"
     if [ -n "$serial" ]; then
       echo "$serial"
       return 0
@@ -63,7 +69,8 @@ wait_for_online_device() {
   return 1
 }
 
-DEVICE_SERIAL="${MAESTRO_ANDROID_DEVICE:-$(pick_online_device)}"
+# Use emulator by default; MAESTRO_ANDROID_DEVICE overrides (e.g. for physical device with port forwarding).
+DEVICE_SERIAL="${MAESTRO_ANDROID_DEVICE:-$(pick_online_emulator)}"
 
 if [ -z "$DEVICE_SERIAL" ]; then
   AVD_NAME="${MAESTRO_ANDROID_AVD:-$(emulator -list-avds | head -n 1)}"
