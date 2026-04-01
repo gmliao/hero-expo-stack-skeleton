@@ -7,6 +7,7 @@ type KeyboardAwareScrollContainerProps = {
   className?: string
   contentClassName?: string
   keyboardVerticalOffset?: number
+  context?: 'screen' | 'modal'
 }
 
 export function KeyboardAwareScrollContainer({
@@ -14,21 +15,30 @@ export function KeyboardAwareScrollContainer({
   className,
   contentClassName,
   keyboardVerticalOffset = 0,
+  context = 'screen',
 }: KeyboardAwareScrollContainerProps) {
+  const scrollView = (
+    <ScrollView
+      className="flex-1 bg-bg"
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+    >
+      <View className={cn('flex-1', contentClassName)}>{children}</View>
+    </ScrollView>
+  )
+
+  if (context === 'modal') {
+    return <View className={cn('flex-1', className)}>{scrollView}</View>
+  }
+
   return (
     <KeyboardAvoidingView
       className={cn('flex-1', className)}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={keyboardVerticalOffset}
     >
-      <ScrollView
-        className="flex-1 bg-bg"
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
-      >
-        <View className={cn('flex-1', contentClassName)}>{children}</View>
-      </ScrollView>
+      {scrollView}
     </KeyboardAvoidingView>
   )
 }

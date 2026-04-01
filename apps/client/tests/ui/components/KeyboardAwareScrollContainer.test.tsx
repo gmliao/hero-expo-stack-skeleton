@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react-native'
-import { KeyboardAvoidingView, Platform, ScrollView, Text } from 'react-native'
+import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native'
 import { KeyboardAwareScrollContainer } from '@/ui/components/KeyboardAwareScrollContainer'
 
 describe('KeyboardAwareScrollContainer', () => {
@@ -54,5 +54,29 @@ describe('KeyboardAwareScrollContainer', () => {
 
     expect(screen.getByTestId('body')).toBeOnTheScreen()
     expect(UNSAFE_getByType(KeyboardAvoidingView).props.behavior).toBeUndefined()
+  })
+
+  describe('context="modal"', () => {
+    it('renders children without KeyboardAvoidingView', () => {
+      const { UNSAFE_queryByType } = render(
+        <KeyboardAwareScrollContainer context="modal">
+          <Text testID="body">Modal body</Text>
+        </KeyboardAwareScrollContainer>,
+      )
+
+      expect(screen.getByTestId('body')).toBeOnTheScreen()
+      expect(UNSAFE_queryByType(KeyboardAvoidingView)).toBeNull()
+    })
+
+    it('still renders ScrollView with handled taps in modal context', () => {
+      const { UNSAFE_getByType } = render(
+        <KeyboardAwareScrollContainer context="modal">
+          <Text>Body</Text>
+        </KeyboardAwareScrollContainer>,
+      )
+
+      const scrollView = UNSAFE_getByType(ScrollView)
+      expect(scrollView.props.keyboardShouldPersistTaps).toBe('handled')
+    })
   })
 })

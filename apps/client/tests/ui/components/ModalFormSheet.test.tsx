@@ -4,18 +4,11 @@ import { ModalFormSheet } from '@/ui/components/ModalFormSheet'
 
 describe('ModalFormSheet', () => {
   const originalOS = Platform.OS
-  const keyboardListeners: Record<string, (() => void) | undefined> = {}
 
   beforeEach(() => {
     jest.clearAllMocks()
-    Object.keys(keyboardListeners).forEach(key => {
-      delete keyboardListeners[key]
-    })
     jest.spyOn(Keyboard, 'dismiss').mockImplementation(jest.fn())
-    jest.spyOn(Keyboard, 'addListener').mockImplementation((event, listener) => {
-      keyboardListeners[event] = listener
-      return { remove: jest.fn() } as any
-    })
+    jest.spyOn(Keyboard, 'isVisible').mockReturnValue(false)
   })
 
   afterEach(() => {
@@ -83,6 +76,7 @@ describe('ModalFormSheet', () => {
     ;(Platform as any).OS = 'ios'
     const onClose = jest.fn()
     const dismissSpy = jest.spyOn(Keyboard, 'dismiss')
+    jest.spyOn(Keyboard, 'isVisible').mockReturnValue(true)
 
     const { UNSAFE_getByType } = render(
       <ModalFormSheet visible onClose={onClose}>
@@ -90,9 +84,6 @@ describe('ModalFormSheet', () => {
       </ModalFormSheet>,
     )
 
-    act(() => {
-      keyboardListeners.keyboardDidShow?.()
-    })
     act(() => {
       UNSAFE_getByType(Modal).props.onRequestClose()
     })
@@ -105,16 +96,14 @@ describe('ModalFormSheet', () => {
     ;(Platform as any).OS = 'ios'
     const onClose = jest.fn()
     const dismissSpy = jest.spyOn(Keyboard, 'dismiss')
+    jest.spyOn(Keyboard, 'isVisible').mockReturnValue(true)
 
-    const { UNSAFE_getByType } = render(
+    render(
       <ModalFormSheet visible onClose={onClose}>
         <Text>Body</Text>
       </ModalFormSheet>,
     )
 
-    act(() => {
-      keyboardListeners.keyboardDidShow?.()
-    })
     fireEvent.press(screen.getByTestId('modal-form-sheet-overlay'))
 
     expect(dismissSpy).toHaveBeenCalled()

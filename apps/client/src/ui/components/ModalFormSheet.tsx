@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Keyboard, Modal, Platform, Pressable, View } from 'react-native'
 import { KeyboardAwareScrollContainer } from '@/ui/components/KeyboardAwareScrollContainer'
 import { AppSheetHandle } from '@/ui/components/AppSheetHandle'
@@ -23,41 +23,19 @@ export function ModalFormSheet({
   testID,
   placement = 'bottom',
 }: ModalFormSheetProps) {
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
-
-  useEffect(() => {
-    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
-      setIsKeyboardVisible(true)
-    })
-    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-      setIsKeyboardVisible(false)
-    })
-
-    return () => {
-      showSubscription.remove()
-      hideSubscription.remove()
-    }
-  }, [])
-
   function handleDismissAttempt() {
-    if (isKeyboardVisible) {
+    if (Keyboard.isVisible()) {
       Keyboard.dismiss()
       return
     }
-
     onClose()
   }
 
-  const body =
-    placement === 'center' ? (
-      <KeyboardAwareScrollContainer className="flex-1" contentClassName="pb-2">
-        <View className="flex-1">{children}</View>
-      </KeyboardAwareScrollContainer>
-    ) : (
-      <KeyboardAwareScrollContainer className="flex-1" contentClassName="pb-2">
-        <View className="flex-1">{children}</View>
-      </KeyboardAwareScrollContainer>
-    )
+  const body = (
+    <KeyboardAwareScrollContainer className="flex-1" contentClassName="pb-2" context="modal">
+      <View className="flex-1">{children}</View>
+    </KeyboardAwareScrollContainer>
+  )
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleDismissAttempt}>
